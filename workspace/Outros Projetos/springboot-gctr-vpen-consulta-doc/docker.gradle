@@ -1,0 +1,63 @@
+task copyJarToDockerFolder {
+    copy {
+        from 'build/libs/' + projectName + '-' + version + '.jar'
+        into 'docker/'
+    }
+}
+
+// Tasks para gerar imagem do docker
+task buildDockerImage(dependsOn: bootJar, type: Exec) {
+    doFirst {
+        copy {
+            from 'build/libs/' + projectName + '-' + version + '.jar'
+            into 'docker/'
+        }
+    }
+
+    executable 'docker'
+    args "build", "docker/", "--build-arg", "JAR_NAME=" + projectName + '-' + version + '.jar', "-t", projectInitials+'/'+projectName
+
+    doLast {
+        delete fileTree('docker') {
+            include '*.jar'
+        }
+    }
+}
+
+
+task runDocker(dependsOn: buildDockerImage, type: Exec) {
+    executable 'docker'
+    args "container", "run", "--rm", "-d", "--env-file", ".env", "-p", "8080:8080", "--name", "crud-functional-test", projectInitials+'/'+projectName
+}
+
+task checkDeployment(group: 'verification') {
+    doFirst {
+        def url = System.getenv("BASE_URI") + ":" + System.getenv("PORT")
+        println "Waiting for ${url} ..."
+        while (!doHead(url)) {
+            sleep(100)
+        }
+        println "${url} is up!"
+    }
+}
+
+boolean doHead(url) {
+    def connection = new URL(url).openConnection()
+    connection.requestMethod = 'HEAD'
+    try {
+        connection.responseCode != null
+    } catch (IOException error) {
+        false
+    }
+}
+
+//checkDeployment.dependsOn runDocker
+//functionalTest.dependsOn checkDeployment
+
+task runFunctionalTest(dependsOn: functionalTest, type: Exec) {
+    executable 'docker'
+    args "stop", projectName
+}
+
+//runFunctionalTest.dependsOn functionalTest
+//build.dependsOn runFunctionalTest

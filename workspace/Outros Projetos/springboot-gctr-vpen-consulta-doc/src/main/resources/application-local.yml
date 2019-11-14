@@ -1,0 +1,20 @@
+spring:
+  profiles: local
+  datasource:
+    url: jdbc:sybase:Tds:ptasybdes15.bvnet.bv:6110/DBPENDENCIA?CHARSET=iso_1
+    username: plat_veiculos
+    password: vebvdes55
+    driver-class-name: com.sybase.jdbc4.jdbc.SybDriver 
+bv:
+  security: #https://confluence.bvnet.bv/pages/viewpage.action?pageId=7344564
+    base: #https://confluence.bvnet.bv/display/ADI/Biblioteca+Base
+      ldap: #https://confluence.bvnet.bv/display/ADI/Biblioteca+LDAP
+        enable: false
+      inmemory: #Propriedades para springboot-arqt-base-security-inmemory
+        users: #user é o atributo que inicia o item da lista
+          - user: user #Username/Login do usuario
+            password: user #Senha do usuario
+            roles: USER #Roles do usuario separados por ";"(ponto e virgula)
+          - user: admin #Username/Login do usuario
+            password: admin #Senha do usuario
+            roles: USER;ADMIN #Roles do usuario separados por ";"(ponto e virgula) - não necessita do prefixo ROLE_

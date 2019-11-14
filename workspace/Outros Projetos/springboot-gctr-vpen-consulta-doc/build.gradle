@@ -1,0 +1,112 @@
+buildscript {
+    dependencies {
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${projectSpringBootVersion}"   		
+        classpath "io.swagger.codegen.v3:swagger-codegen-cli:3.0.3"
+    }
+    repositories {
+        maven { url "https://nexus.bvnet.bv/repository/maven-public/" }
+        mavenLocal()
+    }
+}
+
+plugins {
+    id 'java'
+    id 'eclipse'
+    id 'idea'
+    id 'maven'
+    id 'io.franzbecker.gradle-lombok' version '1.11'
+    id 'org.springframework.boot' version '2.0.0.RELEASE'
+    id 'net.researchgate.release' version '2.7.0'
+    id 'io.spring.dependency-management' version '1.0.5.RELEASE'
+    id 'jacoco'
+    id "org.sonarqube" version "2.6.2"
+}
+
+group = projectGroup
+
+apply from: 'test.gradle'
+apply from: 'docker.gradle'
+apply from: 'release.gradle'
+apply from: 'swagger.gradle'
+
+springBoot {
+    buildInfo {
+        properties {
+            artifact = projectName
+            group = projectGroup
+            name = projectName
+        }
+    }
+}
+
+bootRun {
+    systemProperties = System.properties
+}
+
+sourceCompatibility = projectJavaVersion
+targetCompatibility = projectJavaVersion
+
+lombok {
+    version = "1.16.20"
+    sha256 = "c5178b18caaa1a15e17b99ba5e4023d2de2ebc18b58cde0f5a04ca4b31c10e6d"
+}
+
+//SONAR E JACOCO
+sonarqube {
+    properties {
+        property 'sonar.projectName', projectName
+    }
+}
+
+jacoco {
+    toolVersion = '0.8.1'
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        csv.enabled false
+    }
+}
+
+repositories {
+    maven { url "https://nexus.bvnet.bv/repository/maven-public/" }
+    mavenLocal()
+}
+
+dependencies {
+    compile 'br.com.votorantim.arqt.base:springboot-arqt-base-trilha-auditoria-web:1.1.4'
+    compile "br.com.votorantim.arqt.base:springboot-arqt-base-security-basic:1.2.0"
+    compile "br.com.votorantim.arqt.base:springboot-arqt-base-security:2.0.0"
+    compile 'org.springframework.boot:spring-boot-starter-web'
+    compile 'io.springfox:springfox-swagger2:2.8.0'
+    compile 'io.springfox:springfox-swagger-ui:2.8.0'
+    
+    compile 'br.com.votorantim.arqt.base:springboot-arqt-base-lib-database:0.2.2'
+    compile 'org.springframework.boot:spring-boot-starter-jdbc'
+    compile 'sybase.jconnect:jconn4:7.07-ESD-5'  
+}
+
+compileJava.dependsOn 'clean'
+classes.mustRunAfter 'clean'
+
+sourceSets {
+
+    generated{
+        //java.srcDir "${project.buildDir.path}/build/contract-first/src/main/java/"
+        //java.srcDir "${project.path}/src/swagger/java/contract-first/src/main/java/"
+        java.srcDir "${buildDir}/contract-first/src/main/java/"
+        compileClasspath = main.compileClasspath
+        runtimeClasspath += main.runtimeClasspath
+    }
+    main {
+        compileClasspath += generated.output
+        runtimeClasspath += generated.output
+    }
+    test {
+        compileClasspath += generated.output
+        runtimeClasspath += generated.output
+    }
+}
+
+compileJava.dependsOn generateApi

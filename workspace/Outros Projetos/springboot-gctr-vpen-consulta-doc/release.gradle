@@ -1,0 +1,33 @@
+import java.util.regex.Matcher
+
+release {
+    buildTasks = ['bootJar']
+    preTagCommitMessage = "Prepara para release da versão"
+    tagCommitMessage = "Gera tag da versão"
+    newVersionCommitMessage = "Prepara a próxima versão de desenvolvimento"
+    failOnUnversionedFiles = false
+    failOnCommitNeeded = false
+    versionPatterns = [
+        /(\d+)\.(\d+)\.(\d+)[.]*/: { Matcher m, Project p -> m.replaceAll("${m[0][1]}.${(m[0][2] as int) + 1}.0") }
+    ]
+
+    git {
+        requireBranch = ''
+        commitVersionFileOnly = true
+    }
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: "${nexusUrl}/repository/maven-releases/") {
+                authentication(userName: nexusUsername, password: nexusPassword)
+            }
+            snapshotRepository(url: "${nexusUrl}/repository/maven-snapshots") {
+                authentication(userName: nexusUsername, password: nexusPassword)
+            }
+        }
+    }
+}
+
+afterReleaseBuild.dependsOn uploadArchives

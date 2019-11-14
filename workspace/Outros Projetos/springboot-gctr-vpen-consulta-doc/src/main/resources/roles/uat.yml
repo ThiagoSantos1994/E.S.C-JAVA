@@ -1,0 +1,5 @@
+roles:
+  rolesUsuarioAutenticado:
+    - USER
+  rolesVinculoGrupo:
+    ADMIN: ["GRUPO_ADMIN_UAT"]

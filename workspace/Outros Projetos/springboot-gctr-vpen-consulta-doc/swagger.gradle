@@ -1,0 +1,53 @@
+buildscript {
+    dependencies {
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${projectSpringBootVersion}"
+        classpath "io.swagger.codegen.v3:swagger-codegen-cli:3.0.3"
+    }
+    repositories {
+        maven { url "https://nexus.bvnet.bv/repository/maven-public/" }
+        mavenLocal()
+    }
+}
+
+import io.swagger.codegen.config.CodegenConfigurator
+import io.swagger.codegen.DefaultGenerator
+
+def contractNameFile = '/springboot-gctr-vpen-consulta-doc.yaml' //arquivo yaml feito pela arquitetura de integração
+def swaggerOutputDir = file('build/contract-first') //diretorio onde as classes serão criadas
+def swaggerInputDir = file('src/main/resources/contratos')//diretorio onde deverão ficar os arquivos de configuração
+task generateApi {
+    inputs.file(contractNameFile)
+    outputs.dir(swaggerOutputDir)
+    doLast {
+        def config = new CodegenConfigurator()
+        config.setInputSpec(swaggerInputDir.path + contractNameFile )
+        config.setOutputDir(swaggerOutputDir.path)
+        config.setLang('spring')
+        config.setLibrary('spring-boot')
+        config.setModelNameSuffix("Representation")
+        config.setAdditionalProperties([
+			    'invokerPackage': 'br.com.votorantim.gctr.vpen.consulta.doc', //diretorio raiz
+                'modelPackage'  : 'br.com.votorantim.gctr.vpen.consulta.doc.representation', //diretorio onde serão criado o modelo(representation)
+                'apiPackage'    : 'br.com.votorantim.gctr.vpen.consulta.doc.api', //diretorio das interface API
+                'dateLibrary'   : 'java8',
+                'interfaceOnly' : 'true', //se retirar essa opção é gerado os controllers
+                'delegatePattern': 'true'
+        ])
+        new DefaultGenerator().opts(config.toClientOptInput()).generate()
+    }
+}
+
+clean.doFirst {
+    delete(swaggerOutputDir)
+}
+
+configurations {
+    swagger
+}
+
+sourceSets.main.java.srcDir new File(buildDir, 'contract-first/src/main/java')
+idea {
+    module {
+        generatedSourceDirs += file('contract-first/src/main/java')
+    }
+}

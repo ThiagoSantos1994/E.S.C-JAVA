@@ -1,0 +1,71 @@
+sourceSets {
+    test {
+        java.setSrcDirs(['src/test/unit/java'])
+        resources.setSrcDirs(['src/test/unit/resources'])
+    }
+    integrationTest {
+        java {
+            setSrcDirs(['src/test/integration/java'])
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
+        }
+        resources.setSrcDirs(['src/test/integration/resources'])
+    }
+    functionalTest {
+        java {
+            setSrcDirs(['src/test/functional/java'])
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
+        }
+        resources.setSrcDirs(['src/test/functional/resources'])
+    }
+}
+configurations {
+    integrationTestCompile.extendsFrom testCompile
+    integrationTestRuntime.extendsFrom testRuntime
+}
+
+configurations {
+    functionalTestCompile.extendsFrom testCompile
+    functionalTestRuntime.extendsFrom testRuntime
+}
+
+task integrationTest(type: Test, description: 'Runs the integration tests.', group: 'Verification') {
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    outputs.upToDateWhen { false }
+}
+
+task functionalTest(type: Test, description: 'Runs the functional tests.', group: 'Verification') {
+    testClassesDirs = sourceSets.functionalTest.output.classesDirs
+    classpath = sourceSets.functionalTest.runtimeClasspath
+    outputs.upToDateWhen { false }
+}
+
+idea {
+    module {
+        testSourceDirs += project.sourceSets.integrationTest.java.srcDirs
+        testSourceDirs += project.sourceSets.integrationTest.resources.srcDirs
+        testSourceDirs += project.sourceSets.functionalTest.java.srcDirs
+        testSourceDirs += project.sourceSets.functionalTest.resources.srcDirs
+    }
+}
+
+check.dependsOn integrationTest
+integrationTest.mustRunAfter test
+
+check.dependsOn functionalTest
+functionalTest.mustRunAfter integrationTest
+
+tasks.withType(Test) {
+    reports.html.setDestination(file("${reporting.baseDir}/${name}"))
+
+}
+
+dependencies {
+    testCompile "io.rest-assured:rest-assured:3.0.7"
+    testCompile "org.springframework.boot:spring-boot-starter-test"
+    testCompile("org.springframework.security:spring-security-test")
+    testCompile("com.unboundid:unboundid-ldapsdk")
+}
+

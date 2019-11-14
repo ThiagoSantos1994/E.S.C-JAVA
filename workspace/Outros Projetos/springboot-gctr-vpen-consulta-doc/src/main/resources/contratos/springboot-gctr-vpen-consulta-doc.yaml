@@ -1,0 +1,102 @@
+swagger: "2.0"
+info:
+  description: "Consulta Documento Obrigatorio da Proposta Backend Service"
+  version: 1.0.0
+  title: "Consulta Documento Obrigatorio da Proposta Backend Service"
+host: "springboot-gctr-vpen-Consultar-doc.appdes.bvnet.bv"
+basePath: "/v1/documento/obrigatorio"
+tags:
+  - name: "ConsultarDocumentoObrigatorio"
+    description: "Consultar Documento Obrigatorio da Proposta"
+schemes:
+  - "https"
+paths:
+  /Consultar:
+    post:
+      tags:
+        - "ConsultarDocumentoObrigatorio"
+      operationId: "ConsultarDocumentoObrigatorio"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "ConsultarDocumentoObrigatorio"
+          required: true
+          schema:
+            $ref: "#/definitions/ConsultarDocumentoObrigatorioRequest"
+      responses:
+        "200":
+          description: "Ok"
+          schema:
+            $ref: "#/definitions/ConsultarDocumentoObrigatorioResponse"
+        "400":
+          description: "Bad Request"
+        "401":
+          description: "Unauthorized"
+        "404":
+          description: "Not Found"
+        "500":
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/Erro"
+      security:
+        - basicAuth: []
+securityDefinitions:
+  basicAuth:
+    type: "basic"
+definitions:
+  ConsultarDocumentoObrigatorioRequest:
+    type: "object"
+    properties:
+      codigoProduto:
+        type: "integer"
+        example: 123
+      codigoModalidade:
+        type: "integer"
+        example: 123        
+      codigoTipoPessoa:
+        type: "string"
+        example: "125487"
+      dataProcessamentoProposta:
+        type: "string"
+        example: "2019-08-13"        
+      codigoParceiroComercial:
+        type: "integer"
+        example: 123 
+  ConsultarDocumentoObrigatorioResponse:
+    type: "object"
+    properties:
+      listaDocumento:
+        type: "array"
+        items:
+         $ref: "#/definitions/Documentos"
+  Documentos:
+    type: "object"
+    properties:
+      codigoDocumento:
+        type: "integer"
+        example: 123
+      nomeDocumento:
+        type: "string"
+        example: "descricao"
+      indicadorObrigatoriedade:
+        type: "string"
+        example: true
+      indicadorAtivo:
+        type: "string"
+        example: true
+  Erro:
+    type: "object"
+    properties:
+      code:
+        type: "integer"
+        example: 20
+      correlationId:
+        type: "string"
+        example: "11b31a66-76d1-3a20-9dac-6db59996d5b3"
+      message:
+        type: "string"
+        example: "erro de validacao"

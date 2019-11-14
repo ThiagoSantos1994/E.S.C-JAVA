@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<queries>
+
+    <query name="queryListarDocumentacao">
+        <![CDATA[
+			SELECT TOP 1 CdEstruturaDocumento FROM DBPENDENCIA..TbEstruturaDocumento WHERE CdProduto = 10
+          ]]>
+    </query>
+
+</queries>

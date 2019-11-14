@@ -1,0 +1,23 @@
+spring:
+  profiles:
+      active: local
+  application:
+      name: springboot-gctr-vpen-consulta-doc
+---
+spring:
+    profiles: des,qa,uat,prd
+logging:
+  config: file:/usr/etc/log/logback-spring.xml
+bv:
+  security: #https://confluence.bvnet.bv/pages/viewpage.action?pageId=7344564
+    base:
+      ldap: #https://confluence.bvnet.bv/display/ADI/Biblioteca+LDAP
+        enable: true
+        urls: ${LDAP_SERVER_URLS}
+        user: ${LDAP_SERVER_MANAGER_USERNAME}
+        password: ${LDAP_SERVER_MANAGER_PASSWORD}
+      inmemory: # Usuario mock para testes funcionais
+        users:
+          - user: user
+            password: user
+            roles: USER

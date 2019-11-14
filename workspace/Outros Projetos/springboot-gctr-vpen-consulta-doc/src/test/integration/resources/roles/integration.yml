@@ -1,0 +1,4 @@
+roles:
+  rolesUsuarioAutenticado:
+    - USER
+    - ADMIN
