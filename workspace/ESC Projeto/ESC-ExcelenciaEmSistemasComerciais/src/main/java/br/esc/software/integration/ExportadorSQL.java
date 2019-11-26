@@ -27,12 +27,21 @@ import br.esc.software.domain.TabelasSQL;
 import br.esc.software.global.ObjectUtils;
 
 public class ExportadorSQL {
-	
 	static final String SIGLA_SISTEMICA = "ExportacaoSQL";
 	ExportadorSQLDao dao = new ExportadorSQLDao();
 	ExportadorSQLBusiness montaArquivoExportacao = new ExportadorSQLBusiness();
 	GravarStatusProcessamentoDao status = new GravarStatusProcessamentoDao();
 	
+	/**
+	 * Gera um arquivo SQL com os dados da base de dados
+	 *  
+	 * @param idOrdemExecucao
+	 * @param idFuncionario
+	 * @param idMaquina
+	 * @param linhaComando
+	 * @throws SQLException
+	 * @throws Exception
+	 */
 	public void IniciarProcessamento(String idOrdemExecucao, String idFuncionario, String idMaquina, String linhaComando) throws SQLException, Exception {
 		LogInfo("Inicializando exportação do arquivo SQL");
 		

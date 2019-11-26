@@ -20,6 +20,15 @@ public class BackupSQL {
 	String sBasePrincipal = prop.getProperty("prop.database");
 	boolean bProcessamentoComFalhas = false;
 	
+	/**
+	 * Realiza o backup copiando os dados para uma nova instância da base de dados backup
+	 * 
+	 * @param idOrdemExecucao
+	 * @param idFuncionario
+	 * @param idMaquina
+	 * @param linhaComando
+	 * @throws Exception
+	 */
 	public void IniciarBackup(String idOrdemExecucao, String idFuncionario, String idMaquina, String linhaComando) throws Exception {
 		
 		if (!sqlBackup.abrirConexao()) {
