@@ -1,13 +1,10 @@
-package br.esc.software.global;
+package br.esc.software.commons;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.text.DateFormatSymbols;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Properties;
 
 import org.apache.commons.io.output.FileWriterWithEncoding;
@@ -38,10 +35,13 @@ public class Global {
 	static final Logger logger = LoggerFactory.getLogger(Global.class);
 
 	// Padrões de gravação de status processamento (13/09/2019)
-	public final static String EXECUCAO = "Em Execução";
+	public final static String EXECUTANDO = "Em Execução";
 	public final static String PROCESSANDO = "Processamento em andamento..";
 	public final static String CONCLUIDO = "Processamento Concluido - OK";
+	public final static String CONCLUIDO_FALHA = "Processamento Concluido (Com Falha) - NOK";
 	public final static String ERRO = "Processamento ERRO - NOK";
+	public static int RETORNO_OK = 1;
+	public static int RETORNO_NOK = -1;
 
 	private static final Logger log = LoggerFactory.getLogger(Global.class);
 
@@ -56,11 +56,11 @@ public class Global {
 	public static void LogErro(String sMsgErro) {
 		log.error(sMsgErro);
 	}
-	
+
 	public static void LogErro(String sMsgErro, Exception ex) {
 		log.error(sMsgErro + " " + ex);
 	}
-	
+
 	public static String LerArquivoINI(String sessao, String palavraChave) {
 		try {
 			Ini arquivoINI = new Ini(new File(dirINI));
@@ -69,45 +69,6 @@ public class Global {
 			LogErro("Ocorreu um erro inesperado ao ler o arquivo INI >>> " + e);
 		}
 		return null;
-	}
-
-	public static String DataAtual() {
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-		Date data = new Date(System.currentTimeMillis());
-		return simpleDateFormat.format(data);
-	}
-
-	public static String MesAtual() {
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM");
-		Date data = new Date(System.currentTimeMillis());
-		return simpleDateFormat.format(data);
-	}
-
-	public static String AnoAtual() {
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("YYYY");
-		Date ano = new Date(System.currentTimeMillis());
-		return simpleDateFormat.format(ano);
-	}
-
-	public static String AnoAnterior() {
-		int ano = (Integer.parseInt(AnoAtual()) - 1);
-		return String.valueOf(ano);
-	}
-
-	public static String MesNome(int mes) {
-		String[] months = new DateFormatSymbols().getMonths();
-		if (mes < 13) {
-			int arrayMes = (mes - 1);
-			return months[arrayMes];
-		} else {
-			return "MES INVÁLIDO";
-		}
-	}
-
-	public static String MesNomeAtual() {
-		int mes = (Integer.parseInt(MesAtual()) - 1);
-		String[] months = new DateFormatSymbols().getMonths();
-		return months[mes];
 	}
 
 	public static String Descriptografar(String sTextoCodificado) {

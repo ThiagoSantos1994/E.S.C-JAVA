@@ -1,4 +1,4 @@
-package br.esc.software.global;
+package br.esc.software.commons;
 
 public class ObjectUtils {
 	public static boolean isNull(Object obj) {
@@ -23,13 +23,13 @@ public class ObjectUtils {
 		
 		String texto = "";
 		for (int j = 0; j < i; j++) {
-			texto += "\\n";
+			texto += "\n";
 		}
 		
 		return texto;
 	}
 	
 	public static String pularLinha() {
-		return "\\n";
+		return "\n";
 	}
 }

@@ -1,6 +1,5 @@
 package com.br.esc;
 
-import javax.xml.ws.Endpoint;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -23,10 +22,10 @@ public class WebServiceEscClientesApplication {
 		 */	
 
 		/* Publica o serviço Web SOAP */
-		WebServiceClientes webServiceClientes = new WebServiceClientes();
-		String URL = "http://localhost:8081/clientes";
-		System.out.println("webServicePedidosSoap rodando: " + URL);
-		Endpoint.publish(URL, webServiceClientes);	
+//		WebServiceClientes webServiceClientes = new WebServiceClientes();
+//		String URL = "http://localhost:8081/clientes";
+//		System.out.println("webServicePedidosSoap rodando: " + URL);
+//		Endpoint.publish(URL, webServiceClientes);	
 		
 	}
 

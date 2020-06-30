@@ -1,88 +1,126 @@
 package br.esc.software.integration;
-import static br.esc.software.global.Global.AnoAtual;
-import static br.esc.software.global.Global.CONCLUIDO;
-import static br.esc.software.global.Global.DataAtual;
-import static br.esc.software.global.Global.ERRO;
-import static br.esc.software.global.Global.EXECUCAO;
-import static br.esc.software.global.Global.EscreverArquivoTexto;
-import static br.esc.software.global.Global.ExcluirArquivoTexto;
-import static br.esc.software.global.Global.LogDebug;
-import static br.esc.software.global.Global.LogInfo;
-import static br.esc.software.global.Global.MesNomeAtual;
-import static br.esc.software.global.Global.PROCESSANDO;
 
-/**
- * Implementação do Exportador SQL do sistema, modulo existente na versão VB6.
- * 
- * @author Thiago Santos
- * @since 06/2019
- */
-import java.sql.SQLException;
+import static br.esc.software.commons.Global.CHAR;
+import static br.esc.software.commons.Global.DATE;
+import static br.esc.software.commons.Global.EscreverArquivoTexto;
+import static br.esc.software.commons.Global.VARCHAR;
+
+import java.sql.ResultSet;
 import java.util.ArrayList;
 
-import br.esc.software.business.ExportadorSQLBusiness;
-import br.esc.software.dao.ExportadorSQLDao;
-import br.esc.software.dao.GravarStatusProcessamentoDao;
+import br.esc.software.commons.ObjectUtils;
+import br.esc.software.domain.ColunasSQL;
 import br.esc.software.domain.TabelasSQL;
-import br.esc.software.global.ObjectUtils;
+import br.esc.software.persistence.ExportadorDao;
 
 public class ExportadorSQL {
-	static final String SIGLA_SISTEMICA = "ExportacaoSQL";
-	ExportadorSQLDao dao = new ExportadorSQLDao();
-	ExportadorSQLBusiness montaArquivoExportacao = new ExportadorSQLBusiness();
-	GravarStatusProcessamentoDao status = new GravarStatusProcessamentoDao();
-	
-	/**
-	 * Gera um arquivo SQL com os dados da base de dados
-	 *  
-	 * @param idOrdemExecucao
-	 * @param idFuncionario
-	 * @param idMaquina
-	 * @param linhaComando
-	 * @throws SQLException
-	 * @throws Exception
-	 */
-	public void IniciarProcessamento(String idOrdemExecucao, String idFuncionario, String idMaquina, String linhaComando) throws SQLException, Exception {
-		LogInfo("Inicializando exportação do arquivo SQL");
+	ExportadorDao dao = new ExportadorDao();
+	private StringBuffer escreverArquivo = new StringBuffer();
+	private String pathArquivo;
+
+	public void gerarArquivoExportacao(String sTabela, String sColunas, String sPath) throws Exception {
+		
+		this.pathArquivo = sPath;
 		
 		try {
-			status.InicioProcessamento(idOrdemExecucao, idFuncionario, idMaquina, DataAtual(), SIGLA_SISTEMICA, EXECUCAO, linhaComando, PROCESSANDO);
-			String sDirArquivo = this.nomeArquivo();	
-			
-			ExcluirArquivoTexto(sDirArquivo);
-			
-			this.montaCabecalho();
-			
-			ArrayList<TabelasSQL> tabelasDAO = dao.getListaTabelas();
-			for (TabelasSQL tabelas : tabelasDAO) {
-				String tabelaSQL = tabelas.getNomeTabela();
-				String colunasSQL = dao.montaColunaTabela(tabelaSQL);
-				
-				LogDebug("Montando script da tabela -> " + tabelaSQL);
-				status.AtualizarProcessamento(idOrdemExecucao, idMaquina, EXECUCAO, "Montando script da tabela -> " + tabelaSQL);	
-				montaArquivoExportacao.GerarArquivoExportacao(tabelaSQL, colunasSQL, sDirArquivo);
-			}
-			
-			String sMensagemProcessamento = "Processamento concluído! arquivo disponibilizado em: " + sDirArquivo;
-			status.ConcluirProcessamento(idOrdemExecucao, idMaquina, CONCLUIDO, sMensagemProcessamento, DataAtual());
-		} catch (Exception ex) {
-			String strErro = ("Ocorreu um erro inesperado na classe ExportadorSQL, processamento interrompido -> " + ex);
-			status.ErroProcessamento(idOrdemExecucao, idMaquina, ERRO, strErro, DataAtual());
-			LogInfo(strErro);
-			return;
-		} 
+			this.montaCabecalho(sTabela);
+			this.montaScript(sTabela, sColunas);
+		} catch (Exception e) {
+			throw new Exception("Erro metodo GerarArquivoExportacao ->>> " + e);
+		}
 	}
 
-	private String nomeArquivo() throws SQLException {
-		String nomeArquivo = dao.getDiretorioDestinoArquivo() + "BACKUP_";
-		nomeArquivo = nomeArquivo.concat(MesNomeAtual() + "-" + AnoAtual() + ".SQL");
-		return nomeArquivo.toUpperCase();
+	private void montaCabecalho(String tabela) throws Exception {
+		StringBuffer montaCabecalho = new StringBuffer();
+		montaCabecalho.append(ObjectUtils.pularLinha());
+		montaCabecalho.append("--<Tabela: " + tabela + " >");
+		montaCabecalho.append(ObjectUtils.pularLinha(2));
+		montaCabecalho.append("DELETE FROM " + tabela);
+		montaCabecalho.append(ObjectUtils.pularLinha());
+
+		escreverArquivo.append(montaCabecalho);
+		EscreverArquivoTexto(montaCabecalho, pathArquivo);
 	}
-	
-	private void montaCabecalho() throws Exception {
-		StringBuffer buffer = new StringBuffer();
-		buffer.append("--[EXPORTADOR DE CONFIGURAÇÕES E REGISTROS - PROCESSADO EM " + DataAtual() + " - JAVA" + ObjectUtils.pularLinha());
-		buffer.append(montaArquivoExportacao.MontaScriptImplantacao());
-		EscreverArquivoTexto(buffer, this.nomeArquivo());
+
+	private void montaScript(String tabelaSQL, String colunasSQL) throws Exception {
+		ResultSet RSAdo;
+		int iloop, iColuna = 0;
+		String sTempScript = "";
+		StringBuffer montaScript = new StringBuffer();
+
+		try {
+			ArrayList<String> tipoColuna = new ArrayList<>();
+			for (ColunasSQL colunas : dao.getListaColunas(tabelaSQL)) {
+				tipoColuna.add(colunas.getTipoColuna());
+			}
+
+			RSAdo = dao.executarSelect(tabelaSQL, colunasSQL);
+			while (RSAdo.next()) {
+				iloop = 0;
+				iColuna = 1;
+				montaScript.setLength(0);
+				escreverArquivo.setLength(0);
+
+				montaScript.append("INSERT INTO " + tabelaSQL + "(" + colunasSQL + ") VALUES(");
+
+				while (iColuna <= tipoColuna.size()) {
+					if (tipoColuna.get(iloop).equals(VARCHAR) || tipoColuna.get(iloop).equals(CHAR)
+							|| tipoColuna.get(iloop).equals(DATE)) {
+						if (null == RSAdo.getObject(iColuna)) {
+							montaScript.append("'',");
+						} else {
+							montaScript.append("'" + RSAdo.getObject(iColuna) + "',");
+						}
+					} else {
+						if (null == RSAdo.getObject(iColuna)) {
+							montaScript.append("0,");
+						} else {
+							montaScript.append(RSAdo.getObject(iColuna) + ",");
+						}
+					}
+					iloop++;
+					iColuna++;
+				}
+
+				sTempScript = "";
+				sTempScript = montaScript.substring(0, (montaScript.length() - 1)) + ")";
+				escreverArquivo.append(sTempScript + ObjectUtils.pularLinha());
+				EscreverArquivoTexto(escreverArquivo, pathArquivo);
+			}
+			RSAdo.close();
+		} catch (Exception e) {
+			throw new Exception("Erro metodo MontaScript ->>> " + e);
+		}
+	}
+
+	public StringBuffer montaScriptImplantacao() throws Exception {
+		try {
+			StringBuffer buffer = new StringBuffer();
+			buffer.append(ObjectUtils.pularLinha(2));
+			buffer.append("--SCRIPT DE IMPLANTAÇÃO - SQL SERVER");
+			buffer.append(ObjectUtils.pularLinha() + "/*");
+
+			for (TabelasSQL tabelas : dao.getListaTabelas()) {
+				buffer.append(ObjectUtils.pularLinha());
+				buffer.append("CREATE TABLE " + tabelas.getNomeTabela() + "(");
+
+				String sScriptImplantacao = "";
+				for (ColunasSQL colunasImpl : dao.getListaColunas(tabelas.getNomeTabela())) {
+					sScriptImplantacao = sScriptImplantacao.concat(colunasImpl.getNomeColuna());
+					if (colunasImpl.getTipoColuna().equals(VARCHAR) || colunasImpl.getTipoColuna().equals(CHAR) || colunasImpl.getTipoColuna().equals(DATE)) {
+						sScriptImplantacao = sScriptImplantacao.concat(" " + colunasImpl.getTipoColuna() + "(" + colunasImpl.getTamanhoColuna() + "), ");
+					} else {
+						sScriptImplantacao = sScriptImplantacao.concat(" " + colunasImpl.getTipoColuna() + ", ");
+					}
+				}
+				sScriptImplantacao = sScriptImplantacao
+						.concat(sScriptImplantacao.substring(0, (sScriptImplantacao.length() - 2)) + ")");
+				buffer.append(sScriptImplantacao);
+			}
+			buffer.append("*/" + ObjectUtils.pularLinha());
+			return buffer;
+		} catch (Exception e) {
+			throw new Exception("Erro metodo MontaScriptImplantacao ->>> " + e);
+		}
 	}
 }

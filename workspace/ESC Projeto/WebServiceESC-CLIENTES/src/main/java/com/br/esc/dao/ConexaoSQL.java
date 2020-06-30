@@ -20,8 +20,8 @@ public class ConexaoSQL {
 		Connection con;
 		try {
 			con = DriverManager.getConnection(
-//					"jdbc:sqlserver://localhost:1433;databaseName=bkp_BancoScmThiago;user=sa;password=13509");
-					"jdbc:sqlserver://localhost:1433;databaseName=BancoScmPizzaria;user=sa;password=13509");
+					"jdbc:sqlserver://localhost:1433;databaseName=bkp_BancoScmThiago;user=sa;password=13509");
+//					"jdbc:sqlserver://localhost:1433;databaseName=BancoScmPizzaria;user=sa;password=13509");
 			Statement stmt = con.createStatement();
 			return stmt;
 		} catch (SQLException e) {
