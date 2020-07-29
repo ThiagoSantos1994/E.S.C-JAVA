@@ -26,6 +26,8 @@ public class BackupSQLBusiness {
 
 	public String iniciarBackup() throws ExcecaoGlobal, SQLException {
 		try {
+			sqlBackup.abrirConexaoBackup();
+			
 			for (TabelasSQL tabelaSQL : exportadorDao.getListaTabelas()) {
 				String tabela = tabelaSQL.getNomeTabela();
 
@@ -41,12 +43,13 @@ public class BackupSQLBusiness {
 					LogDebug("Backup realizado com sucesso -> " + tabela);
 				}
 			}
+			
+			sqlBackup.fecharConexaoBackup();
+
 		} catch (Exception ex) {
 			throw new ExcecaoGlobal("Ocorreu uma excessao durante o backup Java -> ", ex);
 		}
 		
-		sqlBackup.fecharConexaoBackup();
-
 		if (bProcessamentoComFalhas) {
 			String sMensagemProcessamentoFalha = "[WARN] Processamento concluido com FALHA! Backup parcial executado com sucesso!";
 			return sMensagemProcessamentoFalha;

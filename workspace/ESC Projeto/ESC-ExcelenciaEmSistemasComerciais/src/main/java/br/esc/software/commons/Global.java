@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.io.BaseEncoding;
 
+import br.esc.software.exceptions.ExcecaoGlobal;
+
 /**
  * Classe global da aplicação, nela deve ser declarada variaveis, metodos,
  * regras de negocio global do sistema
@@ -105,7 +107,7 @@ public class Global {
 		return null;
 	}
 
-	public static boolean EscreverArquivoTexto(StringBuffer texto, String sFile) throws Exception {
+	public boolean EscreverArquivoTexto(StringBuffer texto, String sFile) throws Exception {
 		try {
 			FileWriterWithEncoding fw = new FileWriterWithEncoding(sFile, EncodingDefault, true);
 			fw.write(texto.toString());
@@ -117,13 +119,13 @@ public class Global {
 		}
 	}
 
-	public static void ExcluirArquivoTexto(String sFile) {
+	public static void ExcluirArquivoTexto(String sFile) throws ExcecaoGlobal {
 		try {
-			logger.debug("Excluindo arquivo -> " + sFile);
 			File file = new File(sFile);
 			file.delete();
+			logger.debug("Arquivo -> " + sFile + " Excluido com sucesso...");
 		} catch (Exception e) {
-			LogErro("Erro ao excluir o arquivo do diretorio " + sFile + ". --> " + e);
+			throw new ExcecaoGlobal(e);
 		}
 	}
 }

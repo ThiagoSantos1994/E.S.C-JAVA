@@ -2,12 +2,12 @@ package br.esc.software.integration;
 
 import static br.esc.software.commons.Global.CHAR;
 import static br.esc.software.commons.Global.DATE;
-import static br.esc.software.commons.Global.EscreverArquivoTexto;
 import static br.esc.software.commons.Global.VARCHAR;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
 
+import br.esc.software.commons.Global;
 import br.esc.software.commons.ObjectUtils;
 import br.esc.software.domain.ColunasSQL;
 import br.esc.software.domain.TabelasSQL;
@@ -15,6 +15,7 @@ import br.esc.software.persistence.ExportadorDao;
 
 public class ExportadorSQL {
 	ExportadorDao dao = new ExportadorDao();
+	private Global global = new Global();
 	private StringBuffer escreverArquivo = new StringBuffer();
 	private String pathArquivo;
 
@@ -39,7 +40,7 @@ public class ExportadorSQL {
 		montaCabecalho.append(ObjectUtils.pularLinha());
 
 		escreverArquivo.append(montaCabecalho);
-		EscreverArquivoTexto(montaCabecalho, pathArquivo);
+		global.EscreverArquivoTexto(montaCabecalho, pathArquivo);
 	}
 
 	private void montaScript(String tabelaSQL, String colunasSQL) throws Exception {
@@ -85,7 +86,7 @@ public class ExportadorSQL {
 				sTempScript = "";
 				sTempScript = montaScript.substring(0, (montaScript.length() - 1)) + ")";
 				escreverArquivo.append(sTempScript + ObjectUtils.pularLinha());
-				EscreverArquivoTexto(escreverArquivo, pathArquivo);
+				global.EscreverArquivoTexto(escreverArquivo, pathArquivo);
 			}
 			RSAdo.close();
 		} catch (Exception e) {
@@ -113,8 +114,7 @@ public class ExportadorSQL {
 						sScriptImplantacao = sScriptImplantacao.concat(" " + colunasImpl.getTipoColuna() + ", ");
 					}
 				}
-				sScriptImplantacao = sScriptImplantacao
-						.concat(sScriptImplantacao.substring(0, (sScriptImplantacao.length() - 2)) + ")");
+				sScriptImplantacao = sScriptImplantacao.concat(sScriptImplantacao.substring(0, (sScriptImplantacao.length() - 2)) + ")");
 				buffer.append(sScriptImplantacao);
 			}
 			buffer.append("*/" + ObjectUtils.pularLinha());

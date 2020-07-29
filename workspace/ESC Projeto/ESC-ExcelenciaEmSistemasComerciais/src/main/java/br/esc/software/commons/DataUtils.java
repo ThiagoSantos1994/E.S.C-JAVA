@@ -6,30 +6,30 @@ import java.util.Date;
 
 public class DataUtils {
 
-	public static String DataAtual() {
+	public String DataAtual() {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 		Date data = new Date(System.currentTimeMillis());
 		return simpleDateFormat.format(data);
 	}
 
-	public static String MesAtual() {
+	public String MesAtual() {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM");
 		Date data = new Date(System.currentTimeMillis());
 		return simpleDateFormat.format(data);
 	}
 
-	public static String AnoAtual() {
+	public String AnoAtual() {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("YYYY");
 		Date ano = new Date(System.currentTimeMillis());
 		return simpleDateFormat.format(ano);
 	}
 
-	public static String AnoAnterior() {
+	public String AnoAnterior() {
 		int ano = (Integer.parseInt(AnoAtual()) - 1);
 		return String.valueOf(ano);
 	}
 
-	public static String MesNome(int mes) {
+	public String MesNome(int mes) {
 		String[] months = new DateFormatSymbols().getMonths();
 		if (mes < 13) {
 			int arrayMes = (mes - 1);
@@ -39,7 +39,7 @@ public class DataUtils {
 		}
 	}
 
-	public static String MesNomeAtual() {
+	public String MesNomeAtual() {
 		int mes = (Integer.parseInt(MesAtual()) - 1);
 		String[] months = new DateFormatSymbols().getMonths();
 		return months[mes];

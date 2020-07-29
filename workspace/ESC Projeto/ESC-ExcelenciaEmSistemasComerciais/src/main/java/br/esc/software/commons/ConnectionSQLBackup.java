@@ -1,6 +1,7 @@
 package br.esc.software.commons;
 
 import static br.esc.software.commons.Global.LogErro;
+import static br.esc.software.commons.Global.LogInfo;
 import static br.esc.software.commons.Global.getProperties;
 
 import java.sql.Connection;
@@ -15,36 +16,59 @@ public class ConnectionSQLBackup {
 	private static Connection connection;
 	private static Statement stmt;
 
-	private static String servidor = getProperties().getProperty("prop.server");
-	private static String banco = getProperties().getProperty("prop.databaseBackup");
-	private static String usuario = getProperties().getProperty("prop.user");
-	private static String senha = getProperties().getProperty("prop.password");
+	private static void conectarBaseSQL() throws ExcecaoGlobal {
+		LogInfo("Conectando na base de dados SQL Backup...");
 
-	private void conectarBaseDAO() throws ExcecaoGlobal {
 		try {
-			connection = DriverManager.getConnection("jdbc:sqlserver://" + servidor + ";databaseName=" + banco
-					+ ";user=" + usuario + ";password=" + senha);
+			connection = DriverManager.getConnection(getUriConexao());
 			stmt = connection.createStatement();
+			LogInfo("Conexao realizada com sucesso!");
 		} catch (SQLException e) {
 			throw new ExcecaoGlobal("Erro ao conectar no banco de dados -> ", e);
 		}
 	}
 
+	private static String getUriConexao() {
+		/*
+		 * Obtem os dados de conexao DAO atravez dos parametros configurados no arquivo
+		 * application.properties
+		 */
+		String servidor = getProperties().getProperty("prop.server");
+		String banco = getProperties().getProperty("prop.databaseBackup");
+		String usuario = getProperties().getProperty("prop.user");
+		String senha = getProperties().getProperty("prop.password");
+
+		return "jdbc:sqlserver://" + servidor + ";databaseName=" + banco + ";user=" + usuario + ";password=" + senha;
+	}
+
 	public void abrirConexaoBackup() throws ExcecaoGlobal {
-		this.conectarBaseDAO();
+		if (null == stmt) {
+			conectarBaseSQL();
+		}
 	}
 
-	public void fecharConexaoBackup() throws SQLException {
-		connection.close();
+	public void fecharConexaoBackup() throws ExcecaoGlobal {
+		LogInfo("Fechando conexao...");
+		try {
+			connection.close();
+		} catch (SQLException e) {
+			throw new ExcecaoGlobal("Ocorreu uma falha ao fechar a conexao DAO", e);
+		}
 	}
 
-	public static ResultSet Select_Table(String sSelectTable) {
+	public static ResultSet Select_Table(String sSelectTable) throws ExcecaoGlobal {
 		ResultSet rs;
 		try {
-			rs = stmt.executeQuery(sSelectTable);
-			return rs;
+			if (null == stmt) {
+				conectarBaseSQL();
+			} else {
+				rs = stmt.executeQuery(sSelectTable);
+				return rs;
+			}
 		} catch (SQLException e) {
 			LogErro("Erro ao executar o metodo SELECT_TABLE:", e);
+		} catch (ExcecaoGlobal e) {
+			throw new ExcecaoGlobal(e.getMessage(), e.getCause());
 		}
 		return null;
 	}
@@ -62,6 +86,12 @@ public class ConnectionSQLBackup {
 	}
 
 	private static void ExecuteInstrucoesSQL(String sQueryOperacao) throws SQLException {
-		stmt.executeUpdate(sQueryOperacao);
+		try {
+			LogInfo("ExecuteInstrucoesSQLBackup ->>> " + sQueryOperacao);
+			stmt.executeUpdate(sQueryOperacao);
+		} catch (Exception e) {
+			throw new SQLException("Erro ao executar metodo ExecuteInstrucoesSQLBackup", e);
+		}
+
 	}
 }

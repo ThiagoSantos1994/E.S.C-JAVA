@@ -16,18 +16,11 @@ public class ConnectionSQL {
 	private static Connection connection;
 	private static Statement stmt;
 
-	private static String servidor = getProperties().getProperty("prop.server");
-	private static String banco = getProperties().getProperty("prop.database");
-	private static String usuario = getProperties().getProperty("prop.user");
-	private static String senha = getProperties().getProperty("prop.password");
+	private static void conectarBaseSQL() throws ExcecaoGlobal {
+		LogInfo("Conectando na base de dados SQL...");
 
-	private void conectarBaseDAO() throws ExcecaoGlobal {
 		try {
-			LogInfo("Conectando na base de dados SQL...");
-			
-			connection = DriverManager.getConnection("jdbc:sqlserver://" + servidor + ";databaseName=" + banco
-					+ ";user=" + usuario + ";password=" + senha);
-			
+			connection = DriverManager.getConnection(getUriConexao());
 			stmt = connection.createStatement();
 			LogInfo("Conexao realizada com sucesso!");
 		} catch (SQLException e) {
@@ -35,24 +28,50 @@ public class ConnectionSQL {
 		}
 	}
 
-	public void abrirConexao() throws ExcecaoGlobal, SQLException {
-		if (null == stmt) {
-			this.conectarBaseDAO();
+	private static String getUriConexao() {
+		/*
+		 * Obtem os dados de conexao DAO atravez dos parametros configurados no arquivo
+		 * application.properties
+		 */
+		String servidor = getProperties().getProperty("prop.server");
+		String banco = getProperties().getProperty("prop.database");
+		String usuario = getProperties().getProperty("prop.user");
+		String senha = getProperties().getProperty("prop.password");
+
+		return "jdbc:sqlserver://" + servidor + ";databaseName=" + banco + ";user=" + usuario + ";password=" + senha;
+	}
+
+	public void abrirConexao() throws ExcecaoGlobal {
+		if (null == stmt || null == connection) {
+			conectarBaseSQL();
 		}
 	}
 
-	public void fecharConexao() throws SQLException {
-		LogInfo("Fechando conexao...");
-		connection.close();
-	}
-
-	public static ResultSet Select_Table(String sSelectTable) {
+	//Metodo desativado em 27/07/2020
+	/*	public void fecharConexao() throws ExcecaoGlobal {
+			LogInfo("Fechando conexao...");
+			try {
+				connection.close();
+				stmt.close();
+			} catch (SQLException e) {
+				throw new ExcecaoGlobal("Ocorreu uma falha ao fechar a conexao DAO", e);
+			}
+		}
+	 */
+	
+	public static ResultSet Select_Table(String sSelectTable) throws ExcecaoGlobal {
 		ResultSet rs;
 		try {
-			rs = stmt.executeQuery(sSelectTable);
-			return rs;
+			if (null == stmt) {
+				conectarBaseSQL();
+			} else {
+				rs = stmt.executeQuery(sSelectTable);
+				return rs;
+			}
 		} catch (SQLException e) {
 			LogErro("Erro ao executar o metodo SELECT_TABLE:", e);
+		} catch (ExcecaoGlobal e) {
+			throw new ExcecaoGlobal(e.getMessage(), e.getCause());
 		}
 		return null;
 	}
@@ -70,6 +89,12 @@ public class ConnectionSQL {
 	}
 
 	private static void ExecuteInstrucoesSQL(String sQueryOperacao) throws SQLException {
-		stmt.executeUpdate(sQueryOperacao);
+		try {
+			LogInfo("ExecuteInstrucoesSQL ->>> " + sQueryOperacao);
+			stmt.executeUpdate(sQueryOperacao);
+		} catch (Exception e) {
+			throw new SQLException("Erro ao executar metodo ExecuteInstrucoesSQL", e);
+		}
+
 	}
 }

@@ -8,12 +8,13 @@ import java.util.ArrayList;
 
 import br.esc.software.domain.ColunasSQL;
 import br.esc.software.domain.TabelasSQL;
+import br.esc.software.exceptions.ExcecaoGlobal;
 
 public class ExportadorDao {
 
 	ResultSet RSAdo;
 
-	public ArrayList<TabelasSQL> getListaTabelas() throws SQLException {
+	public ArrayList<TabelasSQL> getListaTabelas() throws SQLException, ExcecaoGlobal {
 		ArrayList<TabelasSQL> listaTabelas = new ArrayList<>();
 
 		RSAdo = Select_Table("SELECT TABLE_NAME FROM information_schema.tables ORDER BY TABLE_NAME");
@@ -26,7 +27,7 @@ public class ExportadorDao {
 		return listaTabelas;
 	}
 	
-	public String getDiretorioDestinoArquivo() throws SQLException {
+	public String getDiretorioDestinoArquivo() throws SQLException, ExcecaoGlobal {
 		String sDiretorio = "";
 		
 		RSAdo = Select_Table("SELECT tp_DiretorioArquivoJava FROM tbd_ConfiguracaoSistema");
@@ -38,7 +39,7 @@ public class ExportadorDao {
 		return sDiretorio;
 	}
 	
-	public ArrayList<ColunasSQL> getListaColunas(String nomeTabela) throws SQLException {
+	public ArrayList<ColunasSQL> getListaColunas(String nomeTabela) throws SQLException, ExcecaoGlobal {
 		ArrayList<ColunasSQL> listaColunas = new ArrayList<>();
 
 		RSAdo = Select_Table("SELECT COLUMN_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH FROM information_schema.COLUMNS WHERE TABLE_NAME = '" + nomeTabela + "' ORDER BY ORDINAL_POSITION");
@@ -53,11 +54,11 @@ public class ExportadorDao {
 		return listaColunas;
 	}
 
-	public ResultSet executarSelect(String tabela, String colunas) throws SQLException {
+	public ResultSet executarSelect(String tabela, String colunas) throws SQLException, ExcecaoGlobal {
 		return RSAdo = Select_Table("SELECT " + colunas + " FROM " + tabela);
 	}
 	
-	public String montaColunaTabela(String nomeTabela) throws SQLException {
+	public String montaColunaTabela(String nomeTabela) throws SQLException, ExcecaoGlobal {
 		String strColunas = "";
 		ArrayList<ColunasSQL> colunasDAO = this.getListaColunas(nomeTabela);
 		for (ColunasSQL colunas : colunasDAO) {
