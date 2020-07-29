@@ -5,3 +5,5 @@
 *.xmi
 *.history
 *.gen
+*.SQL
+*.sql
