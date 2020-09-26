@@ -1,4 +1,4 @@
-package br.esc.software.rs;
+package br.esc.software.rest;
 
 import javax.websocket.server.PathParam;
 

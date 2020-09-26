@@ -1,18 +1,18 @@
-package br.esc.software.persistence;
+package br.esc.software.repository;
 
-import static br.esc.software.commons.ConnectionSQL.Select_Table;
+import static br.esc.software.configuration.ConnectionSQL.Select_Table;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import br.esc.software.commons.ExcecaoGlobal;
 import br.esc.software.domain.ColunasSQL;
 import br.esc.software.domain.TabelasSQL;
-import br.esc.software.exceptions.ExcecaoGlobal;
 
 public class ExportadorDao {
 
-	ResultSet RSAdo;
+	private ResultSet RSAdo;
 
 	public ArrayList<TabelasSQL> getListaTabelas() throws SQLException, ExcecaoGlobal {
 		ArrayList<TabelasSQL> listaTabelas = new ArrayList<>();

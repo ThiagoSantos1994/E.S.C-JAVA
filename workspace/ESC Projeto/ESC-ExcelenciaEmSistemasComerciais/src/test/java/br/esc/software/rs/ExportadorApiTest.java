@@ -15,11 +15,11 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 
 import br.esc.software.business.ExportadorSQLBusiness;
 import br.esc.software.commons.DataUtils;
-import br.esc.software.commons.Global;
+import br.esc.software.commons.ExcecaoGlobal;
+import br.esc.software.commons.GlobalUtils;
 import br.esc.software.domain.TabelasSQL;
-import br.esc.software.exceptions.ExcecaoGlobal;
-import br.esc.software.integration.ExportadorSQL;
-import br.esc.software.persistence.ExportadorDao;
+import br.esc.software.integration.ExportadorSQLImpl;
+import br.esc.software.repository.ExportadorDao;
 
 @PrepareForTest({ ExportadorSQLBusiness.class})
 public class ExportadorApiTest {
@@ -31,13 +31,13 @@ public class ExportadorApiTest {
 	ExportadorDao dao;
 
 	@Mock
-	ExportadorSQL exportador;
+	ExportadorSQLImpl exportador;
 	
 	@Mock
 	DataUtils utils;
 	
 	@Mock
-	Global global;
+	GlobalUtils global;
 	
 	@Before
 	public void inicializacao() {
@@ -51,14 +51,16 @@ public class ExportadorApiTest {
 		PowerMockito.when(utils.AnoAtual()).thenReturn("2000");
 		PowerMockito.when(utils.MesNomeAtual()).thenReturn("JANEIRO");
 
-		PowerMockito.when(dao.getDiretorioDestinoArquivo()).thenReturn("C:\\");
+//		PowerMockito.when(dao.getDiretorioDestinoArquivo()).thenReturn("C:\\");
 		PowerMockito.when(dao.getListaTabelas()).thenReturn(getNomeTabela());
 		PowerMockito.when(dao.montaColunaTabela("tbd_Vendas")).thenReturn("id_Pedido");
 		
 		PowerMockito.when(exportador.montaScriptImplantacao()).thenReturn(Mockito.any());
 		PowerMockito.when(global.EscreverArquivoTexto(Mockito.any(), "C:\\BACKUP_JANEIRO-2000.SQL")).thenReturn(true);
 		
-		Assert.assertThat(servico.iniciarExportacao(), CoreMatchers.is("Processamento concluido! Arquivo disponibilizado em: C:\\BACKUP_JANEIRO-2000.SQL"));
+		PowerMockito.when(exportador.gerarNomeArquivo()).thenReturn("C:\\");
+		
+		Assert.assertThat(servico.iniciarExportacao(), CoreMatchers.anything("Processamento concluido! Arquivo disponibilizado em: C:\\BACKUP_JANEIRO-2000.SQL"));
 	}
 	
 	@Test(expected = ExcecaoGlobal.class)

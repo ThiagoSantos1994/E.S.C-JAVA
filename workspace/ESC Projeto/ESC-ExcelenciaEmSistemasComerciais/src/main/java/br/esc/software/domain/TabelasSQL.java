@@ -1,6 +1,11 @@
 package br.esc.software.domain;
 
-public class TabelasSQL {
+import java.io.Serializable;
+
+public class TabelasSQL implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
 	private String nomeTabela;
 
 	public String getNomeTabela() {
@@ -9,5 +14,10 @@ public class TabelasSQL {
 
 	public void setNomeTabela(String nomeTabela) {
 		this.nomeTabela = nomeTabela;
+	}
+
+	@Override
+	public String toString() {
+		return "TabelasSQL [nomeTabela=" + nomeTabela + "]";
 	}
 }

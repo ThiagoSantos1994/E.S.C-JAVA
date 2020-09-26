@@ -1,6 +1,6 @@
-package br.esc.software.exceptions;
+package br.esc.software.commons;
 
-import static br.esc.software.commons.Global.LogErro;
+import static br.esc.software.commons.GlobalUtils.LogErro;
 
 public class ExcecaoGlobal extends Exception {
 

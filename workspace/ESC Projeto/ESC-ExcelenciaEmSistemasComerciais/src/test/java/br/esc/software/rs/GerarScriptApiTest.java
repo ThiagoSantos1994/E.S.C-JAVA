@@ -13,13 +13,13 @@ import org.powermock.api.mockito.PowerMockito;
 
 import br.esc.software.domain.ColunasSQL;
 import br.esc.software.domain.TabelasSQL;
-import br.esc.software.integration.ExportadorSQL;
-import br.esc.software.persistence.ExportadorDao;
+import br.esc.software.integration.ExportadorSQLImpl;
+import br.esc.software.repository.ExportadorDao;
 
 public class GerarScriptApiTest {
 
 	@InjectMocks
-	ExportadorSQL exportadorSQL;
+	ExportadorSQLImpl exportadorSQL;
 	
 	@Mock
 	ExportadorDao dao;

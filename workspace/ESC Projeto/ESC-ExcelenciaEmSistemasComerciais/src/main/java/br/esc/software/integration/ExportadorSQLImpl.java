@@ -1,24 +1,31 @@
 package br.esc.software.integration;
 
-import static br.esc.software.commons.Global.CHAR;
-import static br.esc.software.commons.Global.DATE;
-import static br.esc.software.commons.Global.VARCHAR;
+import static br.esc.software.commons.GlobalUtils.CHAR;
+import static br.esc.software.commons.GlobalUtils.DATE;
+import static br.esc.software.commons.GlobalUtils.LogInfo;
+import static br.esc.software.commons.GlobalUtils.VARCHAR;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
-import br.esc.software.commons.Global;
+import br.esc.software.commons.DataUtils;
+import br.esc.software.commons.ExcecaoGlobal;
+import br.esc.software.commons.GlobalUtils;
 import br.esc.software.commons.ObjectUtils;
 import br.esc.software.domain.ColunasSQL;
 import br.esc.software.domain.TabelasSQL;
-import br.esc.software.persistence.ExportadorDao;
+import br.esc.software.repository.ExportadorDao;
 
-public class ExportadorSQL {
+public class ExportadorSQLImpl {
+	
 	ExportadorDao dao = new ExportadorDao();
-	private Global global = new Global();
+	GlobalUtils global = new GlobalUtils();
+	DataUtils utils = new DataUtils();
+	
 	private StringBuffer escreverArquivo = new StringBuffer();
 	private String pathArquivo;
-
+	
 	public void gerarArquivoExportacao(String sTabela, String sColunas, String sPath) throws Exception {
 		
 		this.pathArquivo = sPath;
@@ -95,6 +102,8 @@ public class ExportadorSQL {
 	}
 
 	public StringBuffer montaScriptImplantacao() throws Exception {
+		LogInfo("Gerando script de implantação...");
+		
 		try {
 			StringBuffer buffer = new StringBuffer();
 			buffer.append(ObjectUtils.pularLinha(2));
@@ -117,10 +126,30 @@ public class ExportadorSQL {
 				sScriptImplantacao = sScriptImplantacao.concat(sScriptImplantacao.substring(0, (sScriptImplantacao.length() - 2)) + ")");
 				buffer.append(sScriptImplantacao);
 			}
+
 			buffer.append("*/" + ObjectUtils.pularLinha());
+			LogInfo("Script de implantação gerado com sucesso.");
+			
 			return buffer;
 		} catch (Exception e) {
 			throw new Exception("Erro metodo MontaScriptImplantacao ->>> " + e);
 		}
+	}
+	
+	public void montaCabecalho() throws Exception {
+		LogInfo("Montando cabecalho arquivo exportacao...");
+		
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("--[EXPORTADOR DE CONFIGURAÇÕES E REGISTROS - PROCESSADO EM " + utils.DataAtual() + " - JAVA" + ObjectUtils.pularLinha());
+		buffer.append(this.montaScriptImplantacao());
+		
+		global.EscreverArquivoTexto(buffer, this.gerarNomeArquivo());
+		LogInfo("Cabecalho gerado com sucesso.");
+	}
+	
+	public String gerarNomeArquivo() throws SQLException, ExcecaoGlobal {
+		String nomeArquivo = dao.getDiretorioDestinoArquivo();
+		nomeArquivo = nomeArquivo.concat("BACKUP_" + utils.MesNomeAtual() + "-" + utils.AnoAtual() + ".SQL");
+		return nomeArquivo.toUpperCase();
 	}
 }

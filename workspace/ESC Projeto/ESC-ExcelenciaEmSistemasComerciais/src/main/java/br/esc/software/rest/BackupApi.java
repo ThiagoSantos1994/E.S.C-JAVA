@@ -1,6 +1,6 @@
-package br.esc.software.rs;
+package br.esc.software.rest;
 
-import static br.esc.software.commons.Global.LogInfo;
+import static br.esc.software.commons.GlobalUtils.LogInfo;
 
 import java.sql.SQLException;
 
@@ -13,8 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.esc.software.business.BackupSQLBusiness;
-import br.esc.software.commons.ConnectionSQL;
-import br.esc.software.exceptions.ExcecaoGlobal;
+import br.esc.software.commons.ExcecaoGlobal;
+import br.esc.software.configuration.ConnectionSQL;
+import br.esc.software.configuration.ConnectionSQLBackup;
 
 @RestController
 @RequestMapping("/api")
@@ -22,20 +23,33 @@ public class BackupApi {
 
 	@Autowired
 	BackupSQLBusiness backup;
-	ConnectionSQL connection = new ConnectionSQL();
+	
+	private String response = "";
+	private ConnectionSQL connection = new ConnectionSQL();
+	private ConnectionSQLBackup connectionBkp = new ConnectionSQLBackup();
 	
 	@PostMapping(path = "/backup-sql-principal", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<String> iniciarBackup() throws ExcecaoGlobal, SQLException {
 
-		LogInfo("Iniciando o Backup da base Principal SQL");
-
-		connection.abrirConexao();
-
-		String response = backup.iniciarBackup();
+		LogInfo("<<INICIO>> Iniciando Backup SQL");
 		
-		LogInfo("Backup da base Principal SQL realizado com sucesso!");
+		abrirConexao();
 		
+		response = backup.iniciarBackup();
+		
+		fecharConexao();
+		
+		LogInfo("<<FIM>> " + response);
 		return new ResponseEntity<String>(response, HttpStatus.OK);
 	}
-
+	
+	private void abrirConexao() throws ExcecaoGlobal {
+		connection.abrirConexao();
+		connectionBkp.abrirConexao();
+	}
+	
+	private void fecharConexao() throws ExcecaoGlobal {
+		connection.fecharConexao();
+		connectionBkp.fecharConexaoBackup();
+	}
 }

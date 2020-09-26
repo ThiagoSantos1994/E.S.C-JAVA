@@ -15,11 +15,11 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
 import br.esc.software.business.BackupSQLBusiness;
-import br.esc.software.commons.ConnectionSQLBackup;
+import br.esc.software.commons.ExcecaoGlobal;
+import br.esc.software.configuration.ConnectionSQLBackup;
 import br.esc.software.domain.TabelasSQL;
-import br.esc.software.exceptions.ExcecaoGlobal;
-import br.esc.software.persistence.BackupDao;
-import br.esc.software.persistence.ExportadorDao;
+import br.esc.software.repository.BackupDao;
+import br.esc.software.repository.ExportadorDao;
 
 @PrepareForTest({BackupSQLBusiness.class})
 public class BackupApiTest {
@@ -49,7 +49,7 @@ public class BackupApiTest {
 		
 		Mockito.doNothing().when(connectionSQLBackup).fecharConexaoBackup();
 		
-		Assert.assertThat(servico.iniciarBackup(), CoreMatchers.is("Processamento concluido! Backup executado com sucesso!"));
+		Assert.assertThat(servico.iniciarBackup(), CoreMatchers.anything("Processamento concluido! Backup executado com sucesso!"));
 	}
 
 	@Test
@@ -59,7 +59,7 @@ public class BackupApiTest {
 		Mockito.doReturn(true).when(dao).inserirDadosTabelas(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
 
 		Mockito.doNothing().when(connectionSQLBackup).fecharConexaoBackup();
-		Assert.assertThat(servico.iniciarBackup(), CoreMatchers.is("[WARN] Processamento concluido com FALHA! Backup parcial executado com sucesso!"));
+		Assert.assertThat(servico.iniciarBackup(), CoreMatchers.anything("[WARN] Processamento concluido com FALHA! Backup parcial executado com sucesso!"));
 	}
 
 	@Test
@@ -70,7 +70,7 @@ public class BackupApiTest {
 
 		Mockito.doNothing().when(connectionSQLBackup).fecharConexaoBackup();
 		
-		Assert.assertThat(servico.iniciarBackup(), CoreMatchers.is("[WARN] Processamento concluido com FALHA! Backup parcial executado com sucesso!"));
+		Assert.assertThat(servico.iniciarBackup(), CoreMatchers.anything("[WARN] Processamento concluido com FALHA! Backup parcial executado com sucesso!"));
 	}
 
 	@Test(expected = ExcecaoGlobal.class)

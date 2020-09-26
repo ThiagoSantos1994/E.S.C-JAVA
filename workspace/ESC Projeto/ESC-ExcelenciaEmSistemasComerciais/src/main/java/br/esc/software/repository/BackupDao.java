@@ -1,9 +1,12 @@
-package br.esc.software.persistence;
+package br.esc.software.repository;
 
-import static br.esc.software.commons.ConnectionSQLBackup.Delete_Table;
-import static br.esc.software.commons.ConnectionSQLBackup.Insert_Table;
-import static br.esc.software.commons.Global.LogErro;
+import static br.esc.software.commons.GlobalUtils.LogErro;
+import static br.esc.software.configuration.ConnectionSQLBackup.Delete_Table;
+import static br.esc.software.configuration.ConnectionSQLBackup.Insert_Table;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class BackupDao {
 
 	public boolean excluirDadosTabelas(String nomeTabela) {

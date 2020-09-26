@@ -1,33 +1,34 @@
 package br.esc.software.business;
 
-import static br.esc.software.commons.Global.LogDebug;
-import static br.esc.software.commons.Global.getProperties;
+import static br.esc.software.commons.GlobalUtils.LogDebug;
+import static br.esc.software.commons.GlobalUtils.getProperties;
 
 import java.sql.SQLException;
 
 import org.springframework.stereotype.Component;
 
-import br.esc.software.commons.ConnectionSQLBackup;
+import br.esc.software.commons.ExcecaoGlobal;
+import br.esc.software.commons.ObjectParser;
+import br.esc.software.domain.Response;
 import br.esc.software.domain.TabelasSQL;
-import br.esc.software.exceptions.ExcecaoGlobal;
-import br.esc.software.persistence.BackupDao;
-import br.esc.software.persistence.ExportadorDao;
+import br.esc.software.repository.BackupDao;
+import br.esc.software.repository.ExportadorDao;
 
 @Component
 public class BackupSQLBusiness {
-	ConnectionSQLBackup sqlBackup = new ConnectionSQLBackup();
+	
 	ExportadorDao exportadorDao = new ExportadorDao();
 	BackupDao backupDao = new BackupDao();
-
+	ObjectParser parser = new ObjectParser();
+	
 	private String sBaseBackup = getProperties().getProperty("prop.databaseBackup");
 	private String sBasePrincipal = getProperties().getProperty("prop.database");
-
-	boolean bProcessamentoComFalhas = false;
-
+	private boolean bProcessamentoComFalhas = false;
+	
 	public String iniciarBackup() throws ExcecaoGlobal, SQLException {
+		Response response = new Response();
+		
 		try {
-			sqlBackup.abrirConexaoBackup();
-			
 			for (TabelasSQL tabelaSQL : exportadorDao.getListaTabelas()) {
 				String tabela = tabelaSQL.getNomeTabela();
 
@@ -43,19 +44,17 @@ public class BackupSQLBusiness {
 					LogDebug("Backup realizado com sucesso -> " + tabela);
 				}
 			}
-			
-			sqlBackup.fecharConexaoBackup();
-
 		} catch (Exception ex) {
 			throw new ExcecaoGlobal("Ocorreu uma excessao durante o backup Java -> ", ex);
 		}
 		
 		if (bProcessamentoComFalhas) {
-			String sMensagemProcessamentoFalha = "[WARN] Processamento concluido com FALHA! Backup parcial executado com sucesso!";
-			return sMensagemProcessamentoFalha;
+			response.setResponse("[WARN] Processamento concluido com FALHA! Backup parcial executado com sucesso!");
+			return parser.parser(response);
 		} else {
-			String sMensagemProcessamentoOK = "Processamento concluido! Backup executado com sucesso!";
-			return sMensagemProcessamentoOK;
+			response.setResponse("Processamento concluido! Backup executado com sucesso!");
+			return parser.parser(response);
 		}
+		
 	}
 }

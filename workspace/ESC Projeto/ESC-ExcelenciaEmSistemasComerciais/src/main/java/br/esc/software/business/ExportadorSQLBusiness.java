@@ -1,37 +1,43 @@
 package br.esc.software.business;
 
-import static br.esc.software.commons.Global.ExcluirArquivoTexto;
-import static br.esc.software.commons.Global.LogInfo;
+import static br.esc.software.commons.GlobalUtils.ExcluirArquivoTexto;
+import static br.esc.software.commons.GlobalUtils.LogInfo;
 
 import java.sql.SQLException;
 
 import org.springframework.stereotype.Component;
 
 import br.esc.software.commons.DataUtils;
-import br.esc.software.commons.Global;
-import br.esc.software.commons.ObjectUtils;
+import br.esc.software.commons.ExcecaoGlobal;
+import br.esc.software.commons.GlobalUtils;
+import br.esc.software.commons.ObjectParser;
+import br.esc.software.domain.Response;
 import br.esc.software.domain.TabelasSQL;
-import br.esc.software.exceptions.ExcecaoGlobal;
-import br.esc.software.integration.ExportadorSQL;
-import br.esc.software.persistence.ExportadorDao;
+import br.esc.software.integration.ExportadorSQLImpl;
+import br.esc.software.repository.ExportadorDao;
 
 @Component
 public class ExportadorSQLBusiness {
 
-	ExportadorSQL exportador = new ExportadorSQL();
-	DataUtils utils = new DataUtils();
-	Global global = new Global();
+	GlobalUtils global = new GlobalUtils();
+	
 	ExportadorDao dao = new ExportadorDao();
+	ExportadorSQLImpl exportador = new ExportadorSQLImpl();
+	
+	DataUtils utils = new DataUtils();
+	ObjectParser parser = new ObjectParser();
 	
 	private String sDirArquivo = "";
+
 	public String iniciarExportacao() throws ExcecaoGlobal {
-
+		Response response = new Response();
+		
 		try {
-			sDirArquivo = this.nomeArquivo();
-
+			sDirArquivo = this.getNomeArquivo();
+			
 			ExcluirArquivoTexto(sDirArquivo);
-
-			this.montaCabecalho();
+			
+			exportador.montaCabecalho();
 
 			for (TabelasSQL tabelas : dao.getListaTabelas()) {
 				String tabelaSQL = tabelas.getNomeTabela();
@@ -41,27 +47,23 @@ public class ExportadorSQLBusiness {
 				exportador.gerarArquivoExportacao(tabelaSQL, colunasSQL, sDirArquivo);
 			}
 			
-			String strConcluido = "Processamento concluido! Arquivo disponibilizado em: " + sDirArquivo;
-			LogInfo(strConcluido);
-			
-			return strConcluido;
+			response.setResponse("Processamento concluido! Arquivo disponibilizado em: " + sDirArquivo);
+			LogInfo(response.getResponse());
+
+			return parser.parser(response);
 		} catch (Exception ex) {
 			String strErro = ("Ocorreu um erro inesperado na classe ExportadorSQL, processamento interrompido -> " + ex);
 			throw new ExcecaoGlobal(strErro, ex);
 		}
 	}
-
-	private String nomeArquivo() throws SQLException, ExcecaoGlobal {
-		String nomeArquivo = dao.getDiretorioDestinoArquivo() + "BACKUP_";
-		nomeArquivo = nomeArquivo.concat(utils.MesNomeAtual() + "-" + utils.AnoAtual() + ".SQL");
-		return nomeArquivo.toUpperCase();
-	}
-
-	private void montaCabecalho() throws Exception {
-		StringBuffer buffer = new StringBuffer();
-		buffer.append("--[EXPORTADOR DE CONFIGURAÇÕES E REGISTROS - PROCESSADO EM " + utils.DataAtual() + " - JAVA" + ObjectUtils.pularLinha());
-		buffer.append(exportador.montaScriptImplantacao());
-		global.EscreverArquivoTexto(buffer, sDirArquivo);
-	}
 	
+	private String getNomeArquivo() throws SQLException, ExcecaoGlobal {
+		LogInfo("Obtendo diretorio e nome do arquivo...");
+		
+		String diretorio = exportador.gerarNomeArquivo();
+		
+		LogInfo("Diretorio: " + diretorio);
+		
+		return diretorio;
+	}
 }

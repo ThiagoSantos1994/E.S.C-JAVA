@@ -14,8 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.io.BaseEncoding;
 
-import br.esc.software.exceptions.ExcecaoGlobal;
-
 /**
  * Classe global da aplicação, nela deve ser declarada variaveis, metodos,
  * regras de negocio global do sistema
@@ -25,7 +23,7 @@ import br.esc.software.exceptions.ExcecaoGlobal;
  * @since: 06/2019
  */
 
-public class Global {
+public class GlobalUtils {
 	/*
 	 * Variaveis globais\ENUM\Referencias
 	 */
@@ -34,7 +32,7 @@ public class Global {
 	public final static String DATE = "DATE";
 	public final static String EncodingDefault = "UTF-8";
 	private final static String dirINI = "C:\\WINDOWS\\INI_JAVA.ini";
-	static final Logger logger = LoggerFactory.getLogger(Global.class);
+	static final Logger logger = LoggerFactory.getLogger(GlobalUtils.class);
 
 	// Padrões de gravação de status processamento (13/09/2019)
 	public final static String EXECUTANDO = "Em Execução";
@@ -45,7 +43,7 @@ public class Global {
 	public static int RETORNO_OK = 1;
 	public static int RETORNO_NOK = -1;
 
-	private static final Logger log = LoggerFactory.getLogger(Global.class);
+	private static final Logger log = LoggerFactory.getLogger(GlobalUtils.class);
 
 	public static void LogDebug(String sMsgLog) {
 		log.debug(sMsgLog);

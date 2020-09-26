@@ -15,6 +15,8 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.rule.PowerMockRule;
 import org.powermock.reflect.Whitebox;
 
+import br.esc.software.configuration.ConnectionSQL;
+
 @PrepareForTest({ ConnectionSQL.class, ConnectionSQLTest.class })
 public class ConnectionSQLTest {
 

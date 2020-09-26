@@ -1,6 +1,11 @@
 package br.esc.software.domain;
 
-public class ColunasSQL {
+import java.io.Serializable;
+
+public class ColunasSQL implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
+
 	private String nomeColuna;
 	private String tipoColuna;
 	private String tamanhoColuna;
@@ -27,6 +32,12 @@ public class ColunasSQL {
 
 	public void setTamanhoColuna(String tamanhoColuna) {
 		this.tamanhoColuna = tamanhoColuna;
+	}
+
+	@Override
+	public String toString() {
+		return "ColunasSQL [nomeColuna=" + nomeColuna + ", tipoColuna=" + tipoColuna + ", tamanhoColuna="
+				+ tamanhoColuna + "]";
 	}
 
 }
