@@ -1,4 +1,4 @@
-package br.esc.software.rest;
+package br.esc.software.rs;
 
 import java.util.ArrayList;
 

@@ -22,7 +22,7 @@ public class ConsultaCEPApi {
 	ConsultaCEPBusiness business;
 	
 	@GetMapping(path = "/consulta-cep/{cep}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<String> consultarCep(@PathVariable("cep") String cep) throws ExcecaoGlobal {
+	public ResponseEntity<String> iniciarBackup(@PathVariable("cep") String cep) throws ExcecaoGlobal {
 
 		LogInfo("<<INICIO>> Iniciando consulta cep API viacep");
 
