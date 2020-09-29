@@ -1,6 +1,7 @@
 package br.esc.software.business;
 
 import static br.esc.software.commons.GlobalUtils.LogDebug;
+import static br.esc.software.commons.GlobalUtils.LogInfo;
 import static br.esc.software.commons.GlobalUtils.getProperties;
 
 import java.sql.SQLException;
@@ -47,6 +48,8 @@ public class BackupSQLBusiness {
 		} catch (Exception ex) {
 			throw new ExcecaoGlobal("Ocorreu uma excessao durante o backup Java -> ", ex);
 		}
+		
+		LogInfo("Stts processamento : Processamento com falha = " + bProcessamentoComFalhas);
 		
 		if (bProcessamentoComFalhas) {
 			response.setResponse("[WARN] Processamento concluido com FALHA! Backup parcial executado com sucesso!");
