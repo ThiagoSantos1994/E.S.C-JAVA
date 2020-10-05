@@ -11,20 +11,20 @@ import org.mockito.Spy;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
-import br.esc.software.business.ConsultaCEPBusiness;
+import br.esc.software.business.ApisExternasBusiness;
 import br.esc.software.commons.ExcecaoGlobal;
 
-@PrepareForTest({ ConsultaCEPApi.class })
+@PrepareForTest({ ApisExternasApi.class })
 public class ConsultaCEPApiTest {
 
 	@InjectMocks
-	ConsultaCEPApi api;
+	ApisExternasApi api;
 
 	@Mock
-	ConsultaCEPBusiness business;
+	ApisExternasBusiness business;
 	
 	@Spy
-	ConsultaCEPBusiness spyBusiness;
+	ApisExternasBusiness spyBusiness;
 	
 	@Before
 	public void doInit() {

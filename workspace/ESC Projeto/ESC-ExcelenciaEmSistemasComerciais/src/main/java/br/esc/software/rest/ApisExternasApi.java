@@ -11,15 +11,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.esc.software.business.ConsultaCEPBusiness;
+import br.esc.software.business.ApisExternasBusiness;
 import br.esc.software.commons.ExcecaoGlobal;
 
 @RestController
 @RequestMapping("/api")
-public class ConsultaCEPApi {
+public class ApisExternasApi {
 	
 	@Autowired
-	ConsultaCEPBusiness business;
+	ApisExternasBusiness business;
 	
 	@GetMapping(path = "/consulta-cep/{cep}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<String> consultarCep(@PathVariable("cep") String cep) throws ExcecaoGlobal {
@@ -31,5 +31,17 @@ public class ConsultaCEPApi {
 		LogInfo("<<FIM>> " + response);
 		
 		return new ResponseEntity<String>(response.replace("\\u003d", ""), HttpStatus.OK);
+	}
+	
+	@GetMapping(path = "/consulta-previsao-tempo", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<String> consultarPrevisao() throws ExcecaoGlobal {
+
+		LogInfo("<<INICIO>> Iniciando consulta previsão tempo API via hgbrasil");
+
+		String response = business.obtemPrevisaoTempo();
+		
+		LogInfo("<<FIM>> " + response);
+		
+		return new ResponseEntity<String>(response, HttpStatus.OK);
 	}
 }
