@@ -9,6 +9,7 @@ import br.esc.software.commons.ExcecaoGlobal;
 import br.esc.software.commons.ObjectParser;
 import br.esc.software.domain.CepMapper;
 import br.esc.software.domain.PrevisaoTempoMapper;
+import br.esc.software.domain.Response;
 
 @Component
 public class ApisExternasImpl {
@@ -23,21 +24,34 @@ public class ApisExternasImpl {
 
 		String response = objectParser.parser(restTemplate.getForObject(URL_CEP, CepMapper.class));
 
-		LogInfo("Response API: " + response);
+		LogInfo("Response API: " + response.toString());
 
 		return response;
 	}
-	
-	public PrevisaoTempoMapper consultaPrevisaoTempo() {
-		/*Woeid Caieiras*/
+
+	public String consultaPrevisaoTempo() {
+		/* Woeid Caieiras */
 		String URL_PREVISAO = "https://api.hgbrasil.com/weather?woeid=426987";
-		
+
 		LogInfo("Realizando chamada API " + URL_PREVISAO);
 
 		PrevisaoTempoMapper response = restTemplate.getForObject(URL_PREVISAO, PrevisaoTempoMapper.class);
 
-		LogInfo("Response API: " + response);
+		LogInfo("Response API: " + response.toString());
 
-		return response;
+		return this.parserPrevisaoTempo(response);
+	}
+
+	private String parserPrevisaoTempo(PrevisaoTempoMapper response) {
+		LogInfo("Realizando o parser response PrevisaoTempoAPI");
+
+		String parserResponse = response.getResults().getCity_name() + " - Máx: "
+				+ response.getResults().getForecast().get(0).getMax() + "º - Min: "
+				+ response.getResults().getForecast().get(0).getMin() + "º";
+
+		Response resp = new Response();
+		resp.setResponse(parserResponse);
+
+		return objectParser.parser(resp);
 	}
 }

@@ -58,6 +58,7 @@ public class GlobalUtils {
 	}
 
 	public static void LogErro(String sMsgErro, Exception ex) {
+		ex.printStackTrace();
 		log.error(sMsgErro + " " + ex);
 	}
 
