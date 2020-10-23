@@ -1,4 +1,4 @@
-package br.esc.software.rest;
+package br.esc.software.restservice;
 
 import static br.esc.software.commons.GlobalUtils.LogInfo;
 

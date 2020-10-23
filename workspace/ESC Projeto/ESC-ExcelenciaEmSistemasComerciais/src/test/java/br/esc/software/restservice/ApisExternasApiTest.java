@@ -1,20 +1,15 @@
-package br.esc.software.rest;
+package br.esc.software.restservice;
 
+import br.esc.software.business.ApisExternasBusiness;
+import br.esc.software.commons.ExcecaoGlobal;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
+import org.mockito.*;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.http.ResponseEntity;
-
-import br.esc.software.business.ApisExternasBusiness;
-import br.esc.software.commons.ExcecaoGlobal;
 
 @PrepareForTest({ ApisExternasApi.class })
 public class ApisExternasApiTest {

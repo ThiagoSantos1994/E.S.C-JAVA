@@ -1,4 +1,4 @@
-package br.esc.software.rest;
+package br.esc.software.restservice;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
