@@ -1,155 +1,152 @@
 package br.esc.software.integration;
 
-import static br.esc.software.commons.GlobalUtils.CHAR;
-import static br.esc.software.commons.GlobalUtils.DATE;
-import static br.esc.software.commons.GlobalUtils.LogInfo;
-import static br.esc.software.commons.GlobalUtils.VARCHAR;
+import br.esc.software.commons.exceptions.ExcecaoGlobal;
+import br.esc.software.commons.utils.DataUtils;
+import br.esc.software.commons.utils.GlobalUtils;
+import br.esc.software.commons.utils.ObjectUtils;
+import br.esc.software.domain.exportador.ColunasSQL;
+import br.esc.software.domain.exportador.TabelasSQL;
+import br.esc.software.repository.exportador.ExportadorDao;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import br.esc.software.commons.DataUtils;
-import br.esc.software.commons.ExcecaoGlobal;
-import br.esc.software.commons.GlobalUtils;
-import br.esc.software.commons.ObjectUtils;
-import br.esc.software.domain.ColunasSQL;
-import br.esc.software.domain.TabelasSQL;
-import br.esc.software.repository.ExportadorDao;
+import static br.esc.software.commons.utils.GlobalUtils.*;
 
 public class ExportadorSQLImpl {
-	
-	ExportadorDao dao = new ExportadorDao();
-	GlobalUtils global = new GlobalUtils();
-	DataUtils utils = new DataUtils();
-	
-	private StringBuffer escreverArquivo = new StringBuffer();
-	private String pathArquivo;
-	
-	public void gerarArquivoExportacao(String sTabela, String sColunas, String sPath) throws Exception {
-		
-		this.pathArquivo = sPath;
-		
-		try {
-			this.montaCabecalho(sTabela);
-			this.montaScript(sTabela, sColunas);
-		} catch (Exception e) {
-			throw new Exception("Erro metodo GerarArquivoExportacao ->>> " + e);
-		}
-	}
 
-	private void montaCabecalho(String tabela) throws Exception {
-		StringBuffer montaCabecalho = new StringBuffer();
-		montaCabecalho.append(ObjectUtils.pularLinha());
-		montaCabecalho.append("--<Tabela: " + tabela + " >");
-		montaCabecalho.append(ObjectUtils.pularLinha(2));
-		montaCabecalho.append("DELETE FROM " + tabela);
-		montaCabecalho.append(ObjectUtils.pularLinha());
+    ExportadorDao dao = new ExportadorDao();
+    GlobalUtils global = new GlobalUtils();
+    DataUtils utils = new DataUtils();
 
-		escreverArquivo.append(montaCabecalho);
-		global.EscreverArquivoTexto(montaCabecalho, pathArquivo);
-	}
+    private StringBuffer escreverArquivo = new StringBuffer();
+    private String pathArquivo;
 
-	private void montaScript(String tabelaSQL, String colunasSQL) throws Exception {
-		ResultSet RSAdo;
-		int iloop, iColuna = 0;
-		String sTempScript = "";
-		StringBuffer montaScript = new StringBuffer();
+    public void gerarArquivoExportacao(String sTabela, String sColunas, String sPath) throws Exception {
 
-		try {
-			ArrayList<String> tipoColuna = new ArrayList<>();
-			for (ColunasSQL colunas : dao.getListaColunas(tabelaSQL)) {
-				tipoColuna.add(colunas.getTipoColuna());
-			}
+        this.pathArquivo = sPath;
 
-			RSAdo = dao.executarSelect(tabelaSQL, colunasSQL);
-			while (RSAdo.next()) {
-				iloop = 0;
-				iColuna = 1;
-				montaScript.setLength(0);
-				escreverArquivo.setLength(0);
+        try {
+            this.montaCabecalho(sTabela);
+            this.montaScript(sTabela, sColunas);
+        } catch (Exception e) {
+            throw new Exception("Erro metodo GerarArquivoExportacao ->>> " + e);
+        }
+    }
 
-				montaScript.append("INSERT INTO " + tabelaSQL + "(" + colunasSQL + ") VALUES(");
+    private void montaCabecalho(String tabela) throws Exception {
+        StringBuffer montaCabecalho = new StringBuffer();
+        montaCabecalho.append(ObjectUtils.pularLinha());
+        montaCabecalho.append("--<Tabela: " + tabela + " >");
+        montaCabecalho.append(ObjectUtils.pularLinha(2));
+        montaCabecalho.append("DELETE FROM " + tabela);
+        montaCabecalho.append(ObjectUtils.pularLinha());
 
-				while (iColuna <= tipoColuna.size()) {
-					if (tipoColuna.get(iloop).equals(VARCHAR) || tipoColuna.get(iloop).equals(CHAR)
-							|| tipoColuna.get(iloop).equals(DATE)) {
-						if (null == RSAdo.getObject(iColuna)) {
-							montaScript.append("'',");
-						} else {
-							montaScript.append("'" + RSAdo.getObject(iColuna) + "',");
-						}
-					} else {
-						if (null == RSAdo.getObject(iColuna)) {
-							montaScript.append("0,");
-						} else {
-							montaScript.append(RSAdo.getObject(iColuna) + ",");
-						}
-					}
-					iloop++;
-					iColuna++;
-				}
+        escreverArquivo.append(montaCabecalho);
+        global.EscreverArquivoTexto(montaCabecalho, pathArquivo);
+    }
 
-				sTempScript = "";
-				sTempScript = montaScript.substring(0, (montaScript.length() - 1)) + ")";
-				escreverArquivo.append(sTempScript + ObjectUtils.pularLinha());
-				global.EscreverArquivoTexto(escreverArquivo, pathArquivo);
-			}
-			RSAdo.close();
-		} catch (Exception e) {
-			throw new Exception("Erro metodo MontaScript ->>> " + e);
-		}
-	}
+    private void montaScript(String tabelaSQL, String colunasSQL) throws Exception {
+        ResultSet RSAdo;
+        int iloop, iColuna = 0;
+        String sTempScript = "";
+        StringBuffer montaScript = new StringBuffer();
 
-	public StringBuffer montaScriptImplantacao() throws Exception {
-		LogInfo("Gerando script de implantação...");
-		
-		try {
-			StringBuffer buffer = new StringBuffer();
-			buffer.append(ObjectUtils.pularLinha(2));
-			buffer.append("--SCRIPT DE IMPLANTAÇÃO - SQL SERVER");
-			buffer.append(ObjectUtils.pularLinha() + "/*");
+        try {
+            ArrayList<String> tipoColuna = new ArrayList<>();
+            for (ColunasSQL colunas : dao.getListaColunas(tabelaSQL)) {
+                tipoColuna.add(colunas.getTipoColuna());
+            }
 
-			for (TabelasSQL tabelas : dao.getListaTabelas()) {
-				buffer.append(ObjectUtils.pularLinha());
-				buffer.append("CREATE TABLE " + tabelas.getNomeTabela() + "(");
+            RSAdo = dao.executarSelect(tabelaSQL, colunasSQL);
+            while (RSAdo.next()) {
+                iloop = 0;
+                iColuna = 1;
+                montaScript.setLength(0);
+                escreverArquivo.setLength(0);
 
-				String sScriptImplantacao = "";
-				for (ColunasSQL colunasImpl : dao.getListaColunas(tabelas.getNomeTabela())) {
-					sScriptImplantacao = sScriptImplantacao.concat(colunasImpl.getNomeColuna());
-					if (colunasImpl.getTipoColuna().equals(VARCHAR) || colunasImpl.getTipoColuna().equals(CHAR) || colunasImpl.getTipoColuna().equals(DATE)) {
-						sScriptImplantacao = sScriptImplantacao.concat(" " + colunasImpl.getTipoColuna() + "(" + colunasImpl.getTamanhoColuna() + "), ");
-					} else {
-						sScriptImplantacao = sScriptImplantacao.concat(" " + colunasImpl.getTipoColuna() + ", ");
-					}
-				}
-				sScriptImplantacao = sScriptImplantacao.concat(sScriptImplantacao.substring(0, (sScriptImplantacao.length() - 2)) + ")");
-				buffer.append(sScriptImplantacao);
-			}
+                montaScript.append("INSERT INTO " + tabelaSQL + "(" + colunasSQL + ") VALUES(");
 
-			buffer.append("*/" + ObjectUtils.pularLinha());
-			LogInfo("Script de implantação gerado com sucesso.");
-			
-			return buffer;
-		} catch (Exception e) {
-			throw new Exception("Erro metodo MontaScriptImplantacao ->>> " + e);
-		}
-	}
-	
-	public void montaCabecalho() throws Exception {
-		LogInfo("Montando cabecalho arquivo exportacao...");
-		
-		StringBuffer buffer = new StringBuffer();
-		buffer.append("--[EXPORTADOR DE CONFIGURAÇÕES E REGISTROS - PROCESSADO EM " + utils.DataAtual() + " - JAVA" + ObjectUtils.pularLinha());
-		buffer.append(this.montaScriptImplantacao());
-		
-		global.EscreverArquivoTexto(buffer, this.gerarNomeArquivo());
-		LogInfo("Cabecalho gerado com sucesso.");
-	}
-	
-	public String gerarNomeArquivo() throws SQLException, ExcecaoGlobal {
-		String nomeArquivo = dao.getDiretorioDestinoArquivo();
-		nomeArquivo = nomeArquivo.concat("BACKUP_" + utils.MesNomeAtual() + "-" + utils.AnoAtual() + ".SQL");
-		return nomeArquivo.toUpperCase();
-	}
+                while (iColuna <= tipoColuna.size()) {
+                    if (tipoColuna.get(iloop).equals(VARCHAR) || tipoColuna.get(iloop).equals(CHAR)
+                            || tipoColuna.get(iloop).equals(DATE)) {
+                        if (null == RSAdo.getObject(iColuna)) {
+                            montaScript.append("'',");
+                        } else {
+                            montaScript.append("'" + RSAdo.getObject(iColuna) + "',");
+                        }
+                    } else {
+                        if (null == RSAdo.getObject(iColuna)) {
+                            montaScript.append("0,");
+                        } else {
+                            montaScript.append(RSAdo.getObject(iColuna) + ",");
+                        }
+                    }
+                    iloop++;
+                    iColuna++;
+                }
+
+                sTempScript = "";
+                sTempScript = montaScript.substring(0, (montaScript.length() - 1)) + ")";
+                escreverArquivo.append(sTempScript + ObjectUtils.pularLinha());
+                global.EscreverArquivoTexto(escreverArquivo, pathArquivo);
+            }
+            RSAdo.close();
+        } catch (Exception e) {
+            throw new Exception("Erro metodo MontaScript ->>> " + e);
+        }
+    }
+
+    public StringBuffer montaScriptImplantacao() throws Exception {
+        LogInfo("Gerando script de implantação...");
+
+        try {
+            StringBuffer buffer = new StringBuffer();
+            buffer.append(ObjectUtils.pularLinha(2));
+            buffer.append("--SCRIPT DE IMPLANTAÇÃO - SQL SERVER");
+            buffer.append(ObjectUtils.pularLinha() + "/*");
+
+            for (TabelasSQL tabelas : dao.getListaTabelas()) {
+                buffer.append(ObjectUtils.pularLinha());
+                buffer.append("CREATE TABLE " + tabelas.getNomeTabela() + "(");
+
+                String sScriptImplantacao = "";
+                for (ColunasSQL colunasImpl : dao.getListaColunas(tabelas.getNomeTabela())) {
+                    sScriptImplantacao = sScriptImplantacao.concat(colunasImpl.getNomeColuna());
+                    if (colunasImpl.getTipoColuna().equals(VARCHAR) || colunasImpl.getTipoColuna().equals(CHAR) || colunasImpl.getTipoColuna().equals(DATE)) {
+                        sScriptImplantacao = sScriptImplantacao.concat(" " + colunasImpl.getTipoColuna() + "(" + colunasImpl.getTamanhoColuna() + "), ");
+                    } else {
+                        sScriptImplantacao = sScriptImplantacao.concat(" " + colunasImpl.getTipoColuna() + ", ");
+                    }
+                }
+                sScriptImplantacao = sScriptImplantacao.concat(sScriptImplantacao.substring(0, (sScriptImplantacao.length() - 2)) + ")");
+                buffer.append(sScriptImplantacao);
+            }
+
+            buffer.append("*/" + ObjectUtils.pularLinha());
+            LogInfo("Script de implantação gerado com sucesso.");
+
+            return buffer;
+        } catch (Exception e) {
+            throw new Exception("Erro metodo MontaScriptImplantacao ->>> " + e);
+        }
+    }
+
+    public void montaCabecalho() throws Exception {
+        LogInfo("Montando cabecalho arquivo exportacao...");
+
+        StringBuffer buffer = new StringBuffer();
+        buffer.append("--[EXPORTADOR DE CONFIGURAÇÕES E REGISTROS - PROCESSADO EM " + utils.DataAtual() + " - JAVA" + ObjectUtils.pularLinha());
+        buffer.append(this.montaScriptImplantacao());
+
+        global.EscreverArquivoTexto(buffer, this.gerarNomeArquivo());
+        LogInfo("Cabecalho gerado com sucesso.");
+    }
+
+    public String gerarNomeArquivo() throws SQLException, ExcecaoGlobal {
+        String nomeArquivo = dao.getDiretorioDestinoArquivo();
+        nomeArquivo = nomeArquivo.concat("BACKUP_" + utils.MesNomeAtual() + "-" + utils.AnoAtual() + ".SQL");
+        return nomeArquivo.toUpperCase();
+    }
 }

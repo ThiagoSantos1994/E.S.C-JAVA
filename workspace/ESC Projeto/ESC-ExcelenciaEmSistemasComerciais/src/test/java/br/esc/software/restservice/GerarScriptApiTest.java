@@ -11,10 +11,10 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
 
-import br.esc.software.domain.ColunasSQL;
-import br.esc.software.domain.TabelasSQL;
+import br.esc.software.domain.exportador.ColunasSQL;
+import br.esc.software.domain.exportador.TabelasSQL;
 import br.esc.software.integration.ExportadorSQLImpl;
-import br.esc.software.repository.ExportadorDao;
+import br.esc.software.repository.exportador.ExportadorDao;
 
 public class GerarScriptApiTest {
 

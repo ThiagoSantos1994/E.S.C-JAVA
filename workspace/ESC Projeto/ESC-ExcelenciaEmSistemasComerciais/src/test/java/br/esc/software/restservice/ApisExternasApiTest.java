@@ -1,7 +1,8 @@
 package br.esc.software.restservice;
 
 import br.esc.software.business.ApisExternasBusiness;
-import br.esc.software.commons.ExcecaoGlobal;
+import br.esc.software.commons.exceptions.ExcecaoGlobal;
+import br.esc.software.restservice.externas.ApisExternasApi;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Before;

@@ -1,7 +1,7 @@
-package br.esc.software.restservice;
+package br.esc.software.restservice.externas;
 
 import br.esc.software.business.ApisExternasBusiness;
-import br.esc.software.commons.ExcecaoGlobal;
+import br.esc.software.commons.exceptions.ExcecaoGlobal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static br.esc.software.commons.GlobalUtils.LogInfo;
+import static br.esc.software.commons.utils.GlobalUtils.LogInfo;
 
 @RestController
 @RequestMapping("/api")

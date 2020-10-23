@@ -14,12 +14,12 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
 import br.esc.software.business.ExportadorSQLBusiness;
-import br.esc.software.commons.DataUtils;
-import br.esc.software.commons.ExcecaoGlobal;
-import br.esc.software.commons.GlobalUtils;
-import br.esc.software.domain.TabelasSQL;
+import br.esc.software.commons.utils.DataUtils;
+import br.esc.software.commons.exceptions.ExcecaoGlobal;
+import br.esc.software.commons.utils.GlobalUtils;
+import br.esc.software.domain.exportador.TabelasSQL;
 import br.esc.software.integration.ExportadorSQLImpl;
-import br.esc.software.repository.ExportadorDao;
+import br.esc.software.repository.exportador.ExportadorDao;
 
 @PrepareForTest({ ExportadorSQLBusiness.class})
 public class ExportadorApiTest {

@@ -15,11 +15,11 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
 import br.esc.software.business.BackupSQLBusiness;
-import br.esc.software.commons.ExcecaoGlobal;
+import br.esc.software.commons.exceptions.ExcecaoGlobal;
 import br.esc.software.configuration.ConnectionSQLBackup;
-import br.esc.software.domain.TabelasSQL;
-import br.esc.software.repository.BackupDao;
-import br.esc.software.repository.ExportadorDao;
+import br.esc.software.domain.exportador.TabelasSQL;
+import br.esc.software.repository.backup.BackupDao;
+import br.esc.software.repository.exportador.ExportadorDao;
 
 @PrepareForTest({BackupSQLBusiness.class})
 public class BackupApiTest {

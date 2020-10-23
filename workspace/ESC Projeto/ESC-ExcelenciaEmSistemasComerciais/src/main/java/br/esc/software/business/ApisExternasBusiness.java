@@ -1,6 +1,6 @@
 package br.esc.software.business;
 
-import br.esc.software.commons.ExcecaoGlobal;
+import br.esc.software.commons.exceptions.ExcecaoGlobal;
 import br.esc.software.integration.ApisExternasImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
