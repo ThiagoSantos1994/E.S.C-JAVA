@@ -3,7 +3,8 @@ package br.esc.software.restservice.internas;
 import br.esc.software.business.MotorCalculoBusiness;
 import br.esc.software.commons.exceptions.ExcecaoGlobal;
 import br.esc.software.configuration.ConnectionSQL;
-import br.esc.software.domain.motorcalculo.MotorCalculoMapper;
+import br.esc.software.domain.motorcalculo.MotorCalculo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,23 +19,25 @@ import static br.esc.software.commons.utils.GlobalUtils.LogInfo;
 @RequestMapping("/api")
 public class MotorCalculoApi {
 
-    ConnectionSQL connection = new ConnectionSQL();
-    MotorCalculoBusiness business = new MotorCalculoBusiness();
+    @Autowired
+    ConnectionSQL connection;
+    @Autowired
+    MotorCalculoBusiness business;
 
     @GetMapping(path = "/motor-calculo/relatorio/ano/{ano}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<MotorCalculoMapper> excluirBaseDados(@PathVariable("ano") Integer ano)
+    public ResponseEntity<MotorCalculo> excluirBaseDados(@PathVariable("ano") Integer ano)
             throws ExcecaoGlobal {
 
         LogInfo("<<INICIO>> Inicializando API motor-calculo/relatorio/ano/" + ano);
 
         connection.abrirConexao();
 
-        MotorCalculoMapper response = business.realizarCalculo(ano);
+        MotorCalculo response = business.calcular(ano);
 
         connection.fecharConexao();
 
         LogInfo("<<FIM>> Calculo realizado com sucesso!");
 
-        return new ResponseEntity<MotorCalculoMapper>(response, HttpStatus.OK);
+        return new ResponseEntity<MotorCalculo>(response, HttpStatus.OK);
     }
 }

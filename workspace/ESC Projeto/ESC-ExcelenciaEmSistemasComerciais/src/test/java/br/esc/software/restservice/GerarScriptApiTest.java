@@ -1,24 +1,8 @@
 package br.esc.software.restservice;
 
-import java.util.ArrayList;
-
-import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.powermock.api.mockito.PowerMockito;
-
-import br.esc.software.domain.exportador.ColunasSQL;
-import br.esc.software.domain.exportador.TabelasSQL;
-import br.esc.software.integration.ExportadorSQLImpl;
-import br.esc.software.repository.exportador.ExportadorDao;
-
 public class GerarScriptApiTest {
 
-	@InjectMocks
+	/*@InjectMocks
 	ExportadorSQLImpl exportadorSQL;
 	
 	@Mock
@@ -42,7 +26,7 @@ public class GerarScriptApiTest {
 		/**
 		 * Neste case, a falha gerada será devido a simulacao de um erro na conexao DAO
 		 */
-		try {
+	/*	try {
 			PowerMockito.when(dao.getListaTabelas()).thenReturn(null);
 			exportadorSQL.montaScriptImplantacao();
 			Assert.fail();
@@ -70,4 +54,7 @@ public class GerarScriptApiTest {
 		arrayList.add(colunas);
 		return arrayList;
 	}
+
+
+	 */
 }

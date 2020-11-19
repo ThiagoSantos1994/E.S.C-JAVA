@@ -1,30 +1,13 @@
 package br.esc.software.restservice;
 
-import java.util.ArrayList;
-
-import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
-import br.esc.software.business.ExportadorSQLBusiness;
-import br.esc.software.commons.utils.DataUtils;
-import br.esc.software.commons.exceptions.ExcecaoGlobal;
-import br.esc.software.commons.utils.GlobalUtils;
-import br.esc.software.domain.exportador.TabelasSQL;
-import br.esc.software.integration.ExportadorSQLImpl;
-import br.esc.software.repository.exportador.ExportadorDao;
+import br.esc.software.business.ExportadorBusiness;
 
-@PrepareForTest({ ExportadorSQLBusiness.class})
+@PrepareForTest({ ExportadorBusiness.class})
 public class ExportadorApiTest {
 
-	@InjectMocks
+	/*@InjectMocks
 	ExportadorSQLBusiness servico;
 	
 	@Mock
@@ -91,4 +74,6 @@ public class ExportadorApiTest {
 		list.add(tabela);
 		return list;
 	}
+
+	 */
 }

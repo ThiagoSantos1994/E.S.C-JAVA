@@ -1,4 +1,4 @@
-package br.esc.software.repository.exportador;
+package br.esc.software.repository;
 
 import br.esc.software.commons.exceptions.ExcecaoGlobal;
 import br.esc.software.domain.exportador.ColunasSQL;
@@ -54,7 +54,7 @@ public class ExportadorDao {
         return listaColunas;
     }
 
-    public ResultSet executarSelect(String tabela, String colunas) throws SQLException, ExcecaoGlobal {
+    public ResultSet executarSelect(String tabela, String colunas) throws ExcecaoGlobal {
         return RSAdo = Select_Table("SELECT " + colunas + " FROM " + tabela);
     }
 

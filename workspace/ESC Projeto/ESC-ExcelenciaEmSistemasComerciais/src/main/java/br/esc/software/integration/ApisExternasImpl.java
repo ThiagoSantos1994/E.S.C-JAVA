@@ -3,8 +3,8 @@ package br.esc.software.integration;
 import br.esc.software.commons.utils.ObjectParser;
 import br.esc.software.commons.exceptions.ExcecaoGlobal;
 import br.esc.software.domain.Response;
-import br.esc.software.domain.apis.CepMapper;
-import br.esc.software.domain.apis.PrevisaoTempoMapper;
+import br.esc.software.domain.apis.Cep;
+import br.esc.software.domain.apis.PrevisaoTempo;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -21,7 +21,7 @@ public class ApisExternasImpl {
 
         LogInfo("Realizando chamada API " + URL_CEP);
 
-        String response = objectParser.parser(restTemplate.getForObject(URL_CEP, CepMapper.class));
+        String response = objectParser.parser(restTemplate.getForObject(URL_CEP, Cep.class));
 
         LogInfo("Response API: " + response.toString());
 
@@ -34,14 +34,14 @@ public class ApisExternasImpl {
 
         LogInfo("Realizando chamada API " + URL_PREVISAO);
 
-        PrevisaoTempoMapper response = restTemplate.getForObject(URL_PREVISAO, PrevisaoTempoMapper.class);
+        PrevisaoTempo response = restTemplate.getForObject(URL_PREVISAO, PrevisaoTempo.class);
 
         LogInfo("Response API: " + response.toString());
 
         return this.parserPrevisaoTempo(response);
     }
 
-    private String parserPrevisaoTempo(PrevisaoTempoMapper response) {
+    private String parserPrevisaoTempo(PrevisaoTempo response) {
         LogInfo("Realizando o parser response PrevisaoTempoAPI");
 
         String parserResponse = response.getResults().getCity_name() + " - Máx: "

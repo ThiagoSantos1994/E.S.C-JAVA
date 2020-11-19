@@ -1,6 +1,6 @@
 package br.esc.software.restservice.internas;
 
-import br.esc.software.business.BackupSQLBusiness;
+import br.esc.software.business.BackupBusiness;
 import br.esc.software.commons.exceptions.ExcecaoGlobal;
 import br.esc.software.configuration.ConnectionSQL;
 import br.esc.software.configuration.ConnectionSQLBackup;
@@ -21,11 +21,13 @@ import static br.esc.software.commons.utils.GlobalUtils.LogInfo;
 public class BackupApi {
 
     @Autowired
-    BackupSQLBusiness backup;
+    ConnectionSQL connection;
+    @Autowired
+    ConnectionSQLBackup connectionBkp;
+    @Autowired
+    BackupBusiness business;
 
     private String response = "";
-    private ConnectionSQL connection = new ConnectionSQL();
-    private ConnectionSQLBackup connectionBkp = new ConnectionSQLBackup();
 
     @PostMapping(path = "/backup-sql-principal", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> iniciarBackup() throws ExcecaoGlobal, SQLException {
@@ -34,7 +36,7 @@ public class BackupApi {
 
         abrirConexao();
 
-        response = backup.iniciarBackup();
+        response = business.iniciarBackup();
 
         fecharConexao();
 

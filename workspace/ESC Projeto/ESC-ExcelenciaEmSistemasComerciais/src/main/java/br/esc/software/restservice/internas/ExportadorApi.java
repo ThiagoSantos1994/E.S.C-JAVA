@@ -1,6 +1,6 @@
 package br.esc.software.restservice.internas;
 
-import br.esc.software.business.ExportadorSQLBusiness;
+import br.esc.software.business.ExportadorBusiness;
 import br.esc.software.commons.exceptions.ExcecaoGlobal;
 import br.esc.software.configuration.ConnectionSQL;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +20,9 @@ import static br.esc.software.commons.utils.GlobalUtils.LogInfo;
 public class ExportadorApi {
 
     @Autowired
-    ExportadorSQLBusiness exportador;
-    ConnectionSQL connection = new ConnectionSQL();
+    ConnectionSQL connection;
+    @Autowired
+    ExportadorBusiness business;
 
     @PostMapping(path = "/exportar-arquivos-sql", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> iniciarExportacao() throws SQLException, ExcecaoGlobal {
@@ -30,7 +31,7 @@ public class ExportadorApi {
 
         connection.abrirConexao();
 
-        String response = exportador.iniciarExportacao();
+        String response = business.iniciarExportacao();
 
         connection.fecharConexao();
 

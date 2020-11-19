@@ -1,41 +1,34 @@
-package br.esc.software.business;
+package br.esc.software.integration;
 
-import br.esc.software.commons.utils.ObjectParser;
 import br.esc.software.commons.exceptions.ExcecaoGlobal;
-import br.esc.software.domain.Response;
 import br.esc.software.domain.exportador.TabelasSQL;
-import br.esc.software.repository.backup.BackupDao;
-import br.esc.software.repository.exportador.ExportadorDao;
+import br.esc.software.repository.BackupDao;
+import br.esc.software.repository.ExportadorDao;
 import org.springframework.stereotype.Component;
-
-import java.sql.SQLException;
 
 import static br.esc.software.commons.utils.GlobalUtils.*;
 
 @Component
-public class BackupSQLBusiness {
+public class BackupImpl {
 
+    BackupDao dao = new BackupDao();
     ExportadorDao exportadorDao = new ExportadorDao();
-    BackupDao backupDao = new BackupDao();
-    ObjectParser parser = new ObjectParser();
 
     private String sBaseBackup = getProperties().getProperty("prop.databaseBackup");
     private String sBasePrincipal = getProperties().getProperty("prop.database");
     private boolean bProcessamentoComFalhas = false;
 
-    public String iniciarBackup() throws ExcecaoGlobal, SQLException {
-        Response response = new Response();
-
+    public Boolean executarBackup() throws ExcecaoGlobal {
         try {
             for (TabelasSQL tabelaSQL : exportadorDao.getListaTabelas()) {
                 String tabela = tabelaSQL.getNomeTabela();
 
-                boolean statusDelete = backupDao.excluirDadosTabelas(tabela);
+                boolean statusDelete = this.excluir(tabela);
                 if (statusDelete == false) {
                     bProcessamentoComFalhas = true;
                 }
 
-                boolean statusInsert = backupDao.inserirDadosTabelas(sBaseBackup, sBasePrincipal, tabela);
+                boolean statusInsert = this.inserir(sBaseBackup, sBasePrincipal, tabela);
                 if (statusInsert == false) {
                     bProcessamentoComFalhas = true;
                 } else {
@@ -46,15 +39,27 @@ public class BackupSQLBusiness {
             throw new ExcecaoGlobal("Ocorreu uma excessao durante o backup Java -> ", ex);
         }
 
-        LogInfo("Stts processamento : Processamento com falha = " + bProcessamentoComFalhas);
-
         if (bProcessamentoComFalhas) {
-            response.setResponse("[WARN] Processamento concluido com FALHA! Backup parcial executado com sucesso!");
-            return parser.parser(response);
-        } else {
-            response.setResponse("Processamento concluido! Backup executado com sucesso!");
-            return parser.parser(response);
+            LogInfo("Stts processamento : Processamento com falha = " + bProcessamentoComFalhas);
         }
+        return bProcessamentoComFalhas;
+    }
 
+    private Boolean excluir(String tabela) {
+        try {
+            dao.excluirDadosTabelas(tabela);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private Boolean inserir(String baseBackup, String basePrincipal, String nomeTabela) {
+        try {
+            dao.inserirDadosTabelas(baseBackup, basePrincipal, nomeTabela);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

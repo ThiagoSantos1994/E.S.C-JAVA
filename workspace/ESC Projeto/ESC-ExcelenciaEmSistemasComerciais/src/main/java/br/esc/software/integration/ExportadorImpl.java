@@ -1,41 +1,52 @@
 package br.esc.software.integration;
 
-import br.esc.software.commons.exceptions.ExcecaoGlobal;
 import br.esc.software.commons.utils.DataUtils;
 import br.esc.software.commons.utils.GlobalUtils;
 import br.esc.software.commons.utils.ObjectUtils;
 import br.esc.software.domain.exportador.ColunasSQL;
 import br.esc.software.domain.exportador.TabelasSQL;
-import br.esc.software.repository.exportador.ExportadorDao;
+import br.esc.software.repository.ExportadorDao;
+import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 
 import static br.esc.software.commons.utils.GlobalUtils.*;
 
-public class ExportadorSQLImpl {
+@Component
+public class ExportadorImpl {
 
-    ExportadorDao dao = new ExportadorDao();
     GlobalUtils global = new GlobalUtils();
     DataUtils utils = new DataUtils();
+    ExportadorDao dao = new ExportadorDao();
 
     private StringBuffer escreverArquivo = new StringBuffer();
-    private String pathArquivo;
+    public String pathArquivo;
 
-    public void gerarArquivoExportacao(String sTabela, String sColunas, String sPath) throws Exception {
+    /*private ExportadorRepository repo;
+    public ExportadorSQLImpl(ExportadorRepository repository) {
+        this.repo = repository;
+    }*/
 
-        this.pathArquivo = sPath;
+    public void gerarArquivoExportacao() throws Exception {
+        pathArquivo = getDiretorioNomeArquivo();
+        montaCabecalho();
 
-        try {
-            this.montaCabecalho(sTabela);
-            this.montaScript(sTabela, sColunas);
-        } catch (Exception e) {
-            throw new Exception("Erro metodo GerarArquivoExportacao ->>> " + e);
+        for (TabelasSQL tabelas : dao.getListaTabelas()) {
+            String tabelaSQL = tabelas.getNomeTabela();
+            String colunasSQL = dao.montaColunaTabela(tabelaSQL);
+
+            try {
+                LogInfo("Exportando dados tabela: " + tabelaSQL);
+                montaCabecalhoTabela(tabelaSQL);
+                montaScript(tabelaSQL, colunasSQL);
+            } catch (Exception e) {
+                throw new Exception("Erro metodo GerarArquivoExportacao ->>> " + e);
+            }
         }
     }
 
-    private void montaCabecalho(String tabela) throws Exception {
+    private void montaCabecalhoTabela(String tabela) throws Exception {
         StringBuffer montaCabecalho = new StringBuffer();
         montaCabecalho.append(ObjectUtils.pularLinha());
         montaCabecalho.append("--<Tabela: " + tabela + " >");
@@ -133,20 +144,21 @@ public class ExportadorSQLImpl {
         }
     }
 
-    public void montaCabecalho() throws Exception {
+    private void montaCabecalho() throws Exception {
         LogInfo("Montando cabecalho arquivo exportacao...");
 
         StringBuffer buffer = new StringBuffer();
         buffer.append("--[EXPORTADOR DE CONFIGURAÇÕES E REGISTROS - PROCESSADO EM " + utils.DataAtual() + " - JAVA" + ObjectUtils.pularLinha());
         buffer.append(this.montaScriptImplantacao());
 
-        global.EscreverArquivoTexto(buffer, this.gerarNomeArquivo());
+        global.EscreverArquivoTexto(buffer, this.pathArquivo);
         LogInfo("Cabecalho gerado com sucesso.");
     }
 
-    public String gerarNomeArquivo() throws SQLException, ExcecaoGlobal {
+    private String getDiretorioNomeArquivo() throws Exception {
         String nomeArquivo = dao.getDiretorioDestinoArquivo();
         nomeArquivo = nomeArquivo.concat("BACKUP_" + utils.MesNomeAtual() + "-" + utils.AnoAtual() + ".SQL");
         return nomeArquivo.toUpperCase();
     }
+
 }

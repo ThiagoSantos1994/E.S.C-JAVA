@@ -1,11 +1,14 @@
 package br.esc.software.configuration;
 
 import br.esc.software.commons.exceptions.ExcecaoGlobal;
+import org.springframework.stereotype.Component;
 
 import java.sql.*;
 
 import static br.esc.software.commons.utils.GlobalUtils.*;
 
+@Deprecated
+@Component
 public class ConnectionSQL {
     private static Connection connection;
     private static Statement stmt;

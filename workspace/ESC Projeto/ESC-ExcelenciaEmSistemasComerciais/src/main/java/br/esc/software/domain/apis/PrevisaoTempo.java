@@ -1,6 +1,6 @@
 package br.esc.software.domain.apis;
 
-public class PrevisaoTempoMapper {
+public class PrevisaoTempo {
     private String by;
     private boolean valid_key;
     Results ResultsObject;

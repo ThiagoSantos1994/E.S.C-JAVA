@@ -1,6 +1,6 @@
 package br.esc.software.domain.apis;
 
-public class CepMapper {
+public class Cep {
 
     String cep;
     String logradouro;

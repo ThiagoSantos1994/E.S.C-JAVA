@@ -1,6 +1,6 @@
 package br.esc.software.domain.motorcalculo;
 
-public class MotorCalculoMapper {
+public class MotorCalculo {
 
     private Double vlTotalDespesas;
     private Double vlReceitaPositiva;

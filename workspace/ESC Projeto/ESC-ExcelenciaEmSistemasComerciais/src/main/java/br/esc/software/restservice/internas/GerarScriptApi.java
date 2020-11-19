@@ -1,7 +1,8 @@
 package br.esc.software.restservice.internas;
 
+import br.esc.software.business.ExportadorBusiness;
 import br.esc.software.configuration.ConnectionSQL;
-import br.esc.software.integration.ExportadorSQLImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -15,10 +16,10 @@ import static br.esc.software.commons.utils.GlobalUtils.LogInfo;
 @RequestMapping("/api")
 public class GerarScriptApi {
 
-    ExportadorSQLImpl exportador = new ExportadorSQLImpl();
-    ConnectionSQL connection = new ConnectionSQL();
-
-    private StringBuffer response = null;
+    @Autowired
+    ConnectionSQL connection;
+    @Autowired
+    ExportadorBusiness business;
 
     @GetMapping(path = "/obter-script-create", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StringBuffer> gerarScriptCreate() throws Exception {
@@ -27,7 +28,7 @@ public class GerarScriptApi {
 
         connection.abrirConexao();
 
-        response = exportador.montaScriptImplantacao();
+        StringBuffer response = business.gerarScriptImplantacao();
 
         connection.fecharConexao();
 

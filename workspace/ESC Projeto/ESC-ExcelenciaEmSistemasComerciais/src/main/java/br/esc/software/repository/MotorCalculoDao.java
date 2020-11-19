@@ -1,4 +1,4 @@
-package br.esc.software.repository.motorcalculo;
+package br.esc.software.repository;
 
 import static br.esc.software.commons.utils.GlobalUtils.LogErro;
 import static br.esc.software.configuration.ConnectionSQL.Select_Table;
@@ -7,14 +7,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import br.esc.software.commons.exceptions.ExcecaoGlobal;
+import org.springframework.stereotype.Component;
 
+@Component
 public class MotorCalculoDao {
 
     private ResultSet RSAdo;
+    private Double result = 0d;
 
     public Double getValorTotalDespesas(Integer ano) {
-
-        Double result = 0d;
+        result = 0d;
 
         try {
             RSAdo = Select_Table(
@@ -37,8 +39,7 @@ public class MotorCalculoDao {
     }
 
     public Double getValorTotalReceitaPositiva(Integer ano) {
-
-        Double result = 0d;
+        result = 0d;
 
         try {
             RSAdo = Select_Table(
@@ -60,8 +61,7 @@ public class MotorCalculoDao {
     }
 
     public Double getValorTotalAplicadoPoupanca() {
-
-        Double result = 0d;
+        result = 0d;
         Double vlSaldoPositivo = 0d;
         Double vlSaldoNegativo = 0d;
 
@@ -120,8 +120,7 @@ public class MotorCalculoDao {
     }
 
     public Double getValorTotalEmprestimosAReceber() {
-
-        Double result = 0d;
+        result = 0d;
 
         /* EMPRESTIMOS A RECEBER (TODOS OS ANOS) CONTABILIZANDO NA POUPANCA */
         try {
@@ -154,8 +153,7 @@ public class MotorCalculoDao {
     }
 
     public Double getValorOutrosEmprestimosAReceber() {
-
-        Double result = 0d;
+        result = 0d;
 
         try {
             RSAdo = Select_Table(
@@ -185,8 +183,7 @@ public class MotorCalculoDao {
     }
 
     public Double getValorEmprestimosAPagar(Integer ano) {
-
-        Double result = 0d;
+        result = 0d;
 
         try {
             RSAdo = Select_Table(
