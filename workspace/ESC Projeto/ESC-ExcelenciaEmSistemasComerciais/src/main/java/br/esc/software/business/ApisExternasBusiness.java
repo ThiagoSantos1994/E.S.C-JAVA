@@ -1,7 +1,7 @@
 package br.esc.software.business;
 
 import br.esc.software.commons.exceptions.ExcecaoGlobal;
-import br.esc.software.integration.ApisExternasImpl;
+import br.esc.software.service.ApisExternasService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 public class ApisExternasBusiness {
 
     @Autowired
-    ApisExternasImpl service;
+    private ApisExternasService service;
 
     public String obtemDadosCepConsulta(String cep) throws ExcecaoGlobal {
         if (null == cep) {

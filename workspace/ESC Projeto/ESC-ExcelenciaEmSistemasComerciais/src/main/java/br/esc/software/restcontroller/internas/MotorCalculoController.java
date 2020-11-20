@@ -1,4 +1,4 @@
-package br.esc.software.restservice.internas;
+package br.esc.software.restcontroller.internas;
 
 import br.esc.software.business.MotorCalculoBusiness;
 import br.esc.software.commons.exceptions.ExcecaoGlobal;
@@ -17,12 +17,12 @@ import static br.esc.software.commons.utils.GlobalUtils.LogInfo;
 
 @RestController
 @RequestMapping("/api")
-public class MotorCalculoApi {
+public class MotorCalculoController {
 
     @Autowired
-    ConnectionSQL connection;
+    private ConnectionSQL connection;
     @Autowired
-    MotorCalculoBusiness business;
+    private MotorCalculoBusiness business;
 
     @GetMapping(path = "/motor-calculo/relatorio/ano/{ano}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MotorCalculo> excluirBaseDados(@PathVariable("ano") Integer ano)

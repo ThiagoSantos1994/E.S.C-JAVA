@@ -1,4 +1,4 @@
-package br.esc.software.restservice.externas;
+package br.esc.software.restcontroller.externas;
 
 import br.esc.software.business.ApisExternasBusiness;
 import br.esc.software.commons.exceptions.ExcecaoGlobal;
@@ -15,10 +15,10 @@ import static br.esc.software.commons.utils.GlobalUtils.LogInfo;
 
 @RestController
 @RequestMapping("/api")
-public class ApisExternasApi {
+public class ApisExternasController {
 
     @Autowired
-    ApisExternasBusiness business;
+    private ApisExternasBusiness business;
 
     @GetMapping(path = "/consulta-cep/{cep}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> consultarCep(@PathVariable("cep") String cep) throws ExcecaoGlobal {

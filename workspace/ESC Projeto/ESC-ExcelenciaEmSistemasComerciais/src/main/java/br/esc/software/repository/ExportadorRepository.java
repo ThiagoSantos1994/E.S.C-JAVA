@@ -3,6 +3,7 @@ package br.esc.software.repository;
 import br.esc.software.commons.exceptions.ExcecaoGlobal;
 import br.esc.software.domain.exportador.ColunasSQL;
 import br.esc.software.domain.exportador.TabelasSQL;
+import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,7 +11,8 @@ import java.util.ArrayList;
 
 import static br.esc.software.configuration.ConnectionSQL.Select_Table;
 
-public class ExportadorDao {
+@Repository
+public class ExportadorRepository {
 
     private ResultSet RSAdo;
 

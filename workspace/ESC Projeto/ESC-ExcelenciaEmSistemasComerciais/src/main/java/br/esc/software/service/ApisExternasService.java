@@ -1,17 +1,17 @@
-package br.esc.software.integration;
+package br.esc.software.service;
 
-import br.esc.software.commons.utils.ObjectParser;
 import br.esc.software.commons.exceptions.ExcecaoGlobal;
+import br.esc.software.commons.utils.ObjectParser;
 import br.esc.software.domain.Response;
 import br.esc.software.domain.apis.Cep;
 import br.esc.software.domain.apis.PrevisaoTempo;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import static br.esc.software.commons.utils.GlobalUtils.LogInfo;
 
-@Component
-public class ApisExternasImpl {
+@Service
+public class ApisExternasService {
 
     private RestTemplate restTemplate = new RestTemplate();
     private ObjectParser objectParser = new ObjectParser();

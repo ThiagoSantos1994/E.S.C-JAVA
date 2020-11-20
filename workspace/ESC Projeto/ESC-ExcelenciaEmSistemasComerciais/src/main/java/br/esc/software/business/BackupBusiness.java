@@ -3,7 +3,7 @@ package br.esc.software.business;
 import br.esc.software.commons.exceptions.ExcecaoGlobal;
 import br.esc.software.commons.utils.ObjectParser;
 import br.esc.software.domain.Response;
-import br.esc.software.integration.BackupImpl;
+import br.esc.software.service.BackupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 public class BackupBusiness {
 
     @Autowired
-    BackupImpl service;
+    private BackupService service;
 
     public String iniciarBackup() throws ExcecaoGlobal {
         Response response = new Response();

@@ -1,18 +1,21 @@
-package br.esc.software.integration;
+package br.esc.software.service;
 
 import br.esc.software.commons.exceptions.ExcecaoGlobal;
 import br.esc.software.domain.exportador.TabelasSQL;
-import br.esc.software.repository.BackupDao;
-import br.esc.software.repository.ExportadorDao;
-import org.springframework.stereotype.Component;
+import br.esc.software.repository.BackupRepository;
+import br.esc.software.repository.ExportadorRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import static br.esc.software.commons.utils.GlobalUtils.*;
 
-@Component
-public class BackupImpl {
+@Service
+public class BackupService {
 
-    BackupDao dao = new BackupDao();
-    ExportadorDao exportadorDao = new ExportadorDao();
+    @Autowired
+    private BackupRepository dao;
+    @Autowired
+    private ExportadorRepository exportadorRepository;
 
     private String sBaseBackup = getProperties().getProperty("prop.databaseBackup");
     private String sBasePrincipal = getProperties().getProperty("prop.database");
@@ -20,7 +23,7 @@ public class BackupImpl {
 
     public Boolean executarBackup() throws ExcecaoGlobal {
         try {
-            for (TabelasSQL tabelaSQL : exportadorDao.getListaTabelas()) {
+            for (TabelasSQL tabelaSQL : exportadorRepository.getListaTabelas()) {
                 String tabela = tabelaSQL.getNomeTabela();
 
                 boolean statusDelete = this.excluir(tabela);

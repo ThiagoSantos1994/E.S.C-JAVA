@@ -16,7 +16,7 @@ import java.util.List;
 import static br.esc.software.commons.utils.GlobalUtils.LogErro;
 
 //@Repository
-public class ExportadorRepository {
+public class ExportadorRepositoryTODO {
 
     @Autowired
     protected JdbcTemplate jdbcTemplate;

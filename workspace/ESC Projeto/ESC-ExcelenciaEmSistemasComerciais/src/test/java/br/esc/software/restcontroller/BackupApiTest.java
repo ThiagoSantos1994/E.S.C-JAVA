@@ -1,4 +1,4 @@
-package br.esc.software.restservice;
+package br.esc.software.restcontroller;
 
 import org.powermock.core.classloader.annotations.PrepareForTest;
 

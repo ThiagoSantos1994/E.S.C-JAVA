@@ -1,16 +1,18 @@
-package br.esc.software.integration;
+package br.esc.software.service;
 
 import br.esc.software.commons.exceptions.ExcecaoGlobal;
 import br.esc.software.domain.motorcalculo.MotorCalculo;
-import br.esc.software.repository.MotorCalculoDao;
-import org.springframework.stereotype.Component;
+import br.esc.software.repository.MotorCalculoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import static br.esc.software.commons.utils.GlobalUtils.LogInfo;
 
-@Component
-public class MotorCalculoImpl {
+@Service
+public class MotorCalculoService {
 
-    MotorCalculoDao dao = new MotorCalculoDao();
+    @Autowired
+    private MotorCalculoRepository dao;
 
     public MotorCalculo obterValoresMotorCalculo(Integer ano) throws ExcecaoGlobal {
         MotorCalculo mapper = new MotorCalculo();

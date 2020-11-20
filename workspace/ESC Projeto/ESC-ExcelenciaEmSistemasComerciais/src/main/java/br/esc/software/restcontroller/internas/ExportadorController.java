@@ -1,4 +1,4 @@
-package br.esc.software.restservice.internas;
+package br.esc.software.restcontroller.internas;
 
 import br.esc.software.business.ExportadorBusiness;
 import br.esc.software.commons.exceptions.ExcecaoGlobal;
@@ -17,12 +17,12 @@ import static br.esc.software.commons.utils.GlobalUtils.LogInfo;
 
 @RestController
 @RequestMapping("/api")
-public class ExportadorApi {
+public class ExportadorController {
 
     @Autowired
-    ConnectionSQL connection;
+    private ConnectionSQL connection;
     @Autowired
-    ExportadorBusiness business;
+    private ExportadorBusiness business;
 
     @PostMapping(path = "/exportar-arquivos-sql", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> iniciarExportacao() throws SQLException, ExcecaoGlobal {

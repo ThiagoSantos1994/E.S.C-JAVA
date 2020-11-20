@@ -8,9 +8,10 @@ import java.sql.SQLException;
 
 import br.esc.software.commons.exceptions.ExcecaoGlobal;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
-@Component
-public class MotorCalculoDao {
+@Repository
+public class MotorCalculoRepository {
 
     private ResultSet RSAdo;
     private Double result = 0d;

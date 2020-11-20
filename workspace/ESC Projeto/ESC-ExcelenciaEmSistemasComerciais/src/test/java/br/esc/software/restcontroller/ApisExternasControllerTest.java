@@ -1,8 +1,8 @@
-package br.esc.software.restservice;
+package br.esc.software.restcontroller;
 
 import br.esc.software.business.ApisExternasBusiness;
 import br.esc.software.commons.exceptions.ExcecaoGlobal;
-import br.esc.software.restservice.externas.ApisExternasApi;
+import br.esc.software.restcontroller.externas.ApisExternasController;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Before;
@@ -12,11 +12,11 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.http.ResponseEntity;
 
-@PrepareForTest({ ApisExternasApi.class })
-public class ApisExternasApiTest {
+@PrepareForTest({ ApisExternasController.class })
+public class ApisExternasControllerTest {
 
 	@InjectMocks
-	ApisExternasApi api;
+    ApisExternasController api;
 
 	@Mock
 	ApisExternasBusiness business;

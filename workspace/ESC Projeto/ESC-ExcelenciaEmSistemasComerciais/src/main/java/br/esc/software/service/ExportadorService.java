@@ -1,25 +1,27 @@
-package br.esc.software.integration;
+package br.esc.software.service;
 
 import br.esc.software.commons.utils.DataUtils;
 import br.esc.software.commons.utils.GlobalUtils;
 import br.esc.software.commons.utils.ObjectUtils;
 import br.esc.software.domain.exportador.ColunasSQL;
 import br.esc.software.domain.exportador.TabelasSQL;
-import br.esc.software.repository.ExportadorDao;
-import org.springframework.stereotype.Component;
+import br.esc.software.repository.ExportadorRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
 
 import static br.esc.software.commons.utils.GlobalUtils.*;
 
-@Component
-public class ExportadorImpl {
+@Service
+public class ExportadorService {
 
-    GlobalUtils global = new GlobalUtils();
-    DataUtils utils = new DataUtils();
-    ExportadorDao dao = new ExportadorDao();
+    @Autowired
+    private ExportadorRepository dao;
 
+    private GlobalUtils global = new GlobalUtils();
+    private DataUtils utils = new DataUtils();
     private StringBuffer escreverArquivo = new StringBuffer();
     public String pathArquivo;
 

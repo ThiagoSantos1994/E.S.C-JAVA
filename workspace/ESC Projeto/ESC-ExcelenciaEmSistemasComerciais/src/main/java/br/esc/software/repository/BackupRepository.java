@@ -1,10 +1,13 @@
 package br.esc.software.repository;
 
+import org.springframework.stereotype.Repository;
+
 import static br.esc.software.commons.utils.GlobalUtils.LogErro;
 import static br.esc.software.configuration.ConnectionSQLBackup.Delete_Table;
 import static br.esc.software.configuration.ConnectionSQLBackup.Insert_Table;
 
-public class BackupDao {
+@Repository
+public class BackupRepository {
 
     public void excluirDadosTabelas(String nomeTabela) throws Exception {
         try {

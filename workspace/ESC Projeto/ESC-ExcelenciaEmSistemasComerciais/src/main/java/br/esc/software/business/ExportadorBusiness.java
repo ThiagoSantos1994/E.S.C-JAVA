@@ -3,7 +3,7 @@ package br.esc.software.business;
 import br.esc.software.commons.exceptions.ExcecaoGlobal;
 import br.esc.software.commons.utils.ObjectParser;
 import br.esc.software.domain.Response;
-import br.esc.software.integration.ExportadorImpl;
+import br.esc.software.service.ExportadorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +13,7 @@ import static br.esc.software.commons.utils.GlobalUtils.LogInfo;
 public class ExportadorBusiness {
 
     @Autowired
-    ExportadorImpl service;
+    private ExportadorService service;
 
     public String iniciarExportacao() throws ExcecaoGlobal {
         Response response = new Response();

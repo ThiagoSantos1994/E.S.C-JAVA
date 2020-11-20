@@ -1,4 +1,4 @@
-package br.esc.software.restservice.internas;
+package br.esc.software.restcontroller.internas;
 
 import br.esc.software.business.BackupBusiness;
 import br.esc.software.commons.exceptions.ExcecaoGlobal;
@@ -18,14 +18,14 @@ import static br.esc.software.commons.utils.GlobalUtils.LogInfo;
 
 @RestController
 @RequestMapping("/api")
-public class BackupApi {
+public class BackupController {
 
     @Autowired
-    ConnectionSQL connection;
+    private ConnectionSQL connection;
     @Autowired
-    ConnectionSQLBackup connectionBkp;
+    private ConnectionSQLBackup connectionBkp;
     @Autowired
-    BackupBusiness business;
+    private BackupBusiness business;
 
     private String response = "";
 

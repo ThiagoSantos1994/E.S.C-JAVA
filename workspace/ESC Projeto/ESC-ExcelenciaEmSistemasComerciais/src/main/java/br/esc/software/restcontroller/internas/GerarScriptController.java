@@ -1,4 +1,4 @@
-package br.esc.software.restservice.internas;
+package br.esc.software.restcontroller.internas;
 
 import br.esc.software.business.ExportadorBusiness;
 import br.esc.software.configuration.ConnectionSQL;
@@ -14,12 +14,12 @@ import static br.esc.software.commons.utils.GlobalUtils.LogInfo;
 
 @RestController
 @RequestMapping("/api")
-public class GerarScriptApi {
+public class GerarScriptController {
 
     @Autowired
-    ConnectionSQL connection;
+    private ConnectionSQL connection;
     @Autowired
-    ExportadorBusiness business;
+    private ExportadorBusiness business;
 
     @GetMapping(path = "/obter-script-create", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StringBuffer> gerarScriptCreate() throws Exception {
