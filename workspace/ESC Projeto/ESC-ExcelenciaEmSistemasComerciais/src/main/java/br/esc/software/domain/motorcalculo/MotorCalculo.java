@@ -10,6 +10,14 @@ public class MotorCalculo {
     private Double vlEmprestimosAPagar;
     private String vlEstimativaPoupanca;
 
+    public Double getVlTotalDespesasDouble() {
+        return vlTotalDespesas;
+    }
+
+    public Double getVlReceitaPositivaDouble() {
+        return vlReceitaPositiva;
+    }
+
     public String getVlTotalDespesas() {
         return vlTotalDespesas.toString().replace(".", ",");
     }

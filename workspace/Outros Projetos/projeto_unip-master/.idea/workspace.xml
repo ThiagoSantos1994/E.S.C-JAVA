@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="3cf7148d-9b3a-4a04-81e3-a3a7b0c2806d" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/../../ESC Projeto/ESC-ExcelenciaEmSistemasComerciais/src/main/java/br/esc/software/configuration/SegurancaOAuth2Config.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../ESC Projeto/ESC-ExcelenciaEmSistemasComerciais/src/main/java/br/esc/software/domain/TesteDomain.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../ESC Projeto/ESC-ExcelenciaEmSistemasComerciais/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../ESC Projeto/ESC-ExcelenciaEmSistemasComerciais/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../ESC Projeto/ESC-ExcelenciaEmSistemasComerciais/src/main/java/br/esc/software/EscExcelenciaEmSistemasComerciaisApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../ESC Projeto/ESC-ExcelenciaEmSistemasComerciais/src/main/java/br/esc/software/EscExcelenciaEmSistemasComerciaisApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../ESC Projeto/ESC-ExcelenciaEmSistemasComerciais/src/main/java/br/esc/software/commons/utils/ObjectParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../ESC Projeto/ESC-ExcelenciaEmSistemasComerciais/src/main/java/br/esc/software/commons/utils/ObjectParser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../ESC Projeto/ESC-ExcelenciaEmSistemasComerciais/src/main/java/br/esc/software/integration/ApisExternasImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../ESC Projeto/ESC-ExcelenciaEmSistemasComerciais/src/main/java/br/esc/software/integration/ApisExternasImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../ESC Projeto/ESC-ExcelenciaEmSistemasComerciais/src/main/java/br/esc/software/restservice/externas/ApisExternasApi.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../ESC Projeto/ESC-ExcelenciaEmSistemasComerciais/src/main/java/br/esc/software/restservice/externas/ApisExternasApi.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../ESC Projeto/ESC-ExcelenciaEmSistemasComerciais/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../../ESC Projeto/ESC-ExcelenciaEmSistemasComerciais/src/main/resources/application.properties" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../.." />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHome" value="C:\Program Files\JetBrains\IntelliJ IDEA Community Edition 2020.2.3\plugins\maven\lib\maven3" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProjectId" id="1kTEAclE39D5gTARPtfDZ9JhWY9" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../ESC Projeto/ESC-ExcelenciaEmSistemasComerciais" />
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="3cf7148d-9b3a-4a04-81e3-a3a7b0c2806d" name="Default Changelist" comment="" />
+      <created>1605716039091</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1605716039091</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="1829" y="124" key="FileChooserDialogImpl" timestamp="1605716124988">
+      <screen x="1366" y="0" width="1366" height="738" />
+    </state>
+    <state x="1829" y="124" key="FileChooserDialogImpl/0.0.1366.738/1366.0.1366.738@1366.0.1366.738" timestamp="1605716124988" />
+  </component>
+</project>
