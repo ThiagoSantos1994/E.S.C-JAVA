@@ -23,7 +23,7 @@ public class MotorCalculoRepository {
             RSAdo = Select_Table(
                     "SELECT ISNULL(SUM(CAST(REPLACE(REPLACE(REPLACE(a.vl_Total, '.', ''), ',', '.'), '-', '') AS DECIMAL(10,2))),0) AS calculo from tbd_DetalheDespesasMensais a INNER JOIN tbd_DespesaMensal b on a.id_Despesa = b.id_Despesa and a.id_DetalheDespesa = b.id_DetalheDespesa WHERE a.id_Despesa in (select DISTINCT(id_Despesa) from tbd_DespesasFixasMensais where ds_Ano = "
                             + ano
-                            + ") and a.tp_Meta = 'N' and a.tp_ParcelaAdiada = 'N' and a.tp_Relatorio = 'N' and a.tp_Anotacao = 'N' and b.tp_Emprestimo = 'N' and b.tp_Poupanca = 'N' and b.tp_Anotacao = 'N' and b.tp_Relatorio = 'N' and b.tp_Emprestimo = 'N' and a.id_Funcionario = 2 and ISNULL(CAST(REPLACE(REPLACE(REPLACE(a.vl_Total, '.', ''), ',', '.'), '-', '') AS DECIMAL(10,2)),0) > 0");
+                            + ") and a.tp_Meta = 'N' and a.tp_ParcelaAdiada = 'N' and a.tp_Anotacao = 'N' and b.tp_Emprestimo = 'N' and b.tp_Poupanca = 'N' and b.tp_Anotacao = 'N' and b.tp_Relatorio = 'N' and b.tp_Emprestimo = 'N' and a.id_Funcionario = 2 and ISNULL(CAST(REPLACE(REPLACE(REPLACE(a.vl_Total, '.', ''), ',', '.'), '-', '') AS DECIMAL(10,2)),0) > 0");
             while (RSAdo.next()) {
                 result = RSAdo.getDouble("calculo");
             }
