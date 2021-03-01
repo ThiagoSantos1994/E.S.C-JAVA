@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>br.esc.software</groupId>
 	<artifactId>ESC-ExcelenciaEmSistemasComerciais</artifactId>
-	<version>12.01.21</version>
+	<version>08.02.21</version>
 	<name>ESC-ExcelenciaEmSistemasComerciais</name>
 	<description>BackEnd Sistema E.S.C - Modulos sistemicos</description>
 

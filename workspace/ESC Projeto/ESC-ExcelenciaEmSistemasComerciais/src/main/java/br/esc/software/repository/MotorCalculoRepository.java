@@ -1,14 +1,13 @@
 package br.esc.software.repository;
 
-import static br.esc.software.commons.utils.GlobalUtils.LogErro;
-import static br.esc.software.configuration.ConnectionSQL.Select_Table;
+import br.esc.software.commons.exceptions.ExcecaoGlobal;
+import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import br.esc.software.commons.exceptions.ExcecaoGlobal;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Repository;
+import static br.esc.software.commons.utils.GlobalUtils.LogErro;
+import static br.esc.software.configuration.ConnectionSQL.Select_Table;
 
 @Repository
 public class MotorCalculoRepository {
@@ -102,7 +101,7 @@ public class MotorCalculoRepository {
 
             /* EMPRESTIMOS MARCADOS PARA CONTABILIZAR SALDO NA POUPANCA (APARTIR DE 2020) */
             RSAdo = Select_Table(
-                    "SELECT ISNULL(SUM(CAST(REPLACE(REPLACE(a.vl_Pago, '.', ''), ',', '.') AS DECIMAL(10,2))),0) AS emprestimoMarcadosPoupanca FROM tbd_PagamentoEmprestimo a INNER JOIN tbd_Emprestimos b on a.id_Emprestimo = b.id_Emprestimo WHERE b.ds_Ano >= 2020 and b.tp_ContabilizarPoupanca = 'S' and b.id_Funcionario = 2");
+                    "SELECT ISNULL(SUM(CAST(REPLACE(REPLACE(a.vl_Pago, '.', ''), ',', '.') AS DECIMAL(10,2))),0) AS emprestimoMarcadosPoupanca FROM tbd_PagamentoEmprestimo a INNER JOIN tbd_Emprestimos b on a.id_Emprestimo = b.id_Emprestimo WHERE b.ds_Ano >= 2020 and b.tp_ContabilizarPoupanca = 'S' and b.id_Funcionario = 2 and a.tp_DescontoPoupanca = 'S'");
             while (RSAdo.next()) {
                 vlSaldoPositivo += RSAdo.getDouble("emprestimoMarcadosPoupanca");
             }
