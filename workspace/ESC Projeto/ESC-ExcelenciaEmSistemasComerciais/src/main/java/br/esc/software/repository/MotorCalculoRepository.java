@@ -101,7 +101,7 @@ public class MotorCalculoRepository {
 
             /* EMPRESTIMOS MARCADOS PARA CONTABILIZAR SALDO NA POUPANCA (APARTIR DE 2020) */
             RSAdo = Select_Table(
-                    "SELECT ISNULL(SUM(CAST(REPLACE(REPLACE(a.vl_Pago, '.', ''), ',', '.') AS DECIMAL(10,2))),0) AS emprestimoMarcadosPoupanca FROM tbd_PagamentoEmprestimo a INNER JOIN tbd_Emprestimos b on a.id_Emprestimo = b.id_Emprestimo WHERE b.ds_Ano >= 2020 and b.tp_ContabilizarPoupanca = 'S' and b.id_Funcionario = 2 and a.tp_DescontoPoupanca = 'S'");
+                    "SELECT ISNULL(SUM(CAST(REPLACE(REPLACE(a.vl_Pago, '.', ''), ',', '.') AS DECIMAL(10,2))),0) AS emprestimoMarcadosPoupanca FROM tbd_PagamentoEmprestimo a INNER JOIN tbd_Emprestimos b on a.id_Emprestimo = b.id_Emprestimo WHERE b.ds_Ano >= 2020 and b.tp_ContabilizarPoupanca = 'S' and b.id_Funcionario = 2 and a.tp_AdicionarPoupanca = 'S'");
             while (RSAdo.next()) {
                 vlSaldoPositivo += RSAdo.getDouble("emprestimoMarcadosPoupanca");
             }
