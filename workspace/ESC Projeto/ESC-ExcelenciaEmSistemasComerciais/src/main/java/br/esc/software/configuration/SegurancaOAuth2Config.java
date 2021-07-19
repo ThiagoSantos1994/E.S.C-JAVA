@@ -1,6 +1,6 @@
 package br.esc.software.configuration;
 
-import org.springframework.context.annotation.Bean;
+/*import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -14,7 +14,7 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
  * Referencia de implementação: https://www.youtube.com/watch?v=UsM2BY20Ux4
  */
 
-@EnableWebSecurity
+/*@EnableWebSecurity
 @EnableAuthorizationServer
 @EnableResourceServer
 public class SegurancaOAuth2Config extends WebSecurityConfigurerAdapter {
@@ -34,4 +34,6 @@ public class SegurancaOAuth2Config extends WebSecurityConfigurerAdapter {
     public PasswordEncoder passwordEncoder() {
         return NoOpPasswordEncoder.getInstance();
     }
-}
+}*/
+
+public class SegurancaOAuth2Config { }

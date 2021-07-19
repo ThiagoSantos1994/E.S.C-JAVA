@@ -7,11 +7,14 @@ import java.sql.*;
 
 import static br.esc.software.commons.utils.GlobalUtils.*;
 
-@Deprecated
 @Component
 public class ConnectionSQL {
     private static Connection connection;
     private static Statement stmt;
+
+    public ConnectionSQL() throws ExcecaoGlobal {
+        validarConexaoDAO();
+    }
 
     private static void conectarBaseSQL() throws ExcecaoGlobal {
         LogInfo("Conectando na base de dados SQL...");
@@ -38,10 +41,12 @@ public class ConnectionSQL {
         return "jdbc:sqlserver://" + servidor + ";databaseName=" + banco + ";user=" + usuario + ";password=" + senha;
     }
 
+    @Deprecated
     public void abrirConexao() throws ExcecaoGlobal {
         conectarBaseSQL();
     }
 
+    @Deprecated
     public void fecharConexao() throws ExcecaoGlobal {
         try {
             connection.close();
@@ -54,6 +59,7 @@ public class ConnectionSQL {
     public static ResultSet Select_Table(String sSelectTable) throws ExcecaoGlobal {
         ResultSet rs;
         try {
+            validarConexaoDAO();
             rs = stmt.executeQuery(sSelectTable);
             return rs;
         } catch (SQLException e) {
@@ -76,10 +82,21 @@ public class ConnectionSQL {
 
     private static void ExecuteInstrucoesSQL(String sQueryOperacao) throws SQLException {
         try {
+            validarConexaoDAO();
             stmt.executeUpdate(sQueryOperacao);
         } catch (Exception e) {
             throw new SQLException("Erro ao executar metodo ExecuteInstrucoesSQL", e);
         }
 
+    }
+
+    private static void validarConexaoDAO() throws ExcecaoGlobal {
+        try {
+            if (null == stmt || stmt.isClosed()) {
+                conectarBaseSQL();
+            }
+        } catch (Exception ex) {
+            throw new ExcecaoGlobal("Ocorreu um erro ao conectar na base de dados SQL >>>> ", ex.getCause());
+        }
     }
 }

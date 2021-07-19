@@ -18,8 +18,6 @@ import static br.esc.software.commons.utils.GlobalUtils.LogInfo;
 public class MotorCalculoController {
 
     @Autowired
-    private ConnectionSQL connection;
-    @Autowired
     private MotorCalculoBusiness business;
 
     @GetMapping(path = "/motor-calculo/relatorio/ano/{ano}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -28,11 +26,7 @@ public class MotorCalculoController {
 
         LogInfo("<<INICIO>> Inicializando API motor-calculo/relatorio/ano/" + ano);
 
-        this.abrirConexao();
-
         MotorCalculo response = business.calcular(ano);
-
-        this.fecharConexao();
 
         LogInfo("<<FIM>> Calculo realizado com sucesso!");
 
@@ -45,11 +39,7 @@ public class MotorCalculoController {
 
         LogInfo("<<INICIO>> Inicializando API /motor-calculo/variacaopercentual/ano/" + ano);
 
-        this.abrirConexao();
-
         VariacaoPercentual response = business.calcularVariacao(ano);
-
-        this.fecharConexao();
 
         LogInfo("<<FIM>> Calculo realizado com sucesso!");
 
@@ -62,13 +52,5 @@ public class MotorCalculoController {
         LogInfo("Chamado API /motor-calculo/calcularvariacao");
 
         return new ResponseEntity<String>(business.calcularVariacao(vlAtual, vlAnterior), HttpStatus.OK);
-    }
-
-    private void abrirConexao() throws ExcecaoGlobal {
-        connection.abrirConexao();
-    }
-
-    private void fecharConexao() throws ExcecaoGlobal {
-        connection.fecharConexao();
     }
 }

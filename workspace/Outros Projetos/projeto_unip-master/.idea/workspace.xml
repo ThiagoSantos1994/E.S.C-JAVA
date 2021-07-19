@@ -23,14 +23,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3cf7148d-9b3a-4a04-81e3-a3a7b0c2806d" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/../../ESC Projeto/ESC-ExcelenciaEmSistemasComerciais/src/main/java/br/esc/software/configuration/SegurancaOAuth2Config.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../ESC Projeto/ESC-ExcelenciaEmSistemasComerciais/src/main/java/br/esc/software/domain/TesteDomain.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../ESC Projeto/ESC-ExcelenciaEmSistemasComerciais/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../ESC Projeto/ESC-ExcelenciaEmSistemasComerciais/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../ESC Projeto/ESC-ExcelenciaEmSistemasComerciais/src/main/java/br/esc/software/EscExcelenciaEmSistemasComerciaisApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../ESC Projeto/ESC-ExcelenciaEmSistemasComerciais/src/main/java/br/esc/software/EscExcelenciaEmSistemasComerciaisApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../ESC Projeto/ESC-ExcelenciaEmSistemasComerciais/src/main/java/br/esc/software/commons/utils/ObjectParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../ESC Projeto/ESC-ExcelenciaEmSistemasComerciais/src/main/java/br/esc/software/commons/utils/ObjectParser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../ESC Projeto/ESC-ExcelenciaEmSistemasComerciais/src/main/java/br/esc/software/integration/ApisExternasImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../ESC Projeto/ESC-ExcelenciaEmSistemasComerciais/src/main/java/br/esc/software/integration/ApisExternasImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../ESC Projeto/ESC-ExcelenciaEmSistemasComerciais/src/main/java/br/esc/software/restservice/externas/ApisExternasApi.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../ESC Projeto/ESC-ExcelenciaEmSistemasComerciais/src/main/java/br/esc/software/restservice/externas/ApisExternasApi.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../ESC Projeto/ESC-ExcelenciaEmSistemasComerciais/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../../ESC Projeto/ESC-ExcelenciaEmSistemasComerciais/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/projeto_unip-master/.classpath" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/projeto_unip-master/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/projeto_unip-master/.project" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/projeto_unip-master/.settings/org.eclipse.core.resources.prefs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/projeto_unip-master/.settings/org.eclipse.jdt.core.prefs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/projeto_unip-master/.settings/org.eclipse.m2e.core.prefs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/projeto_unip-master/unip.iml" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -78,11 +78,12 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="1829" y="124" key="FileChooserDialogImpl" timestamp="1605716124988">
+    <state x="1829" y="124" key="FileChooserDialogImpl" timestamp="1606839858983">
       <screen x="1366" y="0" width="1366" height="738" />
     </state>
-    <state x="1829" y="124" key="FileChooserDialogImpl/0.0.1366.738/1366.0.1366.738@1366.0.1366.738" timestamp="1605716124988" />
+    <state x="1829" y="124" key="FileChooserDialogImpl/0.0.1366.738/1366.0.1366.738@1366.0.1366.738" timestamp="1606839858983" />
   </component>
 </project>

@@ -20,8 +20,6 @@ import static br.esc.software.commons.utils.GlobalUtils.LogInfo;
 public class ExportadorController {
 
     @Autowired
-    private ConnectionSQL connection;
-    @Autowired
     private ExportadorBusiness business;
 
     @PostMapping(path = "/exportar-arquivos-sql", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -29,11 +27,7 @@ public class ExportadorController {
 
         LogInfo("<<INICIO>> Iniciando exportação script SQL");
 
-        connection.abrirConexao();
-
         String response = business.iniciarExportacao();
-
-        connection.fecharConexao();
 
         LogInfo("<<FIM>> Script exportado com sucesso!");
         return new ResponseEntity<String>(response, HttpStatus.OK);

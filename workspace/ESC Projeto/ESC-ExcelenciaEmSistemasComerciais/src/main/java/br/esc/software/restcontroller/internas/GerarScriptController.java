@@ -17,8 +17,6 @@ import static br.esc.software.commons.utils.GlobalUtils.LogInfo;
 public class GerarScriptController {
 
     @Autowired
-    private ConnectionSQL connection;
-    @Autowired
     private ExportadorBusiness business;
 
     @GetMapping(path = "/obter-script-create", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -26,11 +24,7 @@ public class GerarScriptController {
 
         LogInfo("<<INICIO>> Inicializando API obter-script-insert");
 
-        connection.abrirConexao();
-
         StringBuffer response = business.gerarScriptImplantacao();
-
-        connection.fecharConexao();
 
         LogInfo("<<FIM>> obter-script-insert gerado com sucesso!");
 
