@@ -1,4 +1,4 @@
-package com.br.esc.login;
+package br.com.esc.login;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

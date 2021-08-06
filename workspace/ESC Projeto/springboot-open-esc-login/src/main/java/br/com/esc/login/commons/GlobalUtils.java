@@ -1,4 +1,4 @@
-package com.br.esc.login.commons;
+package br.com.esc.login.commons;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

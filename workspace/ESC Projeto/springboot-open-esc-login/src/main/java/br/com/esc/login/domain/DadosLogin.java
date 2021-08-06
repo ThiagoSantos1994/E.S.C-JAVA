@@ -1,4 +1,4 @@
-package com.br.esc.login.domain;
+package br.com.esc.login.domain;
 
 import lombok.Getter;
 import lombok.Setter;

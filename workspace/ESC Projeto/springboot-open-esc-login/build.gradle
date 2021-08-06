@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.br'
-version = '5.8.21'
+version = '6.8.21'
 sourceCompatibility = '1.8'
 
 configurations {

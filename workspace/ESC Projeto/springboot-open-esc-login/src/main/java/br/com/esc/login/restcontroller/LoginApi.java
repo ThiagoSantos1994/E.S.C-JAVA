@@ -1,8 +1,8 @@
-package com.br.esc.login.controller;
+package br.com.esc.login.restcontroller;
 
-import com.br.esc.login.business.LoginBusiness;
-import com.br.esc.login.domain.LoginRequest;
-import com.br.esc.login.domain.LoginResponse;
+import br.com.esc.login.business.LoginBusiness;
+import br.com.esc.login.domain.LoginRequest;
+import br.com.esc.login.domain.LoginResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

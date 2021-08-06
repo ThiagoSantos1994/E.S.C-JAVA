@@ -1,4 +1,4 @@
-package com.br.esc.login.domain;
+package br.com.esc.login.domain;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -6,7 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class LoginResponse {
-    private Integer idUsuario;
+    private Integer id_Login;
     private boolean autorizado;
     private String mensagem;
     private String autenticacao;

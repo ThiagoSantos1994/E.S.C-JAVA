@@ -1,7 +1,7 @@
-package com.br.esc.login.repository;
+package br.com.esc.login.repository;
 
-import com.br.esc.login.domain.DadosLogin;
-import com.br.esc.login.domain.LoginRequest;
+import br.com.esc.login.domain.DadosLogin;
+import br.com.esc.login.domain.LoginRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;

@@ -1,6 +1,5 @@
-package com.br.esc.login.repository.connectionJDBC;
+package br.com.esc.login.repository.connectionJDBC;
 
-import com.br.esc.login.commons.GlobalUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -8,12 +7,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import javax.sql.DataSource;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Properties;
 
-import static com.br.esc.login.commons.GlobalUtils.getProperties;
+import static br.com.esc.login.commons.GlobalUtils.getProperties;
 
 @Configuration
 @ComponentScan("com..jdbc")

@@ -1,4 +1,4 @@
-package com.br.esc.login;
+package br.com.esc.login;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

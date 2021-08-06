@@ -1,11 +1,11 @@
-package com.br.esc.login.business;
+package br.com.esc.login.business;
 
-import com.br.esc.login.domain.DadosLogin;
-import com.br.esc.login.domain.LoginRequest;
-import com.br.esc.login.domain.LoginResponse;
-import com.br.esc.login.domain.TokenOAuth;
-import com.br.esc.login.integration.ObterTokenService;
-import com.br.esc.login.repository.LoginRepository;
+import br.com.esc.login.domain.LoginRequest;
+import br.com.esc.login.domain.LoginResponse;
+import br.com.esc.login.domain.TokenOAuth;
+import br.com.esc.login.integration.ObterTokenService;
+import br.com.esc.login.domain.DadosLogin;
+import br.com.esc.login.repository.LoginRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +48,7 @@ public class LoginBusiness {
         }
 
         for (DadosLogin dados : dadosLogin) {
-            response.setIdUsuario(dados.getId_Login());
+            response.setId_Login(dados.getId_Login());
 
             if (dados.getTp_UsuarioBloqueado().equals("S") || dados.getTp_FuncionarioExcluido().equals("S")) {
                 response.setMensagem("Usuario bloqueado, entre em contato com o administrador do sistema.");
@@ -57,14 +57,16 @@ public class LoginBusiness {
         }
 
         /*Autenticação SUCESSO - Obtendo token bearer*/
-        log.info("Obtendo TOKEN OAuth API...");
-        ResponseEntity<TokenOAuth> tokenBearer = tokenOAuth.obterTokenAPI();
-        response.setAutenticacao(tokenBearer.getBody().getAccess_token());
-
-        /*Autenticação SUCESSO*/
+        log.info("Usuario autenticado com sucesso!");
         response.setAutorizado(Boolean.TRUE);
         response.setMensagem("Usuario autenticado com sucesso!");
+        response.setAutenticacao("Bearer " + this.obterToken());
 
         return response;
+    }
+
+    private String obterToken() throws Exception {
+        TokenOAuth tokenBearer = tokenOAuth.obterTokenAPI();
+        return tokenBearer.getAccess_token();
     }
 }
