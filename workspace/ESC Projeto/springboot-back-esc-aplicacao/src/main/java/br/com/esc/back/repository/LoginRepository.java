@@ -1,7 +1,6 @@
 package br.com.esc.back.repository;
 
 import br.com.esc.back.domain.DadosLogin;
-import br.com.esc.back.domain.LoginRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -24,15 +23,15 @@ public class LoginRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public List<DadosLogin> obterDadosLogin(LoginRequest usuario) throws Exception {
+    public List<DadosLogin> obterDadosLogin(Integer id_Login) throws Exception {
 
         String sQuery = "SELECT id_Login, ds_NomeLogin, tp_UsuarioBloqueado, tp_PermiteExcluirPedidos, tp_UsuarioBloqueado, tp_FuncionarioExcluido, tp_GravaSenha " +
                 "FROM tbd_Login " +
-                "WHERE ds_NomeLogin = ? AND ds_SenhaLogin = ?";
+                "WHERE id_Login = ?";
 
         List<DadosLogin> dadosLogin = jdbcTemplate.query(
                 sQuery,
-                new Object[]{usuario.getUsuario(), usuario.getSenha()},
+                new Object[]{id_Login},
                 new RowMapper() {
                     public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
                         DadosLogin d = new DadosLogin();

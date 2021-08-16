@@ -1,8 +1,6 @@
 package br.com.esc.back.business;
 
 import br.com.esc.back.domain.DadosLogin;
-import br.com.esc.back.domain.LoginRequest;
-import br.com.esc.back.domain.LoginResponse;
 import br.com.esc.back.repository.LoginRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-import static java.lang.Boolean.FALSE;
+import static java.lang.Integer.parseInt;
 
 
 @Component
@@ -20,42 +18,30 @@ public class LoginBusiness {
     @Autowired
     LoginRepository repository;
 
-    private boolean obterTokenAutentication = true;
-
     private static final Logger log = LoggerFactory.getLogger(LoginBusiness.class);
 
-    public LoginResponse autenticarUsuario(LoginRequest request) throws Exception {
-        log.info("Obtendo dados login >> USUARIO: " + request.getUsuario());
-        return validarAutenticidade(repository.obterDadosLogin(request));
+    public DadosLogin obterDados(String id_Funcionario) throws Exception {
+        log.info("Obtendo dados do usuario...");
+
+        List<DadosLogin> dadosLogins = repository.obterDadosLogin(parseInt(id_Funcionario));
+
+        return parserDados(dadosLogins);
     }
 
-    private LoginResponse validarAutenticidade(List<DadosLogin> dadosLogin) throws Exception {
-        log.info("Validando autenticidade do usuario...");
+    private DadosLogin parserDados(List<DadosLogin> listaDados) {
+        log.info("Realizando parser dos dados do usuario...");
+        DadosLogin dadosLogin = new DadosLogin();
 
-        LoginResponse response = new LoginResponse();
-        response.setAutorizado(FALSE);
-        response.setMensagem("Usuario ou senha invalidos.");
-
-        if (dadosLogin.isEmpty()) {
-            log.info("Usuario não localizado na base de dados...");
-            return response;
+        for (DadosLogin dados : listaDados) {
+            dadosLogin.setId_Login(dados.getId_Login());
+            dadosLogin.setDs_NomeLogin(dados.getDs_NomeLogin());
+            dadosLogin.setDs_SenhaLogin("*******");
+            dadosLogin.setTp_PermiteExcluirPedidos(dados.getTp_PermiteExcluirPedidos());
+            dadosLogin.setTp_UsuarioBloqueado(dados.getTp_UsuarioBloqueado());
+            dadosLogin.setTp_FuncionarioExcluido(dados.getTp_FuncionarioExcluido());
+            dadosLogin.setTp_GravaSenha(dados.getTp_GravaSenha());
         }
 
-        for (DadosLogin dados : dadosLogin) {
-            response.setId_Login(dados.getId_Login());
-
-            if (dados.getTp_UsuarioBloqueado().equals("S") || dados.getTp_FuncionarioExcluido().equals("S")) {
-                response.setMensagem("Usuario bloqueado, entre em contato com o administrador do sistema.");
-                return response;
-            }
-        }
-
-        log.info("Usuario autenticado com sucesso!");
-        response.setAutorizado(Boolean.TRUE);
-        response.setMensagem("Usuario autenticado com sucesso!");
-        response.setAutenticacao("Bearer ");
-
-        return response;
+        return dadosLogin;
     }
-
 }
