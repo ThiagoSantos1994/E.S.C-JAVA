@@ -1,18 +1,19 @@
 package br.com.esc.back.repository;
 
 import br.com.esc.back.domain.DadosLogin;
+import br.com.esc.back.mappers.DadosLoginMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 
 @Repository
 public class LoginRepository {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private JdbcTemplate jdbcTemplate;
     private DataSource dataSource;
@@ -29,23 +30,12 @@ public class LoginRepository {
                 "FROM tbd_Login " +
                 "WHERE id_Login = ?";
 
+        logger.info("Consulta: " + sQuery);
+
         List<DadosLogin> dadosLogin = jdbcTemplate.query(
                 sQuery,
                 new Object[]{id_Login},
-                new RowMapper() {
-                    public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
-                        DadosLogin d = new DadosLogin();
-                        d.setId_Login(rs.getInt("id_Login"));
-                        d.setDs_NomeLogin(rs.getString("ds_NomeLogin"));
-                        d.setTp_UsuarioBloqueado(rs.getString("tp_UsuarioBloqueado"));
-                        d.setTp_PermiteExcluirPedidos(rs.getString("tp_PermiteExcluirPedidos"));
-                        d.setTp_UsuarioBloqueado(rs.getString("tp_UsuarioBloqueado"));
-                        d.setTp_FuncionarioExcluido(rs.getString("tp_FuncionarioExcluido"));
-                        d.setTp_GravaSenha(rs.getInt("tp_GravaSenha"));
-                        return d;
-                    }
-                }
-        );
+                new DadosLoginMapper());
 
         return dadosLogin;
     }

@@ -16,14 +16,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api")
 public class LoginApi {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
     LoginBusiness business;
 
-    private static final Logger log = LoggerFactory.getLogger(LoginApi.class);
-
     @GetMapping(path = "/login/obterDados/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DadosLogin> obterDadosUsuario(@PathVariable("id") String id_Login) throws Exception {
+        logger.info("Executando operacao obterDadosUsuario");
         return new ResponseEntity<DadosLogin>(business.obterDados(id_Login), HttpStatus.OK);
     }
 }

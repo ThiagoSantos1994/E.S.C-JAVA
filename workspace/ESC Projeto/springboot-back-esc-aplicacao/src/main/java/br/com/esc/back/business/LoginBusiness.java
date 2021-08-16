@@ -14,22 +14,20 @@ import static java.lang.Integer.parseInt;
 
 @Component
 public class LoginBusiness {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
     LoginRepository repository;
 
-    private static final Logger log = LoggerFactory.getLogger(LoginBusiness.class);
-
     public DadosLogin obterDados(String id_Funcionario) throws Exception {
-        log.info("Obtendo dados do usuario...");
+        logger.info("Obtendo dados do usuario...");
 
         List<DadosLogin> dadosLogins = repository.obterDadosLogin(parseInt(id_Funcionario));
-
         return parserDados(dadosLogins);
     }
 
     private DadosLogin parserDados(List<DadosLogin> listaDados) {
-        log.info("Realizando parser dos dados do usuario...");
+        logger.info("Realizando parser dos dados do usuario...");
         DadosLogin dadosLogin = new DadosLogin();
 
         for (DadosLogin dados : listaDados) {

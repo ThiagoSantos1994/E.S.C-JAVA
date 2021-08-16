@@ -1,4 +1,4 @@
-package br.com.esc.back.repository.connectionJDBC;
+package br.com.esc.back.configuration.connectionJDBC;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
