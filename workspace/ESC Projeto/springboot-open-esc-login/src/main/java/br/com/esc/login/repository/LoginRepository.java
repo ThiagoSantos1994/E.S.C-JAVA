@@ -2,6 +2,7 @@ package br.com.esc.login.repository;
 
 import br.com.esc.login.domain.DadosLogin;
 import br.com.esc.login.domain.LoginRequest;
+import br.com.esc.login.domain.TrocarSenhaRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -49,5 +50,12 @@ public class LoginRepository {
         );
 
         return dadosLogin;
+    }
+
+    public void alterarSenha(TrocarSenhaRequest request) throws Exception {
+        String sQuery = "UPDATE tbd_Login SET ds_SenhaLogin = '" + request.getSenhaNova() + "' " +
+                "WHERE ds_NomeLogin = '" + request.getUsuario() + "' AND ds_SenhaLogin = '" + request.getSenhaAtual() + "'";
+
+        jdbcTemplate.execute(sQuery);
     }
 }

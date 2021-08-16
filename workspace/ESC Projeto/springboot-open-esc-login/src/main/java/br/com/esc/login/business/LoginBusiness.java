@@ -1,18 +1,17 @@
 package br.com.esc.login.business;
 
-import br.com.esc.login.domain.LoginRequest;
-import br.com.esc.login.domain.LoginResponse;
-import br.com.esc.login.domain.TokenOAuth;
+import br.com.esc.login.domain.*;
 import br.com.esc.login.integration.ObterTokenService;
-import br.com.esc.login.domain.DadosLogin;
 import br.com.esc.login.repository.LoginRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 
 
 @Component
@@ -23,14 +22,36 @@ public class LoginBusiness {
     @Autowired
     ObterTokenService tokenOAuth;
 
+    private boolean obterTokenAutentication = true;
+
     private static final Logger log = LoggerFactory.getLogger(LoginBusiness.class);
 
     public LoginResponse autenticarUsuario(LoginRequest request) throws Exception {
         log.info("Obtendo dados login >> USUARIO: " + request.getUsuario());
+        return validarAutenticidade(repository.obterDadosLogin(request));
+    }
 
-        List<DadosLogin> dadosLogin = repository.obterDadosLogin(request);
+    public TrocarSenhaResponse alterarSenha(TrocarSenhaRequest request) throws Exception {
+        TrocarSenhaResponse response = new TrocarSenhaResponse();
+        log.info("Alterando senha >> USUARIO: " + request.getUsuario());
 
-        LoginResponse response = validarAutenticidade(dadosLogin);
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setUsuario(request.getUsuario());
+        loginRequest.setSenha(request.getSenhaAtual());
+
+        this.obterTokenAutentication = false;
+        LoginResponse dadosLogin = this.autenticarUsuario(loginRequest);
+
+        if (!dadosLogin.isAutorizado()) {
+            response.setDs_Status(dadosLogin.getMensagem());
+            response.setBSucesso(FALSE);
+            log.info("Alterando senha >> STTS: " + dadosLogin.getMensagem());
+        } else {
+            repository.alterarSenha(request);
+            response.setBSucesso(TRUE);
+            response.setDs_Status("Senha atualizada com sucesso!");
+            log.info("Alterando senha >> STTS: Senha atualizada com sucesso");
+        }
 
         return response;
     }
@@ -39,7 +60,7 @@ public class LoginBusiness {
         log.info("Validando autenticidade do usuario...");
 
         LoginResponse response = new LoginResponse();
-        response.setAutorizado(Boolean.FALSE);
+        response.setAutorizado(FALSE);
         response.setMensagem("Usuario ou senha invalidos.");
 
         if (dadosLogin.isEmpty()) {
@@ -66,7 +87,10 @@ public class LoginBusiness {
     }
 
     private String obterToken() throws Exception {
-        TokenOAuth tokenBearer = tokenOAuth.obterTokenAPI();
-        return tokenBearer.getAccess_token();
+        if (this.obterTokenAutentication) {
+            TokenOAuth tokenBearer = tokenOAuth.obterTokenAPI();
+            return tokenBearer.getAccess_token();
+        }
+        return "-";
     }
 }
