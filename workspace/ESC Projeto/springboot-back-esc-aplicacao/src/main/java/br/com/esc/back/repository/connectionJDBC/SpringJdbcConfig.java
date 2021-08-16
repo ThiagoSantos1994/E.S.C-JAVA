@@ -1,4 +1,4 @@
-package br.com.esc.login.repository.connectionJDBC;
+package br.com.esc.back.repository.connectionJDBC;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -8,7 +8,8 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import javax.sql.DataSource;
 
-import static br.com.esc.login.commons.GlobalUtils.getProperties;
+import static br.com.esc.back.commons.GlobalUtils.getProperties;
+
 
 @Configuration
 @ComponentScan("com..jdbc")

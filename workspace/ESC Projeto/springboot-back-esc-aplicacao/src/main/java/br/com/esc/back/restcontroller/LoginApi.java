@@ -1,10 +1,8 @@
-package br.com.esc.login.restcontroller;
+package br.com.esc.back.restcontroller;
 
-import br.com.esc.login.business.LoginBusiness;
-import br.com.esc.login.domain.LoginRequest;
-import br.com.esc.login.domain.LoginResponse;
-import br.com.esc.login.domain.TrocarSenhaRequest;
-import br.com.esc.login.domain.TrocarSenhaResponse;
+import br.com.esc.back.business.LoginBusiness;
+import br.com.esc.back.domain.LoginRequest;
+import br.com.esc.back.domain.LoginResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,10 +34,5 @@ public class LoginApi {
         }
 
         return new ResponseEntity<LoginResponse>(business.autenticarUsuario(request), HttpStatus.UNAUTHORIZED);
-    }
-
-    @PostMapping(path = "/login/alterarSenha", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<TrocarSenhaResponse> trocarSenha(@RequestBody TrocarSenhaRequest request) throws Exception {
-        return new ResponseEntity<TrocarSenhaResponse>(business.alterarSenha(request), HttpStatus.OK);
     }
 }

@@ -1,4 +1,4 @@
-package br.com.esc.login.configuration;
+package br.com.esc.back.configuration;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
