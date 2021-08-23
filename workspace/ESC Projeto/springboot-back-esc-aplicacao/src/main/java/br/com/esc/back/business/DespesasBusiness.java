@@ -2,6 +2,7 @@ package br.com.esc.back.business;
 
 import br.com.esc.back.domain.DespesasFixasMensaisResponse;
 import br.com.esc.back.domain.DespesasMensaisResponse;
+import br.com.esc.back.domain.DetalheDespesasMensais;
 import br.com.esc.back.domain.ListaDespesasMensais;
 import br.com.esc.back.repository.CalculoRepository;
 import br.com.esc.back.repository.DespesasRepository;
@@ -30,7 +31,6 @@ public class DespesasBusiness {
 
     public DespesasFixasMensaisResponse getListaDespesasFixasMensais(String ds_Mes, String ds_Ano, String id_Usuario) {
         logger.info("Obtendo lista despesas fixas mensais...");
-
         DespesasFixasMensaisResponse response = repository.getListaDespesasFixas(ds_Mes, ds_Ano, parseInt(id_Usuario));
         return response;
     }
@@ -39,6 +39,12 @@ public class DespesasBusiness {
         logger.info("Obtendo lista despesas mensais...");
         DespesasMensaisResponse response = repository.getListaDespesas(parseInt(id_Usuario), parseInt(id_Despesa));
         return parserResponse(response, parseInt(id_Usuario));
+    }
+
+    public DetalheDespesasMensais getDetalheDespesasMensais(String id_Despesa, String id_DetalheDespesa, String id_Usuario) throws Exception {
+        logger.info("Obtendo detalhe despesas mensais...");
+        DetalheDespesasMensais response = repository.getDetalheDespesasMensais(parseInt(id_Despesa), parseInt(id_DetalheDespesa), parseInt(id_Usuario));
+        return response;
     }
 
     private DespesasMensaisResponse parserResponse(DespesasMensaisResponse res, Integer id_Usuario) throws Exception {

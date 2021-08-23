@@ -1,11 +1,9 @@
 package br.com.esc.back.repository;
 
-import br.com.esc.back.domain.DespesasFixasMensaisResponse;
-import br.com.esc.back.domain.DespesasMensaisResponse;
-import br.com.esc.back.domain.ListaDespesasFixasMensais;
-import br.com.esc.back.domain.ListaDespesasMensais;
+import br.com.esc.back.domain.*;
 import br.com.esc.back.mappers.DespesasFixasMensaisMapper;
 import br.com.esc.back.mappers.DespesasMensaisMapper;
+import br.com.esc.back.mappers.DetalheDespesasMensaisMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,7 +74,6 @@ public class DespesasRepository {
                 new Object[]{id_Despesa, id_Usuario},
                 new DespesasMensaisMapper());
 
-
         ArrayList<ListaDespesasMensais> listaDespesasMensais = new ArrayList<>();
         for (ListaDespesasMensais row : despesasMensais) {
             ListaDespesasMensais lista = new ListaDespesasMensais();
@@ -100,6 +97,53 @@ public class DespesasRepository {
         }
 
         response.setListaDespesasMensais(listaDespesasMensais);
+        return response;
+    }
+
+    public DetalheDespesasMensais getDetalheDespesasMensais(Integer id_Despesa, Integer id_DetalheDespesa, Integer id_Usuario) {
+        DetalheDespesasMensais response = new DetalheDespesasMensais();
+
+        String sQuery = "SELECT id_Despesa, vl_Total,ds_Descricao,vl_TotalPago,tp_Status,id_Ordem,ds_Observacao,id_DetalheDespesa,ds_Observacao2,id_DespesaParcelada,id_Parcela,id_Funcionario,tp_Reprocessar,tp_Anotacao,tp_Meta,tp_ParcelaAdiada,tp_ParcelaAmortizada,tp_Relatorio,tp_LinhaSeparacao,id_DespesaLinkRelatorio " +
+                "FROM tbd_DetalheDespesasMensais " +
+                "WHERE id_Despesa = ? AND id_DetalheDespesa = ? AND id_Funcionario = ? " +
+                "ORDER BY id_Ordem";
+
+        logger.info("Consulta: " + sQuery);
+
+        List<ListaDetalheDespesasMensais> detalheDespesasMensais = jdbcTemplate.query(
+                sQuery,
+                new Object[]{id_Despesa, id_DetalheDespesa, id_Usuario},
+                new DetalheDespesasMensaisMapper());
+
+        ArrayList<ListaDetalheDespesasMensais> despesasMensais = new ArrayList<>();
+        for (ListaDetalheDespesasMensais row : detalheDespesasMensais) {
+            ListaDetalheDespesasMensais listaDetalheDespesasMensais = new ListaDetalheDespesasMensais();
+
+            listaDetalheDespesasMensais.setId_Despesa(row.getId_Despesa());
+            listaDetalheDespesasMensais.setId_Ordem(row.getId_Ordem());
+            listaDetalheDespesasMensais.setId_DetalheDespesa(row.getId_DetalheDespesa());
+            listaDetalheDespesasMensais.setId_DespesaParcelada(row.getId_DespesaParcelada());
+            listaDetalheDespesasMensais.setId_Parcela(row.getId_Parcela());
+            listaDetalheDespesasMensais.setId_Funcionario(row.getId_Funcionario());
+            listaDetalheDespesasMensais.setId_DespesaLinkRelatorio(row.getId_DespesaLinkRelatorio());
+            listaDetalheDespesasMensais.setVl_Total(row.getVl_Total());
+            listaDetalheDespesasMensais.setDs_Descricao(row.getDs_Descricao());
+            listaDetalheDespesasMensais.setVl_TotalPago(row.getVl_TotalPago());
+            listaDetalheDespesasMensais.setTp_Status(row.getTp_Status());
+            listaDetalheDespesasMensais.setDs_Observacao(row.getDs_Observacao());
+            listaDetalheDespesasMensais.setDs_Observacao2(row.getDs_Observacao2());
+            listaDetalheDespesasMensais.setTp_Reprocessar(row.getTp_Reprocessar());
+            listaDetalheDespesasMensais.setTp_Anotacao(row.getTp_Anotacao());
+            listaDetalheDespesasMensais.setTp_Meta(row.getTp_Meta());
+            listaDetalheDespesasMensais.setTp_ParcelaAdiada(row.getTp_ParcelaAdiada());
+            listaDetalheDespesasMensais.setTp_ParcelaAmortizada(row.getTp_ParcelaAmortizada());
+            listaDetalheDespesasMensais.setTp_Relatorio(row.getTp_Relatorio());
+            listaDetalheDespesasMensais.setTp_LinhaSeparacao(row.getTp_LinhaSeparacao());
+
+            despesasMensais.add(listaDetalheDespesasMensais);
+        }
+
+        response.setListaDetalheDespesasMensais(despesasMensais);
         return response;
     }
 }

@@ -3,6 +3,7 @@ package br.com.esc.back.restcontroller;
 import br.com.esc.back.business.DespesasBusiness;
 import br.com.esc.back.domain.DespesasFixasMensaisResponse;
 import br.com.esc.back.domain.DespesasMensaisResponse;
+import br.com.esc.back.domain.DetalheDespesasMensais;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,13 @@ public class DespesasApi {
         logger.info("Executando operacao obterListaDespesasMensais");
         DespesasMensaisResponse response = business.getListaDespesasMensais(id_Usuario, id_Despesa);
         return new ResponseEntity<DespesasMensaisResponse>(response, HttpStatus.OK);
+    }
+
+    @GetMapping(path = "/obterDetalheDespesasMensais/{id_Despesa}/{id_DetalheDespesa}/{id_Usuario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DetalheDespesasMensais> obterDetalheDespesasMensais(@PathVariable("id_Despesa") String id_Despesa, @PathVariable("id_DetalheDespesa") String id_DetalheDespesa, @PathVariable("id_Usuario") String id_Usuario) throws Exception {
+        logger.info("Executando operacao obterDetalheDespesasMensais");
+        DetalheDespesasMensais response = business.getDetalheDespesasMensais(id_Despesa, id_DetalheDespesa, id_Usuario);
+        return new ResponseEntity<DetalheDespesasMensais>(response, HttpStatus.OK);
     }
 
 }
