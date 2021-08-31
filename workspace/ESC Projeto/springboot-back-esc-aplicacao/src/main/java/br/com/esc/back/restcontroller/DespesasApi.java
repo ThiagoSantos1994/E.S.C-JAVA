@@ -4,6 +4,7 @@ import br.com.esc.back.business.DespesasBusiness;
 import br.com.esc.back.domain.DespesasFixasMensaisResponse;
 import br.com.esc.back.domain.DespesasMensaisResponse;
 import br.com.esc.back.domain.DetalheDespesasMensais;
+import br.com.esc.back.domain.SubTotalDespesasMensais;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,4 +45,10 @@ public class DespesasApi {
         return new ResponseEntity<DetalheDespesasMensais>(response, HttpStatus.OK);
     }
 
+    @GetMapping(path = "/obterSubtotalDespesaMensal/{ds_Mes}/{ds_Ano}/{id_Despesa}/{id_Usuario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<SubTotalDespesasMensais> obterSubtotalDespesaMensal(@PathVariable("ds_Mes") String ds_Mes, @PathVariable("ds_Ano") String ds_Ano, @PathVariable("id_Despesa") Integer id_Despesa, @PathVariable("id_Usuario") String id_Usuario) throws Exception {
+        logger.info("Executando operacao obterSubtotalDespesaMensal");
+        SubTotalDespesasMensais response = business.getSubTotalMes(ds_Mes, ds_Ano, id_Despesa, id_Usuario);
+        return new ResponseEntity<SubTotalDespesasMensais>(response, HttpStatus.OK);
+    }
 }
