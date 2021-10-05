@@ -184,11 +184,12 @@ public class MotorCalculoRepository {
 
     public Double getValorEmprestimosAPagar(Integer ano) {
         result = 0d;
+        String anoFiltro = Integer.toString(ano).substring(2,4);
 
         try {
             RSAdo = Select_Table(
                     "SELECT ISNULL(SUM(CAST(REPLACE(REPLACE(a.vl_Pago, '.', ''), ',', '.') AS DECIMAL(10,2))),0) AS calculo FROM tbd_PagamentoEmprestimo a inner join tbd_Emprestimos b on a.id_Emprestimo = b.id_Emprestimo WHERE a.tp_Status = 'PEND' and b.tp_EmprestimoAReceber = 'N' and a.id_Funcionario = '2' and SUBSTRING(a.ds_DataPagamento,7,5) = '"
-                            + Integer.toString(ano) + "'");
+                            + anoFiltro + "'");
             while (RSAdo.next()) {
                 result = RSAdo.getDouble("calculo");
             }
