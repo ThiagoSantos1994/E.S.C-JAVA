@@ -22,11 +22,20 @@ public class MotorCalculoRepository {
             RSAdo = Select_Table(
                     "SELECT ISNULL(SUM(CAST(REPLACE(REPLACE(REPLACE(a.vl_Total, '.', ''), ',', '.'), '-', '') AS DECIMAL(10,2))),0) AS calculo from tbd_DetalheDespesasMensais a INNER JOIN tbd_DespesaMensal b on a.id_Despesa = b.id_Despesa and a.id_DetalheDespesa = b.id_DetalheDespesa WHERE a.id_Despesa in (select DISTINCT(id_Despesa) from tbd_DespesasFixasMensais where ds_Ano = "
                             + ano
-                            + ") and a.tp_Meta = 'N' and a.tp_ParcelaAdiada = 'N' and a.tp_Anotacao = 'N' and b.tp_Emprestimo = 'N' and b.tp_Poupanca = 'N' and b.tp_Anotacao = 'N' and b.tp_Relatorio = 'N' and b.tp_Emprestimo = 'N' and a.id_Funcionario = 2 and ISNULL(CAST(REPLACE(REPLACE(REPLACE(a.vl_Total, '.', ''), ',', '.'), '-', '') AS DECIMAL(10,2)),0) > 0");
+                            + ") and a.tp_Meta = 'N' and a.tp_ParcelaAdiada = 'N' and a.tp_Anotacao = 'N' and b.tp_Emprestimo = 'N' and b.tp_Poupanca = 'N' and b.tp_PoupancaNegativa = 'N' and b.tp_Anotacao = 'N' and b.tp_Relatorio = 'N' and b.tp_Emprestimo = 'N' and a.id_Funcionario = 2 and ISNULL(CAST(REPLACE(REPLACE(REPLACE(a.vl_Total, '.', ''), ',', '.'), '-', '') AS DECIMAL(10,2)),0) > 0");
             while (RSAdo.next()) {
                 result = RSAdo.getDouble("calculo");
             }
             RSAdo.close();
+
+            /* Recupera o valor dos emprestimos a pagar e totaliza na despesa independente se estiver em aberto ou quitado */
+            RSAdo = Select_Table(
+                    "SELECT ISNULL(SUM(CAST(REPLACE(REPLACE(REPLACE(vl_Pago, '.', ''), ',', '.'), '-', '') AS DECIMAL(10,2))),0) AS calculo FROM tbd_PagamentoEmprestimo a INNER JOIN tbd_Emprestimos b on a.id_Emprestimo = b.id_Emprestimo WHERE a.ds_AnoPagamento = " + ano + " and b.tp_EmprestimoAReceber = 'N' and b.id_Funcionario = 2 and b.tp_ContabilizarPoupanca = 'N'");
+            while (RSAdo.next()) {
+                result = result + RSAdo.getDouble("calculo");
+            }
+            RSAdo.close();
+
         } catch (SQLException e) {
             LogErro("Erro ao realizar o calculo " + e);
             return 0d;
@@ -40,15 +49,27 @@ public class MotorCalculoRepository {
 
     public Double getValorTotalReceitaPositiva(Integer ano) {
         result = 0d;
+        Double resultPositivo = 0d;
+        Double resultNegativo = 0d;
 
         try {
             RSAdo = Select_Table(
                     "SELECT ISNULL(SUM(CAST(REPLACE(REPLACE(vl_Total, '.', ''), ',', '.') AS DECIMAL(10,2))),0) AS calculo FROM tbd_DespesasFixasMensais where ds_Ano = "
                             + ano + " and tp_Status = '+' and id_Funcionario = 2");
             while (RSAdo.next()) {
-                result = RSAdo.getDouble("calculo");
+                resultPositivo = RSAdo.getDouble("calculo");
             }
             RSAdo.close();
+
+            RSAdo = Select_Table(
+                    "SELECT ISNULL(SUM(CAST(REPLACE(REPLACE(vl_Total, '.', ''), ',', '.') AS DECIMAL(10,2))),0) AS calculo FROM tbd_DespesasFixasMensais where ds_Ano = "
+                            + ano + " and tp_Status = '-' and id_Funcionario = 2");
+            while (RSAdo.next()) {
+                resultNegativo = RSAdo.getDouble("calculo");
+            }
+            RSAdo.close();
+
+            result = (resultPositivo - resultNegativo);
         } catch (SQLException e) {
             LogErro("Erro ao realizar o calculo " + e);
             return 0d;
@@ -184,7 +205,7 @@ public class MotorCalculoRepository {
 
     public Double getValorEmprestimosAPagar(Integer ano) {
         result = 0d;
-        String anoFiltro = Integer.toString(ano).substring(2,4);
+        String anoFiltro = Integer.toString(ano).substring(2, 4);
 
         try {
             RSAdo = Select_Table(
