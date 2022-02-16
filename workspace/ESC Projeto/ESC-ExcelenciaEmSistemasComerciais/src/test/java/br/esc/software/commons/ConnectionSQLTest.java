@@ -17,7 +17,7 @@ import org.powermock.reflect.Whitebox;
 
 import br.esc.software.configuration.ConnectionSQL;
 
-@PrepareForTest({ ConnectionSQL.class, ConnectionSQLTest.class })
+/*@PrepareForTest({ ConnectionSQL.class, ConnectionSQLTest.class })
 public class ConnectionSQLTest {
 
 	@Spy
@@ -53,4 +53,4 @@ public class ConnectionSQLTest {
 			Assert.assertThat(e.getMessage() , CoreMatchers.is("Erro ao executar metodo ExecuteInstrucoesSQL"));
 		}
 	}
-}
+}*/
