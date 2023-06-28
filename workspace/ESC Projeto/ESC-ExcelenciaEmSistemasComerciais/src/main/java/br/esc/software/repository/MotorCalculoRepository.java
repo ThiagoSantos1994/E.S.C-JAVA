@@ -20,22 +20,14 @@ public class MotorCalculoRepository {
 
         try {
             RSAdo = Select_Table(
-                    "SELECT ISNULL(SUM(CAST(REPLACE(REPLACE(REPLACE(a.vl_Total, '.', ''), ',', '.'), '-', '') AS DECIMAL(10,2))),0) AS calculo from tbd_DetalheDespesasMensais a INNER JOIN tbd_DespesaMensal b on a.id_Despesa = b.id_Despesa and a.id_DetalheDespesa = b.id_DetalheDespesa WHERE a.id_Despesa in (select DISTINCT(id_Despesa) from tbd_DespesasFixasMensais where ds_Ano = "
-                            + ano
-                            + ") and a.tp_Meta = 'N' and a.tp_ParcelaAdiada = 'N' and a.tp_Anotacao = 'N' and b.tp_Emprestimo = 'N' and b.tp_Poupanca = 'N' and b.tp_PoupancaNegativa = 'N' and b.tp_Anotacao = 'N' and b.tp_Relatorio = 'N' and b.tp_Emprestimo = 'N' and a.id_Funcionario = 2 and ISNULL(CAST(REPLACE(REPLACE(REPLACE(a.vl_Total, '.', ''), ',', '.'), '-', '') AS DECIMAL(10,2)),0) > 0");
+                    "SELECT ISNULL(SUM(CAST(REPLACE(REPLACE(REPLACE(b.vl_Total, '.', ''), ',', '.'), '- ', '-') AS DECIMAL(10,2))),0) AS calculo " +
+                            "FROM tbd_DespesaMensal a INNER JOIN tbd_DetalheDespesasMensais b ON b.id_Despesa = a.id_Despesa AND b.id_Funcionario = a.id_Funcionario AND b.id_DetalheDespesa = a.id_DetalheDespesa AND b.tp_Anotacao = 'N'  " +
+                            "WHERE a.id_Despesa IN (SELECT id_Despesa FROM tbd_DespesasFixasMensais WHERE ds_Ano = " + ano + " AND id_Funcionario = a.id_Funcionario) " +
+                            "AND a.id_Funcionario = 2 AND a.tp_Relatorio = 'N' AND a.tp_Emprestimo = 'N' AND a.tp_Poupanca = 'N' AND a.tp_PoupancaNegativa = 'N' AND a.tp_Anotacao = 'N'");
             while (RSAdo.next()) {
                 result = RSAdo.getDouble("calculo");
             }
             RSAdo.close();
-
-            /* Recupera o valor dos emprestimos a pagar e totaliza na despesa independente se estiver em aberto ou quitado */
-            RSAdo = Select_Table(
-                    "SELECT ISNULL(SUM(CAST(REPLACE(REPLACE(REPLACE(vl_Pago, '.', ''), ',', '.'), '-', '') AS DECIMAL(10,2))),0) AS calculo FROM tbd_PagamentoEmprestimo a INNER JOIN tbd_Emprestimos b on a.id_Emprestimo = b.id_Emprestimo WHERE a.ds_AnoPagamento = " + ano + " and b.tp_EmprestimoAReceber = 'N' and b.id_Funcionario = 2 and b.tp_ContabilizarPoupanca = 'N'");
-            while (RSAdo.next()) {
-                result = result + RSAdo.getDouble("calculo");
-            }
-            RSAdo.close();
-
         } catch (SQLException e) {
             LogErro("Erro ao realizar o calculo " + e);
             return 0d;
@@ -205,14 +197,65 @@ public class MotorCalculoRepository {
 
     public Double getValorEmprestimosAPagar(Integer ano) {
         result = 0d;
-        String anoFiltro = Integer.toString(ano).substring(2, 4);
 
         try {
+            /* Recupera o valor dos emprestimos a pagar independente se estiver em aberto ou quitado */
             RSAdo = Select_Table(
-                    "SELECT ISNULL(SUM(CAST(REPLACE(REPLACE(a.vl_Pago, '.', ''), ',', '.') AS DECIMAL(10,2))),0) AS calculo FROM tbd_PagamentoEmprestimo a inner join tbd_Emprestimos b on a.id_Emprestimo = b.id_Emprestimo WHERE a.tp_Status = 'PEND' and b.tp_EmprestimoAReceber = 'N' and a.id_Funcionario = '2' and SUBSTRING(a.ds_DataPagamento,7,5) = '"
-                            + anoFiltro + "'");
+                    "SELECT ISNULL(SUM(CAST(REPLACE(REPLACE(REPLACE(vl_Pago, '.', ''), ',', '.'), '-', '') AS DECIMAL(10,2))),0) AS calculo FROM tbd_PagamentoEmprestimo a INNER JOIN tbd_Emprestimos b on a.id_Emprestimo = b.id_Emprestimo WHERE a.ds_AnoPagamento = " + ano + " and b.tp_EmprestimoAReceber = 'N' and b.id_Funcionario = 2 and b.tp_ContabilizarPoupanca = 'N'");
             while (RSAdo.next()) {
-                result = RSAdo.getDouble("calculo");
+                result = result + RSAdo.getDouble("calculo");
+            }
+            RSAdo.close();
+
+            /* Recupera o valor das despesas marcadas como emprestimos a pagar e\ou marcadas como relatorio */
+            RSAdo = Select_Table(
+                    "SELECT SUM(vl_Total) AS calculo FROM (\n" +
+                            "SELECT DISTINCT(ISNULL(CAST(REPLACE(REPLACE(REPLACE(a.vl_Total, '.', ''), ',', '.'), '-', '') AS DECIMAL(10,2)),0)) AS vl_Total , a.id_Despesa, c.ds_Ano\n" +
+                            "FROM tbd_DetalheDespesasMensais a \n" +
+                            "INNER JOIN tbd_DespesaMensal b on a.id_Despesa = b.id_Despesa and a.id_DetalheDespesa = b.id_DetalheDespesa \n" +
+                            "INNER JOIN tbd_DespesasFixasMensais c on b.id_Despesa = c.id_Despesa \n" +
+                            "WHERE b.tp_EmprestimoAPagar = 'S' and a.id_Funcionario = 2 or (a.id_DespesaLinkRelatorio IN \n" +
+                            "(SELECT DISTINCT (id_DetalheDespesa) FROM tbd_DespesaMensal WHERE id_Despesa = a.id_Despesa AND tp_Relatorio = 'S' AND tp_EmprestimoAPagar = 'S' and id_Funcionario = 2))\n" +
+                            ") as calculo WHERE ds_Ano = " + ano + "\n");
+            while (RSAdo.next()) {
+                result = result + RSAdo.getDouble("calculo");
+            }
+            RSAdo.close();
+        } catch (ExcecaoGlobal e) {
+            LogErro("Erro ao realizar o calculo " + e);
+            return 0d;
+        } catch (SQLException e) {
+            LogErro("Erro ao realizar o calculo " + e);
+            return 0d;
+        }
+
+        return result;
+    }
+
+    public Double getValorEmprestimosAPagar_PAGO(Integer ano) {
+        result = 0d;
+
+        try {
+            /* Recupera o valor dos emprestimos a pagar independente se estiver em aberto ou quitado */
+            RSAdo = Select_Table(
+                    "SELECT ISNULL(SUM(CAST(REPLACE(REPLACE(REPLACE(vl_Pago, '.', ''), ',', '.'), '-', '') AS DECIMAL(10,2))),0) AS calculo FROM tbd_PagamentoEmprestimo a INNER JOIN tbd_Emprestimos b on a.id_Emprestimo = b.id_Emprestimo WHERE a.ds_AnoPagamento = " + ano + " and b.tp_EmprestimoAReceber = 'N' and b.id_Funcionario = 2 and b.tp_ContabilizarPoupanca = 'N' and a.tp_Status = 'PAGO'");
+            while (RSAdo.next()) {
+                result = result + RSAdo.getDouble("calculo");
+            }
+            RSAdo.close();
+
+            /* Recupera o valor das despesas marcadas como emprestimos a pagar e\ou marcadas como relatorio que ja foram pagas*/
+            RSAdo = Select_Table(
+                    "SELECT SUM(vl_Total) AS calculo FROM (\n" +
+                            "SELECT DISTINCT(ISNULL(CAST(REPLACE(REPLACE(REPLACE(a.vl_TotalPago, '.', ''), ',', '.'), '-', '') AS DECIMAL(10,2)),0)) AS vl_Total , a.id_Despesa, c.ds_Ano\n" +
+                            "FROM tbd_DetalheDespesasMensais a \n" +
+                            "INNER JOIN tbd_DespesaMensal b on a.id_Despesa = b.id_Despesa and a.id_DetalheDespesa = b.id_DetalheDespesa \n" +
+                            "INNER JOIN tbd_DespesasFixasMensais c on b.id_Despesa = c.id_Despesa \n" +
+                            "WHERE b.tp_EmprestimoAPagar = 'S' and a.id_Funcionario = 2 or (a.id_DespesaLinkRelatorio IN \n" +
+                            "(SELECT DISTINCT (id_DetalheDespesa) FROM tbd_DespesaMensal WHERE id_Despesa = a.id_Despesa AND tp_Relatorio = 'S' AND tp_EmprestimoAPagar = 'S' and id_Funcionario = 2))\n" +
+                            ") as calculo WHERE ds_Ano = " + ano + "\n");
+            while (RSAdo.next()) {
+                result = result + RSAdo.getDouble("calculo");
             }
             RSAdo.close();
         } catch (ExcecaoGlobal e) {

@@ -21,7 +21,7 @@ public class MotorCalculoController {
     private MotorCalculoBusiness business;
 
     @GetMapping(path = "/motor-calculo/relatorio/ano/{ano}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<MotorCalculo> excluirBaseDados(@PathVariable("ano") Integer ano)
+    public ResponseEntity<MotorCalculo> motorCalculoANO(@PathVariable("ano") Integer ano)
             throws ExcecaoGlobal {
 
         LogInfo("<<INICIO>> Inicializando API motor-calculo/relatorio/ano/" + ano);

@@ -8,6 +8,7 @@ public class MotorCalculo {
     private Double vlTotalEmprestimosAReceber;
     private Double vlOutrosEmprestimosAReceber;
     private Double vlEmprestimosAPagar;
+    private Double vlEmprestimosAPagar_Pago;
     private String vlEstimativaPoupanca;
 
     public Double getVlTotalDespesasDouble() {
@@ -82,4 +83,11 @@ public class MotorCalculo {
         this.vlEstimativaPoupanca = vlEstimativaPoupanca.toString().replace(".", ",");
     }
 
+    public String getVlEmprestimosAPagar_Pago() {
+        return vlEmprestimosAPagar_Pago.toString().replace(".", ",");
+    }
+
+    public void setVlEmprestimosAPagar_Pago(Double vlEmprestimosAPagar_Pago) {
+        this.vlEmprestimosAPagar_Pago = vlEmprestimosAPagar_Pago;
+    }
 }

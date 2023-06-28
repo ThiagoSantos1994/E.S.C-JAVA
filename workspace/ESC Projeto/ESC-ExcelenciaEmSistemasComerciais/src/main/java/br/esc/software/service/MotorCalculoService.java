@@ -37,8 +37,11 @@ public class MotorCalculoService {
             LogInfo(">>Calculando Valor Total dos Outros Emprestimos A Receber");
             mapper.setVlOutrosEmprestimosAReceber(dao.getValorOutrosEmprestimosAReceber());
 
-            LogInfo(">>Calculando Valor Total dos Emprestimos A Pagar");
+            LogInfo(">>Calculando Valor Total dos Emprestimos A Pagar (TOTAL ANO)");
             mapper.setVlEmprestimosAPagar(dao.getValorEmprestimosAPagar(ano));
+
+            LogInfo(">>Calculando Valor Total dos Emprestimos A Pagar (PAGOS)");
+            mapper.setVlEmprestimosAPagar_Pago(dao.getValorEmprestimosAPagar_PAGO(ano) ) ;
 
             LogInfo(">>Calculando Valor Estimativa Poupanca");
             mapper.setVlEstimativaPoupanca(mapper.getVlTotalAplicadoPoupancaDouble() + mapper.getVlTotalEmprestimosAReceberDouble());
