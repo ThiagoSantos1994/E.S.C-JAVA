@@ -1,0 +1,7 @@
+br\com\esc\backend\utils\GlobalUtils.class
+br\com\esc\backend\infraestructure\database\JdbiRepository.class
+br\com\esc\backend\repository\AplicacaoRepository.class
+br\com\esc\backend\rest\AplicacaoController.class
+br\com\esc\backend\SpringbootEscBackAplicacaoApplication.class
+br\com\esc\backend\config\JdbiConfiguration.class
+br\com\esc\backend\service\AplicacaoService.class
