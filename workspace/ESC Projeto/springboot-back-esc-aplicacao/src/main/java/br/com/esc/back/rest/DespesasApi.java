@@ -1,4 +1,4 @@
-package br.com.esc.back.rest;
+package br.com.esc.back.controller;
 
 import br.com.esc.back.service.DespesasBusiness;
 import br.com.esc.back.domain.DespesasFixasMensaisResponse;

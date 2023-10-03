@@ -1,6 +1,7 @@
 package br.com.esc.back.repository;
 
 import br.com.esc.back.domain.DadosLogin;
+import br.com.esc.back.mappers.DadosLoginMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,12 +32,11 @@ public class LoginRepository {
 
         logger.info("Consulta: " + sQuery);
 
-        /*List<DadosLogin> dadosLogin = jdbcTemplate.query(
+        List<DadosLogin> dadosLogin = jdbcTemplate.query(
                 sQuery,
                 new Object[]{id_Login},
                 new DadosLoginMapper());
-         */
 
-        return null;
+        return dadosLogin;
     }
 }

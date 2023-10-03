@@ -1,4 +1,4 @@
-package br.com.esc.back.mapper;
+package br.com.esc.back.mappers;
 
 import br.com.esc.back.domain.SubTotalDespesasMensais;
 import lombok.Getter;

@@ -1,7 +1,7 @@
 package br.com.esc.back.repository;
 
 import br.com.esc.back.domain.SubTotalDespesasMensais;
-import br.com.esc.back.mapper.SubTotalDespesasMensaisMapper;
+import br.com.esc.back.mappers.SubTotalDespesasMensaisMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

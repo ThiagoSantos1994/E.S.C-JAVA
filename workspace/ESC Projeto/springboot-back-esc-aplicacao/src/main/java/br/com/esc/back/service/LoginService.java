@@ -1,7 +1,6 @@
 package br.com.esc.back.service;
 
 import br.com.esc.back.domain.DadosLogin;
-import br.com.esc.back.repository.EscAplicacaoRepository;
 import br.com.esc.back.repository.LoginRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,11 +13,11 @@ import static java.lang.Integer.parseInt;
 
 
 @Component
-public class LoginService {
+public class LoginBusiness {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
-    EscAplicacaoRepository repository;
+    LoginRepository repository;
 
     public DadosLogin obterDados(String id_Funcionario) throws Exception {
         logger.info("Obtendo dados do usuario...");
