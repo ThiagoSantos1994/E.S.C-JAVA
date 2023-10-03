@@ -33,6 +33,9 @@ dependencies {
 
 	runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	implementation group: 'org.jdbi', name: 'jdbi3-spring4', version: '3.9.1'
+	implementation group: 'org.jdbi', name: 'jdbi3-sqlobject', version: '3.9.1'
 }
 
 test {

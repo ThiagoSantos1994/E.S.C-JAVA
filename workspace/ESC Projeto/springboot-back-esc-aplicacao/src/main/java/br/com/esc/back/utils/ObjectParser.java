@@ -1,4 +1,4 @@
-package br.com.esc.back.commons;
+package br.com.esc.back.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

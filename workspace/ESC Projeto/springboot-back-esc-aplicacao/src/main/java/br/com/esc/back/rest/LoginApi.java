@@ -1,6 +1,6 @@
-package br.com.esc.back.controller;
+package br.com.esc.back.rest;
 
-import br.com.esc.back.service.LoginBusiness;
+import br.com.esc.back.service.LoginService;
 import br.com.esc.back.domain.DadosLogin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,12 +18,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class LoginApi {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Autowired
-    LoginBusiness business;
+    private final LoginService service = new LoginService();
+    /*@Autowired
+    LoginService business;
+
+     */
 
     @GetMapping(path = "/login/obterDados/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DadosLogin> obterDadosUsuario(@PathVariable("id") String id_Login) throws Exception {
         logger.info("Executando operacao obterDadosUsuario");
-        return new ResponseEntity<DadosLogin>(business.obterDados(id_Login), HttpStatus.OK);
+        return new ResponseEntity<DadosLogin>(service.obterDados(id_Login), HttpStatus.OK);
     }
 }

@@ -1,4 +1,4 @@
-package br.com.esc.back.business;
+package br.com.esc.back.service;
 
 import br.com.esc.back.domain.*;
 import br.com.esc.back.repository.DespesasRepository;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-import static br.com.esc.back.commons.GlobalUtils.obterPercentual;
+import static br.com.esc.back.utils.GlobalUtils.obterPercentual;
 import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
 

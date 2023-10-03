@@ -1,9 +1,9 @@
 package br.com.esc.back.repository;
 
 import br.com.esc.back.domain.*;
-import br.com.esc.back.mappers.DespesasFixasMensaisMapper;
-import br.com.esc.back.mappers.DespesasMensaisMapper;
-import br.com.esc.back.mappers.DetalheDespesasMensaisMapper;
+import br.com.esc.back.mapper.DespesasFixasMensaisMapper;
+import br.com.esc.back.mapper.DespesasMensaisMapper;
+import br.com.esc.back.mapper.DetalheDespesasMensaisMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

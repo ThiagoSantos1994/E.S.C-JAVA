@@ -1,6 +1,5 @@
-package br.com.esc.back.mappers;
+package br.com.esc.back.mapper;
 
-import br.com.esc.back.domain.DetalheDespesasMensais;
 import br.com.esc.back.domain.ListaDetalheDespesasMensais;
 import org.springframework.jdbc.core.RowMapper;
 

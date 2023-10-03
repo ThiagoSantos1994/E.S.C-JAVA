@@ -1,4 +1,4 @@
-package br.com.esc.back.configuration;
+package br.com.esc.back.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -10,16 +10,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 
-import static br.com.esc.back.commons.GlobalUtils.getProperties;
-
 
 /**
  * Referencia de implementação: https://www.youtube.com/watch?v=UsM2BY20Ux4
  */
 
-@EnableWebSecurity
-@EnableAuthorizationServer
-@EnableResourceServer
+//@EnableWebSecurity
+//@EnableAuthorizationServer
+//@EnableResourceServer
 public class SegurancaOAuth2Config extends WebSecurityConfigurerAdapter {
 
     @Bean
