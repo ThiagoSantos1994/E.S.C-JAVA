@@ -9,15 +9,15 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class DespesasFixasMensaisDAO {
+public class DespesasFixasMensaisRequest {
     private Integer idDespesa;
     private String dsDescricao;
     private String vlTotal;
     private String tpStatus;
+    private Integer idOrdem;
     private String dsMes;
     private String dsAno;
     private Integer idFuncionario;
-    private Integer idOrdem;
     private String tpFixasObrigatorias;
     private String tpDespesaDebitoCartao;
 }

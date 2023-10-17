@@ -1,39 +1,56 @@
 package br.com.esc.backend.repository;
 
-import br.com.esc.backend.domain.DespesasFixasMensaisDAO;
-import br.com.esc.backend.domain.DespesasParceladasQuitacaoDAO;
-import br.com.esc.backend.domain.DespesasMensaisDAO;
+import br.com.esc.backend.domain.*;
+import org.jdbi.v3.sqlobject.customizer.BindBean;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 public interface AplicacaoRepository {
 
-    List<DespesasFixasMensaisDAO> obterDespesasFixasMensais(String dsMes, String dsAno, Integer idFuncionario);
+    List<DespesasFixasMensaisDAO> getDespesasFixasMensais(String dsMes, String dsAno, Integer idFuncionario);
 
-    List<DespesasMensaisDAO> obterDespesasMensais(Integer idDespesa, Integer idFuncionario);
+    List<LancamentosMensaisDAO> getLancamentosMensais(Integer idDespesa, Integer idFuncionario);
 
-    BigDecimal obterCalculoTotalDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+    List<DespesasMensaisDAO> getDespesasMensais(Integer idDespesa, Integer idFuncionario);
 
-    BigDecimal obterCalculoTotalDespesaPendente(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+    DespesasMensaisDAO getDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 
-    BigDecimal obterCalculoTotalDespesaPaga(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+    BigDecimal getCalculoTotalDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 
-    BigDecimal obterCalculoDespesaTipoRelatorio(Integer idDespesa, Integer idDespesaLinkRelatorio, Integer idFuncionario);
+    BigDecimal getCalculoTotalDespesaPendente(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 
-    List<BigDecimal> obterCalculoReceitaPositivaMES(Integer idDespesa, Integer idFuncionario);
+    BigDecimal getCalculoTotalDespesaPaga(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 
-    BigDecimal obterCalculoReceitaNegativaMES(Integer idDespesa, Integer idFuncionario);
+    BigDecimal getCalculoDespesaTipoRelatorio(Integer idDespesa, Integer idDespesaLinkRelatorio, Integer idFuncionario);
 
-    BigDecimal obterCalculoReceitaPendentePgtoMES(Integer idDespesa, Integer idFuncionario);
+    List<BigDecimal> getCalculoReceitaPositivaMES(Integer idDespesa, Integer idFuncionario);
 
-    BigDecimal obterCalculoSaldoInicialMES(Integer idDespesa, Integer idFuncionario);
+    BigDecimal getCalculoReceitaNegativaMES(Integer idDespesa, Integer idFuncionario);
 
-    BigDecimal obterQuantidadeDespesasParceladasMes(Integer idDespesa, Integer idFuncionario);
+    BigDecimal getCalculoReceitaPendentePgtoMES(Integer idDespesa, Integer idFuncionario);
 
-    DespesasParceladasQuitacaoDAO obterQuantidadeDespesasParceladasQuitacaoMes(Integer idDespesa, Integer idFuncionario);
+    BigDecimal getCalculoSaldoInicialMES(Integer idDespesa, Integer idFuncionario);
 
-    //Detalhe Despesas Mensais
+    BigDecimal getQuantidadeDespesasParceladasMes(Integer idDespesa, Integer idFuncionario);
 
-    List<DespesasMensaisDAO> obterDespesasMensaisPorID(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+    DespesasParceladasQuitacaoDAO getQuantidadeDespesasParceladasQuitacaoMes(Integer idDespesa, Integer idFuncionario);
+
+    void insertDespesasFixasMensais(DespesasFixasMensaisRequest request);
+
+    void updateDespesasFixasMensais(DespesasFixasMensaisRequest request);
+
+    void deleteDespesasFixasMensais(Integer idDespesa, Integer idOrdem, Integer idFuncionario);
+
+    void insertDespesasMensais(DespesasMensaisDAO despesasMensaisDAO);
+
+    void insertDetalheDespesasMensais(DetalheDespesasMensaisDAO detalheDAO);
+
+    List<DetalheDespesasMensaisDAO> getDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+
+    ParcelasDAO getParcelaPorDataVencimento(Integer idDespesaParcelada, String dataVencimento, Integer idFuncionario);
+
+    String getValidaDespesaParceladaAmortizacao(Integer idDespesaParcelada, Integer idFuncionario);
+
+    void updateDespesasMensais(@BindBean("mensal") DespesasMensaisDAO despesasMensaisDAO);
 }

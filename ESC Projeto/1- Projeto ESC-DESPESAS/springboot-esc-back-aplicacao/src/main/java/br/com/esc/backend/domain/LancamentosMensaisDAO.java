@@ -11,28 +11,25 @@ import java.math.BigDecimal;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class DespesasMensaisDAO {
-    private Integer idDespesa;
+public class LancamentosMensaisDAO {
     private Integer idDetalheDespesa;
+    private Integer idOrdemExibicao;
+    private Integer idEmprestimo;
     private String dsTituloDespesa;
     private String dsNomeDespesa;
     private String vlLimite;
-    private Integer idOrdemExibicao;
-    private Integer idFuncionario;
-    private Integer idEmprestimo;
-    private String tpReprocessar;
+    private BigDecimal vlTotalDespesa;
+    private BigDecimal vlTotalDespesaPendente;
+    private BigDecimal vlTotalDespesaPaga;
+    private String percentualUtilizacao;
     private String tpEmprestimo;
     private String tpPoupanca;
     private String tpAnotacao;
     private String tpDebitoAutomatico;
-    private String tpMeta;
     private String tpLinhaSeparacao;
     private String tpDespesaReversa;
     private String tpPoupancaNegativa;
     private String tpRelatorio;
-    private String tpDebitoCartao;
-    private String tpEmprestimoAPagar;
     private String tpReferenciaSaldoMesAnterior;
-    private String tpVisualizacaoTemp;
     private String tpDespesaCompartilhada;
 }

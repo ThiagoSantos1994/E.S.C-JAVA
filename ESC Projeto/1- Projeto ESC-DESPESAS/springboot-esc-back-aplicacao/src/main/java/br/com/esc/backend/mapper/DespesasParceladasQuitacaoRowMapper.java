@@ -13,12 +13,9 @@ public class DespesasParceladasQuitacaoRowMapper implements RowMapper<DespesasPa
 
     @Override
     public DespesasParceladasQuitacaoDAO map(ResultSet rs, StatementContext ctx) throws SQLException {
-        DespesasParceladasQuitacaoDAO dao = new DespesasParceladasQuitacaoDAO();
-
-        dao.setQtde_Parcelas(rs.getInt("qtde_Parcelas"));
-        dao.setVl_Parcelas(rs.getBigDecimal("vl_Parcelas"));
-
-        log.info("DespesasParceladasQuitacaoRowMapper >> {}", dao);
-        return dao;
+        return DespesasParceladasQuitacaoDAO.builder()
+                .qtdeParcelas(rs.getInt("qtde_Parcelas"))
+                .vlParcelas(rs.getBigDecimal("vl_Parcelas"))
+                .build();
     }
 }

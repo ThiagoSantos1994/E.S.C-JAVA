@@ -13,17 +13,17 @@ public class DespesasFixasMensaisRowMapper implements RowMapper<DespesasFixasMen
 
     @Override
     public DespesasFixasMensaisDAO map(ResultSet rs, StatementContext ctx) throws SQLException {
-        DespesasFixasMensaisDAO dao = new DespesasFixasMensaisDAO();
-
-        dao.setId_Despesa(rs.getInt("id_Despesa"));
-        dao.setId_Ordem(rs.getInt("id_Ordem"));
-        dao.setDs_Descricao(rs.getString("ds_Descricao"));
-        dao.setVl_Total(rs.getString("vl_Total"));
-        dao.setTp_Status(rs.getString("tp_Status"));
-        dao.setTp_FixasObrigatorias(rs.getString("tpFixasObrigatorias"));
-        dao.setTp_DespesaDebitoCartao(rs.getString("tp_DespesaDebitoCartao"));
-
-        log.info("DespesasFixasMensaisRowMapper >> {}", dao);
-        return dao;
+        return DespesasFixasMensaisDAO.builder()
+                .idDespesa(rs.getInt("id_Despesa"))
+                .dsDescricao(rs.getString("ds_Descricao"))
+                .vlTotal(rs.getString("vl_Total"))
+                .tpStatus(rs.getString("tp_Status"))
+                .dsMes(rs.getString("ds_Mes"))
+                .dsAno(rs.getString("ds_Ano"))
+                .idFuncionario(rs.getInt("id_Funcionario"))
+                .idOrdem(rs.getInt("id_Ordem"))
+                .tpFixasObrigatorias(rs.getString("tpFixasObrigatorias"))
+                .tpDespesaDebitoCartao(rs.getString("tp_DespesaDebitoCartao"))
+                .build();
     }
 }

@@ -13,26 +13,42 @@ public class DespesasMensaisRowMapper implements RowMapper<DespesasMensaisDAO> {
 
     @Override
     public DespesasMensaisDAO map(ResultSet rs, StatementContext ctx) throws SQLException {
-        DespesasMensaisDAO dao = new DespesasMensaisDAO();
+        if (rs.getString("tp_LinhaSeparacao").equalsIgnoreCase("S")) {
+            return DespesasMensaisDAO.builder()
+                    .idDespesa(rs.getInt("id_Despesa"))
+                    .idDetalheDespesa(rs.getInt("id_DetalheDespesa"))
+                    .idOrdemExibicao(rs.getInt("id_OrdemExibicao"))
+                    .idFuncionario(rs.getInt("id_Funcionario"))
+                    .idEmprestimo(rs.getInt("id_Emprestimo"))
+                    .tpLinhaSeparacao(rs.getString("tp_LinhaSeparacao"))
+                    .build();
+        }
 
-        dao.setDs_NomeDespesa(rs.getString("ds_NomeDespesa"));
-        dao.setVl_Limite(rs.getString("vl_Limite"));
-        dao.setVl_TotalDespesa(rs.getBigDecimal("vl_TotalDespesa"));
-        dao.setId_DetalheDespesa(rs.getInt("id_DetalheDespesa"));
-        dao.setTp_Emprestimo(rs.getString("tp_Emprestimo"));
-        dao.setId_Emprestimo(rs.getInt("id_Emprestimo"));
-        dao.setTp_Poupanca(rs.getString("tp_Poupanca"));
-        dao.setTp_Anotacao(rs.getString("tp_Anotacao"));
-        dao.setTp_DebitoAutomatico(rs.getString("tp_DebitoAutomatico"));
-        dao.setId_OrdemExibicao(rs.getInt("id_OrdemExibicao"));
-        dao.setTp_LinhaSeparacao(rs.getString("tp_LinhaSeparacao"));
-        dao.setTp_DespesaReversa(rs.getString("tp_DespesaReversa"));
-        dao.setTp_PoupancaNegativa(rs.getString("tp_PoupancaNegativa"));
-        dao.setTp_Relatorio(rs.getString("tp_Relatorio"));
-        dao.setTp_ReferenciaSaldoMesAnterior(rs.getString("tp_ReferenciaSaldoMesAnterior"));
-        dao.setTp_DespesaCompartilhada(rs.getString("tp_DespesaCompartilhada"));
-
-        log.info("DetalheDespesasMensaisRowMapper >> {}", dao);
-        return dao;
+        return DespesasMensaisDAO.builder()
+                .idDespesa(rs.getInt("id_Despesa"))
+                .idDetalheDespesa(rs.getInt("id_DetalheDespesa"))
+                .dsNomeDespesa(rs.getString("ds_NomeDespesa"))
+                .dsTituloDespesa(rs.getString("ds_TituloDespesa"))
+                //.vlLimite(rs.getBigDecimal("vl_Limite"))
+                .vlLimite(rs.getString("vl_Limite"))
+                .idOrdemExibicao(rs.getInt("id_OrdemExibicao"))
+                .idFuncionario(rs.getInt("id_Funcionario"))
+                .idEmprestimo(rs.getInt("id_Emprestimo"))
+                .tpReprocessar(rs.getString("tp_Reprocessar"))
+                .tpEmprestimo(rs.getString("tp_Emprestimo"))
+                .tpPoupanca(rs.getString("tp_Poupanca"))
+                .tpAnotacao(rs.getString("tp_Anotacao"))
+                .tpDebitoAutomatico(rs.getString("tp_DebitoAutomatico"))
+                .tpMeta(rs.getString("tp_Meta"))
+                .tpLinhaSeparacao(rs.getString("tp_LinhaSeparacao"))
+                .tpDespesaReversa(rs.getString("tp_DespesaReversa"))
+                .tpPoupancaNegativa(rs.getString("tp_PoupancaNegativa"))
+                .tpRelatorio(rs.getString("tp_Relatorio"))
+                .tpDebitoCartao(rs.getString("tp_DebitoCartao"))
+                .tpEmprestimoAPagar(rs.getString("tp_EmprestimoAPagar"))
+                .tpReferenciaSaldoMesAnterior(rs.getString("tp_ReferenciaSaldoMesAnterior"))
+                .tpVisualizacaoTemp(rs.getString("tp_VisualizacaoTemp"))
+                .tpDespesaCompartilhada(rs.getString("tp_DespesaCompartilhada"))
+                .build();
     }
 }

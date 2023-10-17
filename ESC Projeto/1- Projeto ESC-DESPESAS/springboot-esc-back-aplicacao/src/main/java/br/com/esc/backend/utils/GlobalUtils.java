@@ -6,6 +6,7 @@ import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.ini4j.Ini;
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.util.Properties;
 
 /**

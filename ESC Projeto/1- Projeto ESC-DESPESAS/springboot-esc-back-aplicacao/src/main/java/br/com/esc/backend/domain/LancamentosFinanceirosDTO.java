@@ -1,11 +1,17 @@
 package br.com.esc.backend.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class LancamentosFinanceirosDTO {
     private Integer idDespesa;
     private String dsMesReferencia;
@@ -18,7 +24,7 @@ public class LancamentosFinanceirosDTO {
     private String pcUtilizacaoDespesasMes;
     private String labelQuitacaoParcelasMes;
     private Integer sizeDespesasFixasMensaisVB;
-    private Integer sizeDetalheDespesasMensaisVB;
+    private Integer sizeLancamentosMensaisVB;
     private List<DespesasFixasMensaisDAO> despesasFixasMensais;
-    private List<DespesasMensaisDAO> detalheDespesasMensais;
+    private List<LancamentosMensaisDAO> lancamentosMensais;
 }
