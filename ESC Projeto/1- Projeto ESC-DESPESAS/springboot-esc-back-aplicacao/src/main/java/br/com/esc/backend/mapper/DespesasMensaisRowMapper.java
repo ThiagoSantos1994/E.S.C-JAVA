@@ -30,7 +30,7 @@ public class DespesasMensaisRowMapper implements RowMapper<DespesasMensaisDAO> {
                 .dsNomeDespesa(rs.getString("ds_NomeDespesa"))
                 .dsTituloDespesa(rs.getString("ds_TituloDespesa"))
                 //.vlLimite(rs.getBigDecimal("vl_Limite"))
-                .vlLimite(rs.getString("vl_Limite"))
+                .vlLimite(rs.getString("vl_Limite").replace(".",","))
                 .idOrdemExibicao(rs.getInt("id_OrdemExibicao"))
                 .idFuncionario(rs.getInt("id_Funcionario"))
                 .idEmprestimo(rs.getInt("id_Emprestimo"))

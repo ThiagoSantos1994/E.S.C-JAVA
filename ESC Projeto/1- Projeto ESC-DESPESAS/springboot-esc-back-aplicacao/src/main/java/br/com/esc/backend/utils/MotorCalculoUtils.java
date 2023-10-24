@@ -34,14 +34,14 @@ public class MotorCalculoUtils {
     }
 
     public static BigDecimal calculaPorcentagem(BigDecimal valorLimite, BigDecimal valorCalculado) {
-        if (valorCalculado.compareTo(BigDecimal.ZERO) == 0) {
+        if (valorLimite.compareTo(BigDecimal.ZERO) == 0 || valorCalculado.compareTo(BigDecimal.ZERO) == 0) {
             return BigDecimal.ZERO;
         }
         return valorCalculado.divide(valorLimite, 4, BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100));
     }
 
     public static BigDecimal calculaPorcentagem(BigDecimal valorLimite, BigDecimal valorCalculado, Integer scale) {
-        if (valorCalculado.compareTo(BigDecimal.ZERO) == 0) {
+        if (valorLimite.compareTo(BigDecimal.ZERO) == 0 || valorCalculado.compareTo(BigDecimal.ZERO) == 0) {
             return BigDecimal.ZERO;
         }
         return valorCalculado.divide(valorLimite, scale, BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100));

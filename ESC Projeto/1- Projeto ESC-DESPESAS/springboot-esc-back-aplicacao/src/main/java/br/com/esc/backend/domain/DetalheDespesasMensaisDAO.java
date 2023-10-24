@@ -31,4 +31,5 @@ public class DetalheDespesasMensaisDAO {
     private String tpAnotacao;
     private String tpRelatorio;
     private String tpLinhaSeparacao;
+    private String tpParcelaAdiada;
 }

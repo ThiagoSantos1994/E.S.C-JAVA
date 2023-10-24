@@ -32,6 +32,7 @@ public class DetalheDespesasMensaisRowMapper implements RowMapper<DetalheDespesa
                     .tpAnotacao(rs.getString("tp_Anotacao"))
                     .tpRelatorio(rs.getString("tp_Relatorio"))
                     .tpLinhaSeparacao(rs.getString("tp_LinhaSeparacao"))
+                    .tpParcelaAdiada(rs.getString("tp_ParcelaAdiada"))
                     .build();
         }
 
@@ -57,6 +58,7 @@ public class DetalheDespesasMensaisRowMapper implements RowMapper<DetalheDespesa
                 .tpAnotacao(rs.getString("tp_Anotacao"))
                 .tpRelatorio(rs.getString("tp_Relatorio"))
                 .tpLinhaSeparacao(rs.getString("tp_LinhaSeparacao"))
+                .tpParcelaAdiada(rs.getString("tp_ParcelaAdiada"))
                 .build();
     }
 }

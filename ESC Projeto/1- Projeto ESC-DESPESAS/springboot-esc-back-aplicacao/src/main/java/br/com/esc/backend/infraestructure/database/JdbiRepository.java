@@ -28,12 +28,7 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlQuery
     @UseRowMapper(DespesasMensaisRowMapper.class)
-    List<DespesasMensaisDAO> getDespesasMensais(Integer idDespesa, Integer idFuncionario);
-
-    @Override
-    @SqlQuery
-    @UseRowMapper(DespesasMensaisRowMapper.class)
-    DespesasMensaisDAO getDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+    List<DespesasMensaisDAO> getDespesasMensais(Integer idDespesa, Integer idFuncionario, Integer idDetalheDespesa);
 
     @Override
     @SqlQuery
@@ -77,29 +72,14 @@ public interface JdbiRepository extends AplicacaoRepository {
     DespesasParceladasQuitacaoDAO getQuantidadeDespesasParceladasQuitacaoMes(Integer idDespesa, Integer idFuncionario);
 
     @Override
-    @SqlUpdate
-    void insertDespesasFixasMensais(@BindBean("fixas") DespesasFixasMensaisRequest request);
-
-    @Override
-    @SqlUpdate
-    void updateDespesasFixasMensais(@BindBean("fixas") DespesasFixasMensaisRequest request);
-
-    @Override
-    @SqlUpdate
-    void deleteDespesasFixasMensais(Integer idDespesa, Integer idOrdem, Integer idFuncionario);
-
-    @Override
-    @SqlUpdate
-    void insertDespesasMensais(@BindBean("despesa") DespesasMensaisDAO despesasMensaisDAO);
-
-    @Override
     @SqlQuery
     @UseRowMapper(DetalheDespesasMensaisRowMapper.class)
     List<DetalheDespesasMensaisDAO> getDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 
     @Override
-    @SqlUpdate
-    void insertDetalheDespesasMensais(@BindBean("detalhe") DetalheDespesasMensaisDAO detalheDAO);
+    @SqlQuery
+    @UseRowMapper(DetalheDespesasMensaisRowMapper.class)
+    DetalheDespesasMensaisDAO getDetalheDespesaMensalPorFiltro(@BindBean("detalhe") DetalheDespesasMensaisDAO mensaisDAO);
 
     @Override
     @SqlQuery
@@ -112,5 +92,85 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlUpdate
+    void insertDespesasFixasMensais(@BindBean("fixas") DespesasFixasMensaisRequest request);
+
+    @Override
+    @SqlUpdate
+    void insertDespesasMensais(@BindBean("despesa") DespesasMensaisDAO despesasMensaisDAO);
+
+    @Override
+    @SqlUpdate
+    void insertDetalheDespesasMensais(@BindBean("detalhe") DetalheDespesasMensaisDAO detalheDAO);
+
+    @Override
+    @SqlUpdate
+    void updateValorDetalheDespesasMensais(@BindBean("detalhe") DetalheDespesasMensaisDAO detalheDespesasMensais);
+
+    @Override
+    @SqlUpdate
+    void updateDespesasFixasMensais(@BindBean("fixas") DespesasFixasMensaisRequest request);
+
+    @Override
+    @SqlUpdate
     void updateDespesasMensais(@BindBean("mensal") DespesasMensaisDAO despesasMensaisDAO);
+
+    @Override
+    @SqlUpdate
+    void updateDetalheDespesasMensais(@BindBean("detalhe") DetalheDespesasMensaisDAO detalheDespesasMensais);
+
+    @Override
+    @SqlUpdate
+    void deleteDespesaParceladaImportada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void deleteDespesasFixasMensaisTemp(Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void deleteDespesasMensaisTemp(Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void deleteDetalheDespesasMensaisTemp(Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void deleteTodasDespesasFixasMensais(Integer idDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void deleteTodasDespesasMensais(Integer idDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void deleteTodosDetalhesDespesasMensais(Integer idDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void deleteDespesasFixasMensaisPorFiltro(Integer idDespesa, Integer idOrdem, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void deleteDespesasMensaisPorFiltro(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void deleteDetalheDespesasMensaisPorFiltro(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void deleteDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void updateParcelaStatusPendenteDespesasExcluidas(Integer idDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void updateParcelaStatusPendente(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void updateDespesasParceladasEmAberto(Integer idFuncionario);
 }
