@@ -43,9 +43,15 @@ public interface AplicacaoRepository {
 
     ParcelasDAO getParcelaPorDataVencimento(Integer idDespesaParcelada, String dataVencimento, Integer idFuncionario);
 
+    ParcelasDAO getParcelaDisponivelSemAmortizacao(Integer idDespesaParcelada, Integer idFuncionario);
+
     String getValidaDespesaParceladaAmortizacao(Integer idDespesaParcelada, Integer idFuncionario);
 
     String getValidaParcelaAmortizacao(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
+
+    String getValidaDetalheDespesaComParcelaAdiada(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+
+    String getValidaDetalheDespesaComParcelaAmortizada(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 
     Integer getMaxOrdemDespesasFixasMensais(Integer idDespesa, Integer idFuncionario);
 
@@ -79,7 +85,7 @@ public interface AplicacaoRepository {
 
     void updateDetalheDespesasMensais(DetalheDespesasMensaisDAO detalheDespesasMensais);
 
-    void updateStatusParcelaPaga(String dsObservacoes, Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
+    void updateParcelaStatusPago(String dsObservacoes, Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
 
     void updateParcelaStatusPendenteDespesasExcluidas(Integer idDespesa, Integer idFuncionario);
 
@@ -91,7 +97,7 @@ public interface AplicacaoRepository {
 
     void updateStatusParcelaSemAmortizacao(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
 
-    void updateStatusPagamentoDetalheDespesa(String vlTotal, String vlTotalPago, String tpStatus, String dsObservacoes, String dsObservacoesComplmenetares, Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario);
+    void updateStatusPagamentoDetalheDespesa(String vlTotal, String vlTotalPago, String tpStatus, String dsObservacoes, String dsObservacoesComplementares, Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario);
 
     void updateStatusBaixaLinhaSeparacao(Integer idDespesa, Integer idFuncionario);
 

@@ -26,6 +26,7 @@ public class DetalheDespesasMensaisRowMapper implements RowMapper<DetalheDespesa
                     .vlTotal(rs.getString("vl_Total"))
                     .vlTotalPago(rs.getString("vl_TotalPago"))
                     .dsObservacao(rs.getString("ds_Observacao"))
+                    .dsObservacao2(rs.getString("ds_Observacao2"))
                     .tpCategoriaDespesa(rs.getString("tp_CategoriaDespesa"))
                     .tpStatus(rs.getString("tp_Status"))
                     .tpReprocessar(rs.getString("tp_Reprocessar"))
@@ -61,6 +62,8 @@ public class DetalheDespesasMensaisRowMapper implements RowMapper<DetalheDespesa
                 .tpRelatorio(rs.getString("tp_Relatorio"))
                 .tpLinhaSeparacao(rs.getString("tp_LinhaSeparacao"))
                 .tpParcelaAdiada(rs.getString("tp_ParcelaAdiada"))
+                .tpParcelaAmortizada(rs.getString("tp_ParcelaAmortizada"))
+                .tpMeta(rs.getString("tp_Meta"))
                 .build();
     }
 }

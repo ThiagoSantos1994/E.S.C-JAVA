@@ -104,6 +104,7 @@ public class LancamentosBusinessService {
     }
 
     public void processarPagamentoDetalheDespesas(PagamentoDespesasRequest request) {
+        log.info("Processando pagamento despesas mensais - Filtros: {}", request.toString());
         detalheDespesasServices.baixarPagamentoDespesas(request);
     }
 

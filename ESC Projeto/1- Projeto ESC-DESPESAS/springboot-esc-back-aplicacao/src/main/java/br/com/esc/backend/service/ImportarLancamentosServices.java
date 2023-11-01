@@ -115,16 +115,24 @@ public class ImportarLancamentosServices {
             if (isNotNull(idDespesaParcelada) && idDespesaParcelada > 0) {
                 var dataVencimento = (dsMes + "/" + dsAno);
                 ParcelasDAO parcela = repository.getParcelaPorDataVencimento(idDespesaParcelada, dataVencimento, idFuncionario);
+
                 if (isNull(parcela)) {
                     //Em caso de reprocessamento, exclui a parcela da despesa se nao existir no fluxo de parcelas
                     repository.deleteDespesaParceladaImportada(idDespesa, idDetalheDespesa, idDespesaParcelada, idFuncionario);
                     continue;
                 }
 
-                var isParcelaAmortizada = repository.getValidaDespesaParceladaAmortizacao(idDespesaParcelada, idFuncionario);
-                 if (isParcelaAmortizada.equalsIgnoreCase("S")) {
-                    //Nao importa despesas amortizadas automaticamente, o fluxo precisa ser manual, classificada como anotacao
-                    dao.setTpAnotacao("S");
+                var isDetalheComParcelaAmortizada = repository.getValidaDetalheDespesaComParcelaAmortizada(dao.getIdDespesa(), dao.getIdDetalheDespesa(), idFuncionario);
+                if (isDetalheComParcelaAmortizada.equalsIgnoreCase("S")) {
+                    var parcelaSemAmortizacao = repository.getParcelaDisponivelSemAmortizacao(idDespesaParcelada, idFuncionario);
+
+                    if (parcelaSemAmortizacao.getIdParcela() >= parcela.getIdParcela()) {
+                        // Somente para parcelas amortizadas, exclui a despesa parcelada para gravar novamente
+                        repository.deleteDespesaParceladaImportada(idDespesa, idDetalheDespesa, idDespesaParcelada, idFuncionario);
+                        parcela = parcelaSemAmortizacao;
+                    } else {
+                        dao.setTpAnotacao("S");
+                    }
                 }
 
                 if (dao.getTpParcelaAdiada().equalsIgnoreCase("S")) {

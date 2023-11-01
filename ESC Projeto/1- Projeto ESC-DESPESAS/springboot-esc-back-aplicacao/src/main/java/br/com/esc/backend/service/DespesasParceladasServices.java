@@ -57,9 +57,9 @@ public class DespesasParceladasServices {
             repository.updateParcelaStatusPendente(idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, idFuncionario);
         } else {
             if (isParcelaComAmortizacao.equalsIgnoreCase("S")) {
-                repository.updateStatusParcelaPaga(STATUS_BAIXA_AMORTIZADA_PELO_SISTEMA.concat(" #" + idParcela + "#"), idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, idFuncionario);
+                repository.updateParcelaStatusPago(STATUS_BAIXA_AMORTIZADA_PELO_SISTEMA.concat(" #" + idParcela + "#"), idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, idFuncionario);
             } else {
-                repository.updateStatusParcelaPaga(STATUS_BAIXA_REALIZADA_PELO_SISTEMA.concat(" #" + idParcela + "#"), idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, idFuncionario);
+                repository.updateParcelaStatusPago(STATUS_BAIXA_REALIZADA_PELO_SISTEMA.concat(" #" + idParcela + "#"), idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, idFuncionario);
             }
         }
 

@@ -153,37 +153,19 @@ public class DetalheDespesasServices {
             var bProcessamentoAdiantamentoParcelas = request.getIsProcessamentoAdiantamentoParcelas();
 
             if ((bProcessamentoAdiantamentoParcelas.equals(true) && request.getIdDetalheDespesa() > 0) || bProcessamentoAdiantamentoParcelas.equals(false)) {
-                var adiantamentoParcela = isDespesaComAdiantamentoParcela(request.getIdDespesa(), request.getIdDetalheDespesa(), request.getIdDespesaParcelada(), request.getIdFuncionario());
-                if (!adiantamentoParcela) {
+                var existeParcelasAdiadas = repository.getValidaDetalheDespesaComParcelaAdiada(request.getIdDespesa(), request.getIdDetalheDespesa(), request.getIdFuncionario());
+                if (existeParcelasAdiadas.equalsIgnoreCase("N")) {
                     repository.updateStatusPagamentoDetalheDespesa(request.getVlTotal(), request.getVlTotalPago(), PAGO, request.getDsObservacoes(), request.getDsObservacoesComplementar(), request.getIdDespesa(), request.getIdDetalheDespesa(), request.getIdOrdem(), request.getIdFuncionario());
                 }
             }
 
-            if (bProcessamentoAdiantamentoParcelas.equals(false)) {
-                despesasParceladasServices.atualizarStatusPagamentoDespesaParcelada(request.getIdDespesa(), request.getIdDetalheDespesa(), request.getIdDespesaParcelada(), request.getIdParcela(), request.getIdFuncionario(), PENDENTE, false);
+             if (bProcessamentoAdiantamentoParcelas.equals(false)) {
+                despesasParceladasServices.atualizarStatusPagamentoDespesaParcelada(request.getIdDespesa(), request.getIdDetalheDespesa(), request.getIdDespesaParcelada(), request.getIdParcela(), request.getIdFuncionario(), PAGO, false);
             }
         }
 
         /*Atualiza o stts pagamento para as linhas de separacao*/
         repository.updateStatusBaixaLinhaSeparacao(request.getIdDespesa(), request.getIdFuncionario());
-    }
-
-    private boolean isDespesaComAdiantamentoParcela(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idFuncionario) {
-        /*Valida se a parcela ja foi adiantada no mesmo mes do processamento*/
-        var filtro = DetalheDespesasMensaisDAO.builder()
-                .idDespesa(idDespesa)
-                .idDetalheDespesa(idDetalheDespesa)
-                .idDespesaParcelada(idDespesaParcelada)
-                .idFuncionario(idFuncionario)
-                .tpParcelaAdiada("S")
-                .build();
-
-        var despesaMensal = repository.getDetalheDespesaMensalPorFiltro(filtro);
-        if (isEmpty(despesaMensal)) {
-            return false;
-        }
-
-        return false;
     }
 
     private Boolean isDetalheDespesaExistente(DetalheDespesasMensaisDAO detalhe) {
