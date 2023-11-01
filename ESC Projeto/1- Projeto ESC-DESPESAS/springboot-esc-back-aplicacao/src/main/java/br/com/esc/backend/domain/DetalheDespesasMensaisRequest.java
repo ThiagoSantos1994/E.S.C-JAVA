@@ -5,13 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class DetalheDespesasMensaisDAO {
+public class DetalheDespesasMensaisRequest {
     private Integer idDespesa;
     private Integer idDetalheDespesa;
     private String dsTituloDespesa;
@@ -25,7 +23,6 @@ public class DetalheDespesasMensaisDAO {
     private String vlTotalPago;
     private String dsObservacao;
     private String dsObservacao2;
-    private String tpMeta;
     private String tpCategoriaDespesa;
     private String tpStatus;
     private String tpReprocessar;
@@ -34,4 +31,5 @@ public class DetalheDespesasMensaisDAO {
     private String tpLinhaSeparacao;
     private String tpParcelaAdiada;
     private String tpParcelaAmortizada;
+    private String tpMeta;
 }

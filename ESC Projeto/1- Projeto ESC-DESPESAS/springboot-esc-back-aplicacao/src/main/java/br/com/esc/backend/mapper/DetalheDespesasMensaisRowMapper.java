@@ -33,6 +33,8 @@ public class DetalheDespesasMensaisRowMapper implements RowMapper<DetalheDespesa
                     .tpRelatorio(rs.getString("tp_Relatorio"))
                     .tpLinhaSeparacao(rs.getString("tp_LinhaSeparacao"))
                     .tpParcelaAdiada(rs.getString("tp_ParcelaAdiada"))
+                    .tpParcelaAmortizada(rs.getString("tp_ParcelaAmortizada"))
+                    .tpMeta(rs.getString("tp_Meta"))
                     .build();
         }
 

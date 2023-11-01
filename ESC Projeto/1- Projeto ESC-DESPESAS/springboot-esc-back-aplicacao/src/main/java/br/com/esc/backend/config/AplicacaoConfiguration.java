@@ -1,10 +1,11 @@
 package br.com.esc.backend.config;
 
-import br.com.esc.backend.business.DetalheDespesasBusiness;
-import br.com.esc.backend.business.ImportarLancamentosBusiness;
-import br.com.esc.backend.business.LancamentosFinanceirosBusiness;
+import br.com.esc.backend.service.DespesasParceladasServices;
+import br.com.esc.backend.service.DetalheDespesasServices;
+import br.com.esc.backend.service.ImportarLancamentosServices;
+import br.com.esc.backend.service.LancamentosFinanceirosServices;
 import br.com.esc.backend.repository.AplicacaoRepository;
-import br.com.esc.backend.service.LancamentosFinanceirosService;
+import br.com.esc.backend.business.LancamentosBusinessService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -12,22 +13,27 @@ import org.springframework.context.annotation.Configuration;
 public class AplicacaoConfiguration {
 
     @Bean
-    LancamentosFinanceirosService lancamentosFinanceirosService(AplicacaoRepository repository, ImportarLancamentosBusiness importacaoBusiness, LancamentosFinanceirosBusiness lancamentosBusiness, DetalheDespesasBusiness detalheDespesasBusiness) {
-        return new LancamentosFinanceirosService(repository, importacaoBusiness, lancamentosBusiness, detalheDespesasBusiness);
+    LancamentosBusinessService lancamentosFinanceirosService(AplicacaoRepository repository, ImportarLancamentosServices importacaoBusiness, LancamentosFinanceirosServices lancamentosBusiness, DetalheDespesasServices detalheDespesasServices, DespesasParceladasServices despesasParceladasServices) {
+        return new LancamentosBusinessService(repository, importacaoBusiness, lancamentosBusiness, detalheDespesasServices, despesasParceladasServices);
     }
 
     @Bean
-    ImportarLancamentosBusiness importarLancamentosBusiness(AplicacaoRepository repository) {
-        return new ImportarLancamentosBusiness(repository);
+    ImportarLancamentosServices importarLancamentosBusiness(AplicacaoRepository repository, DetalheDespesasServices detalheDespesasServices) {
+        return new ImportarLancamentosServices(repository, detalheDespesasServices);
     }
 
     @Bean
-    LancamentosFinanceirosBusiness lancamentosFinanceirosBusiness(AplicacaoRepository repository) {
-        return new LancamentosFinanceirosBusiness(repository);
+    LancamentosFinanceirosServices lancamentosFinanceirosBusiness(AplicacaoRepository repository) {
+        return new LancamentosFinanceirosServices(repository);
     }
 
     @Bean
-    DetalheDespesasBusiness detalheDespesasBusiness(AplicacaoRepository repository) {
-        return new DetalheDespesasBusiness(repository);
+    DetalheDespesasServices detalheDespesasBusiness(AplicacaoRepository repository, DespesasParceladasServices despesasParceladasServices) {
+        return new DetalheDespesasServices(repository, despesasParceladasServices);
+    }
+
+    @Bean
+    DespesasParceladasServices despesasParceladasServices(AplicacaoRepository repository) {
+        return new DespesasParceladasServices(repository);
     }
 }

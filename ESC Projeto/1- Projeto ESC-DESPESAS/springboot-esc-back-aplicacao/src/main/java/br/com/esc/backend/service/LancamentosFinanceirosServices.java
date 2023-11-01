@@ -1,6 +1,7 @@
-package br.com.esc.backend.business;
+package br.com.esc.backend.service;
 
 import br.com.esc.backend.domain.DespesasFixasMensaisDAO;
+import br.com.esc.backend.domain.DespesasFixasMensaisRequest;
 import br.com.esc.backend.domain.LancamentosFinanceirosDTO;
 import br.com.esc.backend.domain.LancamentosMensaisDAO;
 import br.com.esc.backend.repository.AplicacaoRepository;
@@ -13,12 +14,12 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import static br.com.esc.backend.utils.MotorCalculoUtils.calculaPorcentagem;
-import static br.com.esc.backend.utils.MotorCalculoUtils.calcularReceitaPositivaMes;
+import static br.com.esc.backend.utils.MotorCalculoUtils.*;
+import static br.com.esc.backend.utils.ObjectUtils.isNull;
 
 @Slf4j
 @RequiredArgsConstructor
-public class LancamentosFinanceirosBusiness {
+public class LancamentosFinanceirosServices {
 
     private final AplicacaoRepository repository;
 
@@ -93,7 +94,7 @@ public class LancamentosFinanceirosBusiness {
             detalhes.setVlTotalDespesaPaga(repository.getCalculoTotalDespesaPaga(idDespesa, idDetalheDespesa, idFuncionario));
 
             if (detalhes.getTpEmprestimo().equalsIgnoreCase("N")) {
-                var percentual = calculaPorcentagem(BigDecimal.valueOf(Double.valueOf(detalhes.getVlLimite())), detalhes.getVlTotalDespesa());
+                var percentual = calculaPorcentagem(convertStringToDecimal(detalhes.getVlLimite()), detalhes.getVlTotalDespesa());
                 detalhes.setPercentualUtilizacao(new DecimalFormat("0.00").format(percentual).concat("%"));
             }
 
@@ -103,10 +104,31 @@ public class LancamentosFinanceirosBusiness {
         return lancamentosMensaisList;
     }
 
+    public void gravarDespesasFixasMensais(DespesasFixasMensaisRequest request) {
+        if (this.isDespesaFixaExistente(request)) {
+            log.info("Atualizando despesas fixas mensais - request: {}", request);
+            repository.updateDespesasFixasMensais(request);
+        } else {
+            var idOrdemInclusao = repository.getMaxOrdemDespesasFixasMensais(request.getIdDespesa(), request.getIdFuncionario());
+            request.setIdOrdem(idOrdemInclusao);
+
+            log.info("Inserindo despesas fixas mensais - request: {}", request);
+            repository.insertDespesasFixasMensais(request);
+        }
+    }
+
     private BigDecimal obterPercentualUtilizacaoDespesaMes(LancamentosFinanceirosDTO dto) {
         var iPercentualUtilizadoBase = calculaPorcentagem(dto.getVlSaldoPositivo(), (dto.getVlSaldoInicialMes().subtract(dto.getVlSaldoPositivo())), 2);
         var iPercentualDespesaMesCalculado = calculaPorcentagem(dto.getVlSaldoInicialMes(), (dto.getVlTotalDespesas().subtract(dto.getVlSaldoInicialMes())), 2).add(iPercentualUtilizadoBase);
 
         return iPercentualDespesaMesCalculado;
+    }
+
+    private Boolean isDespesaFixaExistente(DespesasFixasMensaisRequest request) {
+        var despesaFixaMensal = repository.getDespesaFixaMensalPorFiltro(request.getIdDespesa(), request.getIdOrdem(), request.getIdFuncionario());
+        if (isNull(despesaFixaMensal)) {
+            return false;
+        }
+        return true;
     }
 }

@@ -1,31 +1,32 @@
-package br.com.esc.backend.service;
+package br.com.esc.backend.business;
 
-import br.com.esc.backend.business.DetalheDespesasBusiness;
-import br.com.esc.backend.business.ImportarLancamentosBusiness;
-import br.com.esc.backend.business.LancamentosFinanceirosBusiness;
-import br.com.esc.backend.domain.DespesasFixasMensaisRequest;
-import br.com.esc.backend.domain.DetalheDespesasMensaisDTO;
-import br.com.esc.backend.domain.LancamentosFinanceirosDTO;
+import br.com.esc.backend.service.DespesasParceladasServices;
+import br.com.esc.backend.service.DetalheDespesasServices;
+import br.com.esc.backend.service.ImportarLancamentosServices;
+import br.com.esc.backend.service.LancamentosFinanceirosServices;
+import br.com.esc.backend.domain.*;
 import br.com.esc.backend.repository.AplicacaoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
+import org.apache.commons.beanutils.BeanUtils;
 
-import static br.com.esc.backend.utils.ObjectUtils.isNull;
+import java.lang.reflect.InvocationTargetException;
 
 @RequiredArgsConstructor
 @Slf4j
-public class LancamentosFinanceirosService {
+public class LancamentosBusinessService {
 
     private final AplicacaoRepository repository;
-    private final ImportarLancamentosBusiness importacaoBusiness;
-    private final LancamentosFinanceirosBusiness lancamentosBusiness;
-    private final DetalheDespesasBusiness detalheDespesasBusiness;
+    private final ImportarLancamentosServices importacaoServices;
+    private final LancamentosFinanceirosServices lancamentosServices;
+    private final DetalheDespesasServices detalheDespesasServices;
+    private final DespesasParceladasServices despesasParceladasServices;
 
     public LancamentosFinanceirosDTO obterLancamentosFinanceiros(String dsMes, String dsAno, Integer idFuncionario) {
         log.info("Consultando lancamentos financeiros - request: dsMes= {} - dsAno= {} - idFuncionario= {}", dsMes, dsAno, idFuncionario);
 
-        var result = lancamentosBusiness.obterLancamentosFinanceiros(dsMes, dsAno, idFuncionario);
+        var result = lancamentosServices.obterLancamentosFinanceiros(dsMes, dsAno, idFuncionario);
 
         log.info("Consultando lancamentos financeiros - result: {}", result);
 
@@ -35,7 +36,7 @@ public class LancamentosFinanceirosService {
     public DetalheDespesasMensaisDTO obterDetalheDespesaMensal(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario) {
         log.info("Consultando detalhes despesa mensal >>>  idDespesa = {} - idDetalheDespesa = {} - idFuncionario = {}", idDespesa, idDetalheDespesa, idFuncionario);
 
-        var result = detalheDespesasBusiness.obterDetalheDespesaMensal(idDespesa, idDetalheDespesa, idFuncionario);
+        var result = detalheDespesasServices.obterDetalheDespesaMensal(idDespesa, idDetalheDespesa, idFuncionario);
 
         log.info("Consultando detalhes despesa mensal >>>  result = {}", result);
 
@@ -43,13 +44,7 @@ public class LancamentosFinanceirosService {
     }
 
     public void gravarDespesasFixasMensais(DespesasFixasMensaisRequest request) {
-        log.info("Inserindo despesas fixas mensais - request: {}", request);
-        repository.insertDespesasFixasMensais(request);
-    }
-
-    public void updateDespesasFixasMensais(DespesasFixasMensaisRequest request) {
-        log.info("Atualizando despesas fixas mensais - request: {}", request);
-        repository.updateDespesasFixasMensais(request);
+        lancamentosServices.gravarDespesasFixasMensais(request);
     }
 
     public void deleteDespesaFixaMensal(Integer idDespesa, Integer idOrdem, Integer idFuncionario) {
@@ -59,26 +54,12 @@ public class LancamentosFinanceirosService {
 
     public void deleteDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario) {
         log.info("Excluindo despesa mensal - request: idDespesa= {} - idDetalheDespesa= {} - idOrdem= {} - idFuncionario= {}", idDespesa, idDetalheDespesa, idOrdem, idFuncionario);
-
-        repository.updateParcelaStatusPendente(idDespesa, idDetalheDespesa, null, null, idFuncionario);
-
         repository.deleteDespesasMensaisPorFiltro(idDespesa, idDetalheDespesa, idOrdem, idFuncionario);
-
-        this.atualizaStatusDespesasParceladasEmAberto(idFuncionario);
     }
 
     public void deleteDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario) {
         log.info("Excluindo detalhe despesa mensal - request: idDespesa= {} - idDetalheDespesa= {} - idOrdem= {} - idFuncionario= {}", idDespesa, idDetalheDespesa, idOrdem, idFuncionario);
-
-        repository.updateParcelaStatusPendente(idDespesa, idDetalheDespesa, null, null, idFuncionario);
-
-        if (isNull(idOrdem) || idOrdem == -1) {
-            repository.deleteDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario);
-        } else {
-            repository.deleteDetalheDespesasMensaisPorFiltro(idDespesa, idDetalheDespesa, idOrdem, idFuncionario);
-        }
-
-        this.atualizaStatusDespesasParceladasEmAberto(idFuncionario);
+        detalheDespesasServices.deleteDetalheDespesasMensais(idDespesa, idDetalheDespesa, idOrdem, idFuncionario);
     }
 
     public void deleteTodosLancamentosMensais(Integer idDespesa, Integer idFuncionario) {
@@ -99,21 +80,35 @@ public class LancamentosFinanceirosService {
     }
 
     public void processarImportacaoDespesasMensais(Integer idDespesa, Integer idFuncionario, String dsMes, String dsAno) throws Exception {
-        log.info("Processando importacao despesas mensais - idDespesa {} - idFuncionario {} - dsMes {} - dsAno {}", idDespesa, idFuncionario, dsMes, dsAno);
-
-        importacaoBusiness.processarImportacaoDespesasMensais(idDespesa, idFuncionario, dsMes, dsAno);
-
+        log.info("Processando importacao lancamentos e despesas mensais - idDespesa {} - idFuncionario {} - dsMes {} - dsAno {}", idDespesa, idFuncionario, dsMes, dsAno);
+        importacaoServices.processarImportacaoDespesasMensais(idDespesa, idFuncionario, dsMes, dsAno);
         this.atualizaStatusDespesasParceladasEmAberto(idFuncionario);
-
-        log.info("Importacao despesas mensais concluida com sucesso!");
     }
 
     public void processarImportacaoDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String dsMes, String dsAno, Boolean bReprocessarTodosValores) {
         log.info("Iniciando processamento importacao detalhe despesas mensais - Filtros: idDespesa= {} - idDetalheDespesa= {} - idFuncionario= {} - dsMes= {} - dsAno= {} - bReprocessarTodosValores= {}", idDespesa, idDetalheDespesa, idFuncionario, dsMes, dsAno, bReprocessarTodosValores);
-        importacaoBusiness.processarImportacaoDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario, dsMes, dsAno, bReprocessarTodosValores);
+        importacaoServices.processarImportacaoDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario, dsMes, dsAno, bReprocessarTodosValores);
+        this.atualizaStatusDespesasParceladasEmAberto(idFuncionario);
+    }
+
+    public void gravarDespesaMensal(DespesasMensaisRequest request) throws InvocationTargetException, IllegalAccessException {
+        DespesasMensaisDAO mensaisDAO = new DespesasMensaisDAO();
+        BeanUtils.copyProperties(mensaisDAO, request);
+        detalheDespesasServices.gravarDespesasMensais(mensaisDAO);
+     }
+
+    public void gravarDetalheDespesasMensais(DetalheDespesasMensaisRequest request) throws InvocationTargetException, IllegalAccessException {
+        DetalheDespesasMensaisDAO detalheDAO = new DetalheDespesasMensaisDAO();
+        BeanUtils.copyProperties(detalheDAO, request);
+        detalheDespesasServices.gravarDetalheDespesasMensais(detalheDAO);
+    }
+
+    public void processarPagamentoDetalheDespesas(PagamentoDespesasRequest request) {
+        detalheDespesasServices.baixarPagamentoDespesas(request);
     }
 
     private void atualizaStatusDespesasParceladasEmAberto(Integer idFuncionario) {
         repository.updateDespesasParceladasEmAberto(idFuncionario);
     }
+
 }

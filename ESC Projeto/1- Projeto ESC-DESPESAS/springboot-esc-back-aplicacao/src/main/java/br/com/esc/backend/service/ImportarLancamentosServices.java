@@ -1,4 +1,4 @@
-package br.com.esc.backend.business;
+package br.com.esc.backend.service;
 
 import br.com.esc.backend.domain.*;
 import br.com.esc.backend.repository.AplicacaoRepository;
@@ -11,17 +11,17 @@ import java.util.List;
 
 import static br.com.esc.backend.utils.ObjectUtils.isNotNull;
 import static br.com.esc.backend.utils.ObjectUtils.isNull;
+import static br.com.esc.backend.utils.VariaveisGlobais.PENDENTE;
+import static br.com.esc.backend.utils.VariaveisGlobais.VALOR_ZERO;
 import static java.lang.Integer.parseInt;
 import static java.lang.String.valueOf;
 
 @Slf4j
 @RequiredArgsConstructor
-public class ImportarLancamentosBusiness {
+public class ImportarLancamentosServices {
 
     private final AplicacaoRepository repository;
-    private final static String PENDENTE = "Pendente";
-    private final static String PAGO = "Pago";
-    private final static String VALOR_ZERO = "0,00";
+    private final DetalheDespesasServices detalheDespesasServices;
 
     public void processarImportacaoDespesasMensais(Integer idDespesa, Integer idFuncionario, String dsMes, String dsAno) throws Exception {
         /*Limpa a base dos dados temporarios gerados para visualizacao temporaria*/
@@ -41,18 +41,10 @@ public class ImportarLancamentosBusiness {
 
         var despesasMensais = this.processarDespesasMensais(idDespesaImportacao, idFuncionario);
         for (DespesasMensaisDAO despesaMensal : despesasMensais) {
-            var idDetalheDespesa = despesaMensal.getIdDetalheDespesa();
-
-            if (this.isDespesaExistente(idDespesa, idDetalheDespesa, idFuncionario)) {
-                log.info("Atualizando despesa mensal >>>  {}", despesaMensal);
-                repository.updateDespesasMensais(despesaMensal);
-            } else {
-                log.info("Inserindo despesa mensal >>>  {}", despesaMensal);
-                repository.insertDespesasMensais(despesaMensal);
-            }
+            detalheDespesasServices.gravarDespesasMensais(despesaMensal);
 
             var bReprocessarTodosValores = despesaMensal.getTpReprocessar().equalsIgnoreCase("S");
-            this.processarImportacaoDetalheDespesasMensais(idDespesaImportacao, idDetalheDespesa, idFuncionario, dsMes, dsAno, bReprocessarTodosValores);
+            this.processarImportacaoDetalheDespesasMensais(idDespesaImportacao, despesaMensal.getIdDetalheDespesa(), idFuncionario, dsMes, dsAno, bReprocessarTodosValores);
         }
     }
 
@@ -60,7 +52,7 @@ public class ImportarLancamentosBusiness {
         for (DetalheDespesasMensaisDAO detalheDespesa : this.processarDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario, dsMes, dsAno, bReprocessarTodosValores)) {
             if (this.isDetalheDespesaExistente(detalheDespesa)) {
                 log.info("Atualizando detalhe despesa mensal >>>  {}", detalheDespesa);
-                repository.updateDetalheDespesasMensais(detalheDespesa);
+                repository.updateDetalheDespesasMensaisImportacao(detalheDespesa);
 
                 if (bReprocessarTodosValores) {
                     repository.updateValorDetalheDespesasMensais(detalheDespesa);
@@ -130,7 +122,7 @@ public class ImportarLancamentosBusiness {
                 }
 
                 var isParcelaAmortizada = repository.getValidaDespesaParceladaAmortizacao(idDespesaParcelada, idFuncionario);
-                if (isParcelaAmortizada.equalsIgnoreCase("S")) {
+                 if (isParcelaAmortizada.equalsIgnoreCase("S")) {
                     //Nao importa despesas amortizadas automaticamente, o fluxo precisa ser manual, classificada como anotacao
                     dao.setTpAnotacao("S");
                 }
@@ -171,14 +163,6 @@ public class ImportarLancamentosBusiness {
         var dsMesAnterior = (parseInt(dsMes) - 1 < 1 ? 12 : parseInt(dsMes) - 1);
         var result = (dsMesAnterior <= 9 ? "0" + dsMesAnterior : valueOf(dsMesAnterior));
         return result;
-    }
-
-    private Boolean isDespesaExistente(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario) {
-        var despesaMesAtual = repository.getDespesasMensais(idDespesa, idFuncionario, idDetalheDespesa);
-        if (despesaMesAtual.size() == 0) {
-            return false;
-        }
-        return true;
     }
 
     private Boolean isDetalheDespesaExistente(DetalheDespesasMensaisDAO detalhe) {

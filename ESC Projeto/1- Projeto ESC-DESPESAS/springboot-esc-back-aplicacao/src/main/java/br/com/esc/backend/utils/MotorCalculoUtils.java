@@ -52,11 +52,19 @@ public class MotorCalculoUtils {
             return new BigDecimal(0);
         }
 
-        var dValor = Double.parseDouble(valor.trim().replace("- ", "-").replace(".", "").replace(",", "."));
+        var dValor = Double.parseDouble(valor.trim().replace("- ", "-").replace(",", "."));
         if (dValor <= 0 || isNull(dValor)) {
             return new BigDecimal(0);
         }
 
         return BigDecimal.valueOf(dValor);
+    }
+
+    public static String convertDecimalToString(BigDecimal valor) {
+        if (isEmpty(valor)) {
+            return "0,00";
+        }
+
+        return valor.toString().replace(".",",");
     }
 }

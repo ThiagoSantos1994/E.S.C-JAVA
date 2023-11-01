@@ -1,9 +1,7 @@
 package br.com.esc.backend.rest;
 
-import br.com.esc.backend.domain.DespesasFixasMensaisRequest;
-import br.com.esc.backend.domain.DetalheDespesasMensaisDTO;
-import br.com.esc.backend.domain.LancamentosFinanceirosDTO;
-import br.com.esc.backend.service.LancamentosFinanceirosService;
+import br.com.esc.backend.domain.*;
+import br.com.esc.backend.business.LancamentosBusinessService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
@@ -12,13 +10,15 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.InvocationTargetException;
+
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
 @Slf4j
 public class AplicacaoController {
 
-    private final LancamentosFinanceirosService service;
+    private final LancamentosBusinessService service;
 
     @GetMapping(path = "/lancamentosFinanceiros/consultar/{dsMes}/{dsAno}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LancamentosFinanceirosDTO> obterLancamentosFinanceiros(@PathVariable("dsMes") String dsMes, @PathVariable("dsAno") String dsAno, @PathVariable("idFuncionario") Integer idFuncionario) {
@@ -38,12 +38,6 @@ public class AplicacaoController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping(path = "/lancamentosFinanceiros/despesasFixasMensais/atualizar", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> atualizarDespesasFixasMensais(@RequestBody DespesasFixasMensaisRequest request) {
-        service.updateDespesasFixasMensais(request);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
     @PostMapping(path = "/lancamentosFinanceiros/despesasFixasMensais/excluir/{idDespesa}/{idOrdem}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> deleteDespesaFixaMensal(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idOrdem") Integer idOrdem, @PathVariable("idFuncionario") Integer idFuncionario) {
         service.deleteDespesaFixaMensal(idDespesa, idOrdem, idFuncionario);
@@ -59,6 +53,24 @@ public class AplicacaoController {
     @PostMapping(path = "/lancamentosFinanceiros/detalheDespesasMensais/excluir/{idDespesa}/{idDetalheDespesa}/{idOrdem}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> deleteDetalheDespesasMensais(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idOrdem") Integer idOrdem, @PathVariable("idFuncionario") Integer idFuncionario) {
         service.deleteDetalheDespesasMensais(idDespesa, idDetalheDespesa, idOrdem, idFuncionario);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping(path = "/lancamentosFinanceiros/despesasMensais/incluir", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> gravarDespesaMensal(@RequestBody DespesasMensaisRequest request) throws InvocationTargetException, IllegalAccessException {
+        service.gravarDespesaMensal(request);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping(path = "/lancamentosFinanceiros/detalheDespesasMensais/incluir", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> gravarDetalheDespesasMensais(@RequestBody DetalheDespesasMensaisRequest request) throws InvocationTargetException, IllegalAccessException {
+        service.gravarDetalheDespesasMensais(request);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping(path = "/lancamentosFinanceiros/detalheDespesasMensais/baixarPagamentoDespesas", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> processarPagamentoDetalheDespesas(@RequestBody PagamentoDespesasRequest request) {
+        service.processarPagamentoDetalheDespesas(request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
