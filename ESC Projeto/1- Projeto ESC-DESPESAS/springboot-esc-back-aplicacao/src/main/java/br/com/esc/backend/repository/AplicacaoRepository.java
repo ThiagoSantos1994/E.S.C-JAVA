@@ -45,13 +45,19 @@ public interface AplicacaoRepository {
 
     ParcelasDAO getParcelaDisponivelSemAmortizacao(Integer idDespesaParcelada, Integer idFuncionario);
 
+    ParcelasDAO getUltimaParcelaDespesaParcelada(Integer idDespesaParcelada, Integer idFuncionario);
+
     String getValidaDespesaParceladaAmortizacao(Integer idDespesaParcelada, Integer idFuncionario);
 
     String getValidaParcelaAmortizacao(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
 
+    String getValidaParcelaAdiantamento(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
+
     String getValidaDetalheDespesaComParcelaAdiada(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 
     String getValidaDetalheDespesaComParcelaAmortizada(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+
+    String getValidaDespesaParceladaAdiantada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idFuncionario);
 
     Integer getMaxOrdemDespesasFixasMensais(Integer idDespesa, Integer idFuncionario);
 
@@ -69,11 +75,17 @@ public interface AplicacaoRepository {
 
     Integer getCodigoEmprestimo(String dsTituloEmprestimo, Integer idFuncionario);
 
+    String getUsuarioLogado(Integer idFuncionario);
+
+    DespesaParceladaDAO getDespesaParcelada(Integer idDespesaParcelada, Integer idFuncionario);
+
     void insertDespesasFixasMensais(DespesasFixasMensaisRequest request);
 
     void insertDespesasMensais(DespesasMensaisDAO despesasMensaisDAO);
 
     void insertDetalheDespesasMensais(DetalheDespesasMensaisDAO detalheDAO);
+
+    void insertNovaParcela(ParcelasDAO parcelasDAO);
 
     void updateValorDetalheDespesasMensais(DetalheDespesasMensaisDAO detalheDespesasMensais);
 
@@ -91,15 +103,27 @@ public interface AplicacaoRepository {
 
     void updateParcelaStatusPendente(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
 
+    void updateParcelaStatusPendenteParcelaAdiada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, String vlParcela, Integer idFuncionario);
+
+    void updateQuantidadeParcelasAdiantadas(Integer idDespesaParcelada, Integer idFuncionario);
+
+    void updateQuantidadeParcelasDesfazerAdiantamento(Integer idDespesaParcelada, Integer idFuncionario);
+
     void updateDespesasParceladasEmAberto(Integer idFuncionario);
 
     void updateDespesasParceladasEncerrado(Integer idDespesaParcelada, Integer idFuncionario);
 
     void updateStatusParcelaSemAmortizacao(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
 
+    void updateParcelaStatusAdiantado(Integer idDespesa, Integer idDetalheDespesa, String dsObservacoes, Integer idParcela, Integer idDespesaParcelada, Integer idFuncionario);
+
     void updateStatusPagamentoDetalheDespesa(String vlTotal, String vlTotalPago, String tpStatus, String dsObservacoes, String dsObservacoesComplementares, Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario);
 
     void updateStatusBaixaLinhaSeparacao(Integer idDespesa, Integer idFuncionario);
+
+    void updateDetalheDespesasMensaisParcelaAdiada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, String dsObservacoes, String dsObservacoes2, String vlTotalParcelaAdiantada, Integer idFuncionario);
+
+    void updateDetalheDespesasMensaisDesfazerAdiantamento(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, String vlTotal, Integer idFuncionario);
 
     void deleteDespesaParceladaImportada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idFuncionario);
 
@@ -122,4 +146,9 @@ public interface AplicacaoRepository {
     void deleteDetalheDespesasMensaisPorFiltro(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario);
 
     void deleteDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+
+    void deleteParcela(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
+
+    void deleteParcelaDetalheDespesasMensaisAdiantada(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
+
 }

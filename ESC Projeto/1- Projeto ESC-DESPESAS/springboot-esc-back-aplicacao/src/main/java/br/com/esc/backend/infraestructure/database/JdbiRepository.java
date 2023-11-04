@@ -103,6 +103,11 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlQuery
+    @UseRowMapper(ParcelasRowMapper.class)
+    ParcelasDAO getUltimaParcelaDespesaParcelada(Integer idDespesaParcelada, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
     String getValidaDespesaParceladaAmortizacao(Integer idDespesaParcelada, Integer idFuncionario);
 
     @Override
@@ -115,7 +120,15 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlQuery
+    String getValidaParcelaAdiantamento(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
     String getValidaDetalheDespesaComParcelaAdiada(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
+    String getValidaDespesaParceladaAdiantada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idFuncionario);
 
     @Override
     @SqlQuery
@@ -151,6 +164,15 @@ public interface JdbiRepository extends AplicacaoRepository {
     Integer getCodigoEmprestimo(String dsTituloEmprestimo, Integer idFuncionario);
 
     @Override
+    @SqlQuery
+    String getUsuarioLogado(Integer idFuncionario);
+
+    @Override
+    @SqlQuery
+    @UseRowMapper(DespesaParceladaRowMapper.class)
+    DespesaParceladaDAO getDespesaParcelada(Integer idDespesaParcelada, Integer idFuncionario);
+
+    @Override
     @SqlUpdate
     void insertDespesasFixasMensais(@BindBean("fixas") DespesasFixasMensaisRequest request);
 
@@ -161,6 +183,10 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlUpdate
     void insertDetalheDespesasMensais(@BindBean("detalhe") DetalheDespesasMensaisDAO detalheDAO);
+
+    @Override
+    @SqlUpdate
+    void insertNovaParcela(@BindBean("parcela") ParcelasDAO parcelasDAO);
 
     @Override
     @SqlUpdate
@@ -196,6 +222,10 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlUpdate
+    void updateParcelaStatusPendenteParcelaAdiada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, String vlParcela, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
     void updateDespesasParceladasEmAberto(Integer idFuncionario);
 
     @Override
@@ -208,11 +238,31 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlUpdate
+    void updateParcelaStatusAdiantado(Integer idDespesa, Integer idDetalheDespesa, String dsObservacoes, Integer idParcela, Integer idDespesaParcelada, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void updateDetalheDespesasMensaisParcelaAdiada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, String dsObservacoes, String dsObservacoes2, String vlTotalParcelaAdiantada, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
     void updateStatusBaixaLinhaSeparacao(Integer idDespesa, Integer idFuncionario);
 
     @Override
     @SqlUpdate
     void updateParcelaStatusPendenteDespesasExcluidas(Integer idDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void updateQuantidadeParcelasAdiantadas(Integer idDespesaParcelada, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void updateQuantidadeParcelasDesfazerAdiantamento(Integer idDespesaParcelada, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void updateDetalheDespesasMensaisDesfazerAdiantamento(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, String vlTotal, Integer idFuncionario);
 
     @Override
     @SqlUpdate
@@ -258,4 +308,11 @@ public interface JdbiRepository extends AplicacaoRepository {
     @SqlUpdate
     void deleteDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 
+    @Override
+    @SqlUpdate
+    void deleteParcela(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void deleteParcelaDetalheDespesasMensaisAdiantada(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
 }

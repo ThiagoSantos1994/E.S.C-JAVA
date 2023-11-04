@@ -1,0 +1,33 @@
+INSERT INTO tbd_Parcelas
+    (
+    id_DespesaParcelada,
+    id_Parcelas,
+    nr_Parcela,
+    ds_DataVencimento,
+    ds_Observacoes,
+    tp_Baixado,
+    id_DetalheDespesa,
+    id_Despesa,
+    tp_Quitado,
+    id_Funcionario,
+    tp_ParcelaAdiada,
+    tp_ParcelaAmortizada,
+    vl_Parcela,
+    vl_Desconto
+    )
+VALUES (
+    :parcela.idDespesaParcelada,
+    :parcela.idParcela,
+    :parcela.nrParcela,
+    :parcela.dsDataVencimento,
+    :parcela.dsObservacoes,
+    :parcela.tpBaixado,
+    :parcela.idDetalheDespesa,
+    :parcela.idDespesa,
+    :parcela.tpQuitado,
+    :parcela.idFuncionario,
+    :parcela.tpParcelaAdiada,
+    :parcela.tpParcelaAmortizada,
+    :parcela.vlParcela,
+    :parcela.vlDesconto
+)

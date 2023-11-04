@@ -1,12 +1,14 @@
 package br.com.esc.backend.utils;
 
 import java.text.DateFormatSymbols;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 public class DataUtils {
 
-    public static String DataAtual() {
+    public static String DataHoraAtual() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date data = new Date(System.currentTimeMillis());
         return simpleDateFormat.format(data);
@@ -43,5 +45,28 @@ public class DataUtils {
         int mes = (Integer.parseInt(MesAtual()) - 1);
         String[] months = new DateFormatSymbols().getMonths();
         return months[mes];
+    }
+
+    public static Date convertStringToDate(String sData) throws ParseException {
+        return new SimpleDateFormat("dd/MM/yyyy").parse(sData);
+    }
+
+    public static Date retornaDataPersonalizada(Date data, Integer qtdeMes) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(data);
+        cal.add(Calendar.MONTH, qtdeMes);
+        return cal.getTime();
+    }
+
+    public static Date retornaDataPersonalizada(String data, Integer qtdeMes) throws ParseException {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(convertStringToDate(data));
+        cal.add(Calendar.MONTH, qtdeMes);
+        return cal.getTime();
+    }
+
+    public static String convertDateToString(Date date) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        return simpleDateFormat.format(date);
     }
 }

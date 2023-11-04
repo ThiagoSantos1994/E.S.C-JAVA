@@ -1,11 +1,11 @@
 package br.com.esc.backend.business;
 
+import br.com.esc.backend.domain.*;
+import br.com.esc.backend.repository.AplicacaoRepository;
 import br.com.esc.backend.service.DespesasParceladasServices;
 import br.com.esc.backend.service.DetalheDespesasServices;
 import br.com.esc.backend.service.ImportarLancamentosServices;
 import br.com.esc.backend.service.LancamentosFinanceirosServices;
-import br.com.esc.backend.domain.*;
-import br.com.esc.backend.repository.AplicacaoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
@@ -57,7 +57,7 @@ public class LancamentosBusinessService {
         repository.deleteDespesasMensaisPorFiltro(idDespesa, idDetalheDespesa, idOrdem, idFuncionario);
     }
 
-    public void deleteDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario) {
+    public void deleteDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario) throws Exception {
         log.info("Excluindo detalhe despesa mensal - request: idDespesa= {} - idDetalheDespesa= {} - idOrdem= {} - idFuncionario= {}", idDespesa, idDetalheDespesa, idOrdem, idFuncionario);
         detalheDespesasServices.deleteDetalheDespesasMensais(idDespesa, idDetalheDespesa, idOrdem, idFuncionario);
     }
@@ -95,17 +95,27 @@ public class LancamentosBusinessService {
         DespesasMensaisDAO mensaisDAO = new DespesasMensaisDAO();
         BeanUtils.copyProperties(mensaisDAO, request);
         detalheDespesasServices.gravarDespesasMensais(mensaisDAO);
-     }
+    }
 
-    public void gravarDetalheDespesasMensais(DetalheDespesasMensaisRequest request) throws InvocationTargetException, IllegalAccessException {
+    public void gravarDetalheDespesasMensais(DetalheDespesasMensaisRequest request) throws Exception {
         DetalheDespesasMensaisDAO detalheDAO = new DetalheDespesasMensaisDAO();
         BeanUtils.copyProperties(detalheDAO, request);
         detalheDespesasServices.gravarDetalheDespesasMensais(detalheDAO);
     }
 
-    public void processarPagamentoDetalheDespesas(PagamentoDespesasRequest request) {
+    public void processarPagamentoDetalheDespesas(PagamentoDespesasRequest request) throws Exception {
         log.info("Processando pagamento despesas mensais - Filtros: {}", request.toString());
         detalheDespesasServices.baixarPagamentoDespesas(request);
+    }
+
+    public void adiantarFluxoParcelas(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario) throws Exception {
+        log.info("Processando adiantamento fluxo de parcelas - Filtros: idDespesa = {}, idDetalheDespesa = {}, idDespesaParcelada = {}, idParcela = {}, idFuncionario = {}", idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, idFuncionario);
+        despesasParceladasServices.adiantarFluxoParcelas(idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, idFuncionario);
+    }
+
+    public void desfazerAdiantamentoFluxoParcelas(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario) throws Exception {
+        log.info("Processando fluxo para desfazer o adiantamento de parcelas - Filtros: idDespesa = {}, idDetalheDespesa = {}, idDespesaParcelada = {}, idParcela = {}, idFuncionario = {}", idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, idFuncionario);
+        despesasParceladasServices.desfazerAdiantamentoFluxoParcelas(idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, idFuncionario);
     }
 
     private void atualizaStatusDespesasParceladasEmAberto(Integer idFuncionario) {

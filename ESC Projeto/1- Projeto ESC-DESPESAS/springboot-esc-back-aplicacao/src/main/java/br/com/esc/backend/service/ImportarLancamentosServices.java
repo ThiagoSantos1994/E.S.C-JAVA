@@ -9,10 +9,10 @@ import lombok.var;
 import java.util.ArrayList;
 import java.util.List;
 
+import static br.com.esc.backend.utils.DataUtils.DataHoraAtual;
 import static br.com.esc.backend.utils.ObjectUtils.isNotNull;
 import static br.com.esc.backend.utils.ObjectUtils.isNull;
-import static br.com.esc.backend.utils.VariaveisGlobais.PENDENTE;
-import static br.com.esc.backend.utils.VariaveisGlobais.VALOR_ZERO;
+import static br.com.esc.backend.utils.VariaveisGlobais.*;
 import static java.lang.Integer.parseInt;
 import static java.lang.String.valueOf;
 
@@ -22,6 +22,8 @@ public class ImportarLancamentosServices {
 
     private final AplicacaoRepository repository;
     private final DetalheDespesasServices detalheDespesasServices;
+    private boolean bDespesaComStatusPago;
+    private boolean bDespesaComParcelaAdiantada;
 
     public void processarImportacaoDespesasMensais(Integer idDespesa, Integer idFuncionario, String dsMes, String dsAno) throws Exception {
         /*Limpa a base dos dados temporarios gerados para visualizacao temporaria*/
@@ -51,6 +53,15 @@ public class ImportarLancamentosServices {
     public void processarImportacaoDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String dsMes, String dsAno, Boolean bReprocessarTodosValores) {
         for (DetalheDespesasMensaisDAO detalheDespesa : this.processarDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario, dsMes, dsAno, bReprocessarTodosValores)) {
             if (this.isDetalheDespesaExistente(detalheDespesa)) {
+                if (bDespesaComStatusPago == true) {
+                    log.info("Despesa mensal com status PAGO, nao foi atualizado. >>>  {}", detalheDespesa);
+                    continue;
+                }
+                if (bDespesaComParcelaAdiantada == true) {
+                    log.info("Despesa mensal com status adiantamento de parcela, nao foi atualizado. >>>  {}", detalheDespesa);
+                    continue;
+                }
+
                 log.info("Atualizando detalhe despesa mensal >>>  {}", detalheDespesa);
                 repository.updateDetalheDespesasMensaisImportacao(detalheDespesa);
 
@@ -60,6 +71,15 @@ public class ImportarLancamentosServices {
             } else {
                 log.info("Inserindo detalhe despesas mensais >>>  {}", detalheDespesa);
                 repository.insertDetalheDespesasMensais(detalheDespesa);
+
+                if (bDespesaComParcelaAdiantada == true) {
+                    log.info("Despesa mensal com status adiantamento de parcela, realizando tratamento para gravar. >>>  {}", detalheDespesa);
+
+                    /*Altera a flag de ParcelaAdiada no detalhe das despesas mensais e baixa o pagamento e marca como despesa de anotacao*/
+                    var logProcessamento = "Operacao realizada em: " + DataHoraAtual() + " - Usuario: ** " + repository.getUsuarioLogado(idFuncionario);
+                    repository.updateDetalheDespesasMensaisParcelaAdiada(idDespesa, idDetalheDespesa, detalheDespesa.getIdDespesaParcelada(), "Despesa adiantada no fluxo de adiantamento de parcelas.", logProcessamento, detalheDespesa.getVlTotal(), idFuncionario);
+                    continue;
+                }
             }
         }
     }
@@ -140,6 +160,7 @@ public class ImportarLancamentosServices {
                     dao.setTpAnotacao("N");
                 }
 
+                dao.setDsTituloDespesa(DESCRICAO_DESPESA_PARCELADA);
                 dao.setIdDespesaParcelada(parcela.getIdDespesaParcelada());
                 dao.setIdParcela(parcela.getIdParcela());
                 dao.setVlTotal(parcela.getVlParcela().trim());
@@ -174,23 +195,39 @@ public class ImportarLancamentosServices {
     }
 
     private Boolean isDetalheDespesaExistente(DetalheDespesasMensaisDAO detalhe) {
+        bDespesaComStatusPago = false;
+        bDespesaComParcelaAdiantada = false;
+
         var filtro = DetalheDespesasMensaisDAO.builder()
                 .idDespesa(detalhe.getIdDespesa())
                 .idDetalheDespesa(detalhe.getIdDetalheDespesa())
                 .idDespesaParcelada(detalhe.getIdDespesaParcelada())
+                .idParcela(detalhe.getIdParcela())
                 .dsDescricao(detalhe.getDsDescricao())
                 .idFuncionario(detalhe.getIdFuncionario())
-                .idOrdem(detalhe.getTpLinhaSeparacao().equalsIgnoreCase("N") ? null : detalhe.getIdOrdem())
-                .tpReprocessar(detalhe.getTpReprocessar())
-                .tpAnotacao(detalhe.getTpAnotacao())
-                .tpRelatorio(detalhe.getTpRelatorio())
+                .idOrdem(detalhe.getTpLinhaSeparacao().equalsIgnoreCase("S") ? detalhe.getIdOrdem() : null)
                 .tpLinhaSeparacao(detalhe.getTpLinhaSeparacao())
                 .build();
 
         var detalheDespesasMensais = repository.getDetalheDespesaMensalPorFiltro(filtro);
         if (isNull(detalheDespesasMensais)) {
+            /*Em caso de reprocessamento onde a despesa foi excluida anteriormente, valida se a parcela esta com a flag adiantada ativa*/
+            var isParcelaAdiantada = repository.getValidaParcelaAdiantamento(detalhe.getIdDespesaParcelada(), detalhe.getIdParcela(), detalhe.getIdFuncionario());
+            if (isParcelaAdiantada.equalsIgnoreCase("S")) {
+                bDespesaComParcelaAdiantada = true;
+            }
             return false;
         }
+
+        if (detalheDespesasMensais.getTpStatus().equalsIgnoreCase(PAGO) && detalheDespesasMensais.getTpLinhaSeparacao().equalsIgnoreCase("N")) {
+            //No reprocessamento, se a despesa atual estiver com status pago, altera a flag para nao permitir update na despesa
+            bDespesaComStatusPago = true;
+        }
+
+        if (detalheDespesasMensais.getTpParcelaAdiada().equalsIgnoreCase("S")) {
+            bDespesaComParcelaAdiantada = true;
+        }
+
         return true;
     }
 

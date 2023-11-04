@@ -34,7 +34,7 @@ public class DetalheDespesasServices {
                 .build();
     }
 
-    public void gravarDetalheDespesasMensais(DetalheDespesasMensaisDAO detalheDAO) {
+    public void gravarDetalheDespesasMensais(DetalheDespesasMensaisDAO detalheDAO) throws Exception {
         if (detalheDAO.getTpRelatorio().equalsIgnoreCase("S")) {
             // Despesas do tipo relatorio nao permite a gravacao\atualizacao na base de dados
             return;
@@ -56,7 +56,7 @@ public class DetalheDespesasServices {
         if (isNotNull(detalheDAO.getIdOrdem()) && this.isDetalheDespesaExistente(detalheDAO)) {
             log.info("Atualizando DetalheDespesaMensal: request = {}", detalheDAO);
             repository.updateDetalheDespesasMensais(detalheDAO);
-            despesasParceladasServices.atualizarStatusPagamentoDespesaParcelada(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdDespesaParcelada(), detalheDAO.getIdParcela(), detalheDAO.getIdFuncionario(), detalheDAO.getTpStatus(), false);
+            despesasParceladasServices.validaStatusDespesaParcelada(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdDespesaParcelada(), detalheDAO.getIdParcela(), detalheDAO.getIdFuncionario(), detalheDAO.getTpStatus(), false);
         } else {
             var idOrdemInsert = detalheDAO.getTpRelatorio().equalsIgnoreCase("N") ?
                     repository.getMaxOrdemDetalheDespesasMensais(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdFuncionario()) :
@@ -98,7 +98,7 @@ public class DetalheDespesasServices {
         this.validaDespesaTipoDebitoCartao(mensaisDAO, false);
     }
 
-    public void deleteDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario) {
+    public void deleteDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario) throws Exception {
         despesasParceladasServices.isDespesaParceladaExcluida(idDespesa, idDetalheDespesa, idOrdem, idFuncionario);
         this.validaDespesaTipoDebitoCartao(this.mensaisDAOMapper(idDespesa, idDetalheDespesa, idFuncionario), true);
 
@@ -148,7 +148,7 @@ public class DetalheDespesasServices {
         }
     }
 
-    public void baixarPagamentoDespesas(PagamentoDespesasRequest request) {
+    public void baixarPagamentoDespesas(PagamentoDespesasRequest request) throws Exception {
         if (request.getTpStatus().equalsIgnoreCase(PENDENTE)) {
             var bProcessamentoAdiantamentoParcelas = request.getIsProcessamentoAdiantamentoParcelas();
 
@@ -159,8 +159,8 @@ public class DetalheDespesasServices {
                 }
             }
 
-             if (bProcessamentoAdiantamentoParcelas.equals(false)) {
-                despesasParceladasServices.atualizarStatusPagamentoDespesaParcelada(request.getIdDespesa(), request.getIdDetalheDespesa(), request.getIdDespesaParcelada(), request.getIdParcela(), request.getIdFuncionario(), PAGO, false);
+            if (bProcessamentoAdiantamentoParcelas.equals(false)) {
+                despesasParceladasServices.validaStatusDespesaParcelada(request.getIdDespesa(), request.getIdDetalheDespesa(), request.getIdDespesaParcelada(), request.getIdParcela(), request.getIdFuncionario(), PAGO, false);
             }
         }
 
@@ -197,7 +197,7 @@ public class DetalheDespesasServices {
         return true;
     }
 
-    public DespesasMensaisDAO mensaisDAOMapper(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario) {
+    private DespesasMensaisDAO mensaisDAOMapper(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario) {
         var detalheDespesaMensal = this.obterDetalheDespesaMensal(idDespesa, idDetalheDespesa, idFuncionario);
         if (isEmpty(detalheDespesaMensal.getDespesaMensal())) {
             return null;
