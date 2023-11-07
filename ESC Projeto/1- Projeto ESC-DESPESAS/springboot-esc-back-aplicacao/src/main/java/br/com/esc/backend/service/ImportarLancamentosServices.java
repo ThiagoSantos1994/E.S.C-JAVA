@@ -5,6 +5,7 @@ import br.com.esc.backend.repository.AplicacaoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,8 +17,9 @@ import static br.com.esc.backend.utils.VariaveisGlobais.*;
 import static java.lang.Integer.parseInt;
 import static java.lang.String.valueOf;
 
-@Slf4j
+@Service
 @RequiredArgsConstructor
+@Slf4j
 public class ImportarLancamentosServices {
 
     private final AplicacaoRepository repository;

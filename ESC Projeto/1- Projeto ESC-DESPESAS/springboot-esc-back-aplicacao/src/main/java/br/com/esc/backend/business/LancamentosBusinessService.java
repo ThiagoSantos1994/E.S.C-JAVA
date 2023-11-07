@@ -7,12 +7,16 @@ import br.com.esc.backend.service.DetalheDespesasServices;
 import br.com.esc.backend.service.ImportarLancamentosServices;
 import br.com.esc.backend.service.LancamentosFinanceirosServices;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.apache.commons.beanutils.BeanUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.InvocationTargetException;
 
+@Service
 @RequiredArgsConstructor
 @Slf4j
 public class LancamentosBusinessService {
@@ -23,6 +27,7 @@ public class LancamentosBusinessService {
     private final DetalheDespesasServices detalheDespesasServices;
     private final DespesasParceladasServices despesasParceladasServices;
 
+    @SneakyThrows
     public LancamentosFinanceirosDTO obterLancamentosFinanceiros(String dsMes, String dsAno, Integer idFuncionario) {
         log.info("Consultando lancamentos financeiros - request: dsMes= {} - dsAno= {} - idFuncionario= {}", dsMes, dsAno, idFuncionario);
 
@@ -33,6 +38,7 @@ public class LancamentosBusinessService {
         return result;
     }
 
+    @SneakyThrows
     public DetalheDespesasMensaisDTO obterDetalheDespesaMensal(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem) {
         log.info("Consultando detalhes despesa mensal >>>  idDespesa = {} - idDetalheDespesa = {} - idFuncionario = {}", idDespesa, idDetalheDespesa, idFuncionario);
 
@@ -43,29 +49,41 @@ public class LancamentosBusinessService {
         return result;
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
     public void gravarDespesasFixasMensais(DespesasFixasMensaisRequest request) {
         lancamentosServices.gravarDespesasFixasMensais(request);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
     public void organizarListaDetalheDespesasID(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem) {
         detalheDespesasServices.organizarListaDetalheDespesasID(idDespesa, idDetalheDespesa, idFuncionario, ordem);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
     public void deleteDespesaFixaMensal(Integer idDespesa, Integer idOrdem, Integer idFuncionario) {
         log.info("Excluindo despesa fixa mensal - request: idDespesa= {} - idOrdem= {} - idFuncionario= {}", idDespesa, idOrdem, idFuncionario);
         repository.deleteDespesasFixasMensaisPorFiltro(idDespesa, idOrdem, idFuncionario);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
     public void deleteDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario) {
         log.info("Excluindo despesa mensal - request: idDespesa= {} - idDetalheDespesa= {} - idOrdem= {} - idFuncionario= {}", idDespesa, idDetalheDespesa, idOrdem, idFuncionario);
         repository.deleteDespesasMensaisPorFiltro(idDespesa, idDetalheDespesa, idOrdem, idFuncionario);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
     public void deleteDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario) throws Exception {
         log.info("Excluindo detalhe despesa mensal - request: idDespesa= {} - idDetalheDespesa= {} - idOrdem= {} - idFuncionario= {}", idDespesa, idDetalheDespesa, idOrdem, idFuncionario);
         detalheDespesasServices.deleteDetalheDespesasMensais(idDespesa, idDetalheDespesa, idOrdem, idFuncionario);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
     public void deleteTodosLancamentosMensais(Integer idDespesa, Integer idFuncionario) {
         log.info("Excluindo todas despesas fixas mensais - request: idDespesa= {} - idFuncionario= {}", idDespesa, idFuncionario);
         repository.deleteTodasDespesasFixasMensais(idDespesa, idFuncionario);
@@ -83,45 +101,61 @@ public class LancamentosBusinessService {
         this.atualizaStatusDespesasParceladasEmAberto(idFuncionario);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
     public void processarImportacaoDespesasMensais(Integer idDespesa, Integer idFuncionario, String dsMes, String dsAno) throws Exception {
         log.info("Processando importacao lancamentos e despesas mensais - idDespesa {} - idFuncionario {} - dsMes {} - dsAno {}", idDespesa, idFuncionario, dsMes, dsAno);
         importacaoServices.processarImportacaoDespesasMensais(idDespesa, idFuncionario, dsMes, dsAno);
         this.atualizaStatusDespesasParceladasEmAberto(idFuncionario);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
     public void processarImportacaoDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String dsMes, String dsAno, Boolean bReprocessarTodosValores) {
         log.info("Iniciando processamento importacao detalhe despesas mensais - Filtros: idDespesa= {} - idDetalheDespesa= {} - idFuncionario= {} - dsMes= {} - dsAno= {} - bReprocessarTodosValores= {}", idDespesa, idDetalheDespesa, idFuncionario, dsMes, dsAno, bReprocessarTodosValores);
         importacaoServices.processarImportacaoDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario, dsMes, dsAno, bReprocessarTodosValores);
         this.atualizaStatusDespesasParceladasEmAberto(idFuncionario);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
     public void gravarDespesaMensal(DespesasMensaisRequest request) throws InvocationTargetException, IllegalAccessException {
         DespesasMensaisDAO mensaisDAO = new DespesasMensaisDAO();
         BeanUtils.copyProperties(mensaisDAO, request);
         detalheDespesasServices.gravarDespesasMensais(mensaisDAO);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
     public void gravarDetalheDespesasMensais(DetalheDespesasMensaisRequest request) throws Exception {
         DetalheDespesasMensaisDAO detalheDAO = new DetalheDespesasMensaisDAO();
         BeanUtils.copyProperties(detalheDAO, request);
         detalheDespesasServices.gravarDetalheDespesasMensais(detalheDAO);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
     public void processarPagamentoDetalheDespesas(PagamentoDespesasRequest request) throws Exception {
         log.info("Processando pagamento despesas mensais - Filtros: {}", request.toString());
         detalheDespesasServices.baixarPagamentoDespesas(request);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
     public void adiantarFluxoParcelas(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario) throws Exception {
         log.info("Processando adiantamento fluxo de parcelas - Filtros: idDespesa = {}, idDetalheDespesa = {}, idDespesaParcelada = {}, idParcela = {}, idFuncionario = {}", idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, idFuncionario);
         despesasParceladasServices.adiantarFluxoParcelas(idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, idFuncionario);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
     public void desfazerAdiantamentoFluxoParcelas(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario) throws Exception {
         log.info("Processando fluxo para desfazer o adiantamento de parcelas - Filtros: idDespesa = {}, idDetalheDespesa = {}, idDespesaParcelada = {}, idParcela = {}, idFuncionario = {}", idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, idFuncionario);
         despesasParceladasServices.desfazerAdiantamentoFluxoParcelas(idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, idFuncionario);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
     private void atualizaStatusDespesasParceladasEmAberto(Integer idFuncionario) {
         repository.updateDespesasParceladasEmAberto(idFuncionario);
     }

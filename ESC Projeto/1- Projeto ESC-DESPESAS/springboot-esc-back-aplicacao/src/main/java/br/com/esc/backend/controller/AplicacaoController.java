@@ -1,4 +1,4 @@
-package br.com.esc.backend.rest;
+package br.com.esc.backend.controller;
 
 import br.com.esc.backend.business.LancamentosBusinessService;
 import br.com.esc.backend.domain.*;

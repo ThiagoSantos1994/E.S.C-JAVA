@@ -6,6 +6,7 @@ import br.com.esc.backend.repository.AplicacaoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
+import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -17,8 +18,9 @@ import static br.com.esc.backend.utils.VariaveisGlobais.*;
 import static java.lang.Integer.parseInt;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-@Slf4j
+@Service
 @RequiredArgsConstructor
+@Slf4j
 public class DespesasParceladasServices {
 
     private final AplicacaoRepository repository;

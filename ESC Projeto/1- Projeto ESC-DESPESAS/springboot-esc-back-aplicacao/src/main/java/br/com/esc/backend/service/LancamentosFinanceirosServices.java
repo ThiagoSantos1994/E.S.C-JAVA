@@ -8,6 +8,7 @@ import br.com.esc.backend.repository.AplicacaoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -17,8 +18,9 @@ import java.util.List;
 import static br.com.esc.backend.utils.MotorCalculoUtils.*;
 import static br.com.esc.backend.utils.ObjectUtils.isNull;
 
-@Slf4j
+@Service
 @RequiredArgsConstructor
+@Slf4j
 public class LancamentosFinanceirosServices {
 
     private final AplicacaoRepository repository;

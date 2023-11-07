@@ -5,6 +5,7 @@ import br.com.esc.backend.repository.AplicacaoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
+import org.springframework.stereotype.Service;
 
 import static br.com.esc.backend.utils.MotorCalculoUtils.convertDecimalToString;
 import static br.com.esc.backend.utils.ObjectUtils.isNotNull;
@@ -12,8 +13,9 @@ import static br.com.esc.backend.utils.ObjectUtils.isNull;
 import static br.com.esc.backend.utils.VariaveisGlobais.*;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-@Slf4j
+@Service
 @RequiredArgsConstructor
+@Slf4j
 public class DetalheDespesasServices {
 
     private final AplicacaoRepository repository;

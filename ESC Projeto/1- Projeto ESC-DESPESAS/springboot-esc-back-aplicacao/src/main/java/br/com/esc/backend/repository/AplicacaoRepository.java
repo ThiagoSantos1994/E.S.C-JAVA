@@ -1,10 +1,12 @@
 package br.com.esc.backend.repository;
 
 import br.com.esc.backend.domain.*;
+import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.util.List;
 
+@Repository
 public interface AplicacaoRepository {
 
     List<DespesasFixasMensaisDAO> getDespesasFixasMensais(String dsMes, String dsAno, Integer idFuncionario);
