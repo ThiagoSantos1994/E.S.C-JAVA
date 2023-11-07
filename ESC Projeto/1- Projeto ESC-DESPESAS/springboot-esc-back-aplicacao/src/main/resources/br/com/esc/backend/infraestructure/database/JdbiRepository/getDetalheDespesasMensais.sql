@@ -31,5 +31,4 @@ WHERE
     AND ((:idDetalheDespesa IS NULL OR a.id_DetalheDespesa = :idDetalheDespesa)
     OR (a.id_DespesaLinkRelatorio = :idDetalheDespesa AND a.tp_Relatorio = 'S'))
 ORDER BY
-    a.id_Ordem
-    --ORDER BY a.id_DespesaLinkRelatorio, a.id_DespesaParcelada, a.id_Ordem ASC
+    <ordem>

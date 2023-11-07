@@ -19,14 +19,14 @@ public class DetalheDespesasServices {
     private final AplicacaoRepository repository;
     private final DespesasParceladasServices despesasParceladasServices;
 
-    public DetalheDespesasMensaisDTO obterDetalheDespesaMensal(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario) {
+    public DetalheDespesasMensaisDTO obterDetalheDespesaMensal(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem) {
         var despesaMensal = repository.getDespesasMensais(idDespesa, idFuncionario, idDetalheDespesa);
 
         if (despesaMensal.size() <= 0) {
             return new DetalheDespesasMensaisDTO();
         }
 
-        var detalheDespesasMensaisList = repository.getDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario);
+        var detalheDespesasMensaisList = repository.getDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario, parserOrdem(ordem));
         return DetalheDespesasMensaisDTO.builder()
                 .sizeDetalheDespesaMensalVB(detalheDespesasMensaisList.size())
                 .despesaMensal(repository.getDespesasMensais(idDespesa, idFuncionario, idDetalheDespesa).get(0))
@@ -66,6 +66,15 @@ public class DetalheDespesasServices {
 
             log.info("Inserindo DetalheDespesaMensal: request = {}", detalheDAO);
             repository.insertDetalheDespesasMensais(detalheDAO);
+        }
+    }
+
+    public void organizarListaDetalheDespesasID(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem) {
+        Integer iOrdemNova = 1;
+        for (DetalheDespesasMensaisDAO detalheDespesas : repository.getDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario, parserOrdem(ordem))) {
+            log.info("Organizando listaDetalheDespesasID: idDespesa = {}, idDetalheDespesa = {}, idOrdemAntiga = {}, idOrdemNova = {}", detalheDespesas.getIdDespesa(), detalheDespesas.getIdDetalheDespesa(), detalheDespesas.getIdOrdem(), iOrdemNova);
+            repository.updateDetalheDespesasMensaisOrdenacao(detalheDespesas.getIdDespesa(), detalheDespesas.getIdDetalheDespesa(), detalheDespesas.getIdDespesaParcelada(), detalheDespesas.getIdOrdem(), iOrdemNova, detalheDespesas.getIdFuncionario());
+            iOrdemNova++;
         }
     }
 
@@ -198,7 +207,7 @@ public class DetalheDespesasServices {
     }
 
     private DespesasMensaisDAO mensaisDAOMapper(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario) {
-        var detalheDespesaMensal = this.obterDetalheDespesaMensal(idDespesa, idDetalheDespesa, idFuncionario);
+        var detalheDespesaMensal = this.obterDetalheDespesaMensal(idDespesa, idDetalheDespesa, idFuncionario, "default");
         if (isEmpty(detalheDespesaMensal.getDespesaMensal())) {
             return null;
         }
@@ -217,5 +226,14 @@ public class DetalheDespesasServices {
 
     private DespesasFixasMensaisDAO obterReferenciaMesProcessamento(Integer idDespesa, Integer idFuncionario) {
         return repository.getDespesaFixaMensalPorFiltro(idDespesa, 1, idFuncionario);
+    }
+
+    private String parserOrdem(String ordem) {
+        if (isEmpty(ordem)) {
+            return "a.id_Ordem";
+        }
+
+        return ordem.equals("prazo") ? "(c.nr_Parcela + '/' + CAST(b.nr_TotalParcelas AS VarChar(10))), a.id_Ordem"
+                : ordem.equals("relatorio") ? "a.id_DespesaLinkRelatorio, a.id_DespesaParcelada, a.id_Ordem ASC" : "a.id_Ordem";
     }
 }

@@ -33,10 +33,10 @@ public class LancamentosBusinessService {
         return result;
     }
 
-    public DetalheDespesasMensaisDTO obterDetalheDespesaMensal(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario) {
+    public DetalheDespesasMensaisDTO obterDetalheDespesaMensal(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem) {
         log.info("Consultando detalhes despesa mensal >>>  idDespesa = {} - idDetalheDespesa = {} - idFuncionario = {}", idDespesa, idDetalheDespesa, idFuncionario);
 
-        var result = detalheDespesasServices.obterDetalheDespesaMensal(idDespesa, idDetalheDespesa, idFuncionario);
+        var result = detalheDespesasServices.obterDetalheDespesaMensal(idDespesa, idDetalheDespesa, idFuncionario, ordem);
 
         log.info("Consultando detalhes despesa mensal >>>  result = {}", result);
 
@@ -45,6 +45,10 @@ public class LancamentosBusinessService {
 
     public void gravarDespesasFixasMensais(DespesasFixasMensaisRequest request) {
         lancamentosServices.gravarDespesasFixasMensais(request);
+    }
+
+    public void organizarListaDetalheDespesasID(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem) {
+        detalheDespesasServices.organizarListaDetalheDespesasID(idDespesa, idDetalheDespesa, idFuncionario, ordem);
     }
 
     public void deleteDespesaFixaMensal(Integer idDespesa, Integer idOrdem, Integer idFuncionario) {

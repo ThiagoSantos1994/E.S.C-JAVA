@@ -26,7 +26,7 @@ public class DespesasParceladasServices {
     public void isDespesaParceladaExcluida(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario) throws Exception {
         if (isNull(idOrdem) || idOrdem == -1) {
             /*Regra especifica para exclusao de todas as despesas parceladas da despesa com idOrdem = -1 ou Nulo*/
-            for (DetalheDespesasMensaisDAO detalhe : repository.getDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario)) {
+            for (DetalheDespesasMensaisDAO detalhe : repository.getDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario, "a.id_Ordem")) {
                 if (detalhe.getTpLinhaSeparacao().equalsIgnoreCase("N") && detalhe.getIdDespesaParcelada().intValue() > 0) {
                     this.validaStatusDespesaParcelada(detalhe.getIdDespesa(), detalhe.getIdDetalheDespesa(), detalhe.getIdDespesaParcelada(), detalhe.getIdParcela(), detalhe.getIdFuncionario(), detalhe.getTpStatus(), true);
                 }

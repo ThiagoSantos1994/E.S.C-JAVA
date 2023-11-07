@@ -130,7 +130,7 @@ public class ImportarLancamentosServices {
     private List<DetalheDespesasMensaisDAO> processarDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String dsMes, String dsAno, Boolean bReprocessarTodosValores) {
         var idDespesaAnterior = (idDespesa - 1);
         List<DetalheDespesasMensaisDAO> detalheDespesasList = new ArrayList<>();
-        for (DetalheDespesasMensaisDAO dao : repository.getDetalheDespesasMensais(idDespesaAnterior, idDetalheDespesa, idFuncionario)) {
+        for (DetalheDespesasMensaisDAO dao : repository.getDetalheDespesasMensais(idDespesaAnterior, idDetalheDespesa, idFuncionario, "a.id_Ordem")) {
             var idDespesaParcelada = dao.getIdDespesaParcelada();
             if (isNotNull(idDespesaParcelada) && idDespesaParcelada > 0) {
                 var dataVencimento = (dsMes + "/" + dsAno);

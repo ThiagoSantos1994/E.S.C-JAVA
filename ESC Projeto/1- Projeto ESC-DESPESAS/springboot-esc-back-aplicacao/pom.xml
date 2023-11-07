@@ -9,8 +9,8 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>br.com.esc</groupId>
-	<artifactId>backend</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<artifactId>springboot-esc-back-aplicacao</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
 	<name>springboot-esc-back-aplicacao</name>
 	<description>Componente backend para aplicacao E.S.C</description>
 	<properties>

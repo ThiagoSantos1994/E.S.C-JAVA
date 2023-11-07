@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.InvocationTargetException;
-import java.text.ParseException;
 
 @RestController
 @RequestMapping("/api")
@@ -27,9 +26,9 @@ public class AplicacaoController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping(path = "/lancamentosFinanceiros/detalhes/consultar/{idDespesa}/{idDetalheDespesa}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DetalheDespesasMensaisDTO> obterDetalheDespesasMensais(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idFuncionario") Integer idFuncionario) {
-        var response = service.obterDetalheDespesaMensal(idDespesa, idDetalheDespesa, idFuncionario);
+    @GetMapping(path = "/lancamentosFinanceiros/detalhes/consultar/{idDespesa}/{idDetalheDespesa}/{idFuncionario}/{ordem}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DetalheDespesasMensaisDTO> obterDetalheDespesasMensais(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("ordem") String ordem) {
+        var response = service.obterDetalheDespesaMensal(idDespesa, idDetalheDespesa, idFuncionario, ordem);
         return ResponseEntity.ok(response);
     }
 
@@ -66,6 +65,12 @@ public class AplicacaoController {
     @PostMapping(path = "/lancamentosFinanceiros/detalheDespesasMensais/incluir", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> gravarDetalheDespesasMensais(@RequestBody DetalheDespesasMensaisRequest request) throws Exception {
         service.gravarDetalheDespesasMensais(request);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping(path = "/lancamentosFinanceiros/detalheDespesasMensais/organizarListaDespesasID/{idDespesa}/{idDetalheDespesa}/{idFuncionario}/{ordem}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> organizarListaDetalheDespesasID(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("ordem") String ordem) {
+        service.organizarListaDetalheDespesasID(idDespesa, idDetalheDespesa, idFuncionario, ordem);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

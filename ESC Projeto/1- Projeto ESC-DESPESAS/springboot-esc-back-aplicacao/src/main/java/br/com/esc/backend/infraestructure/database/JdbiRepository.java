@@ -4,6 +4,7 @@ import br.com.esc.backend.domain.*;
 import br.com.esc.backend.mapper.*;
 import br.com.esc.backend.repository.AplicacaoRepository;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
+import org.jdbi.v3.sqlobject.customizer.Define;
 import org.jdbi.v3.sqlobject.locator.UseClasspathSqlLocator;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
@@ -84,7 +85,7 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlQuery
     @UseRowMapper(DetalheDespesasMensaisRowMapper.class)
-    List<DetalheDespesasMensaisDAO> getDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+    List<DetalheDespesasMensaisDAO> getDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, @Define("ordem") String ordem);
 
     @Override
     @SqlQuery
@@ -203,6 +204,10 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlUpdate
     void updateDetalheDespesasMensaisImportacao(@BindBean("detalhe") DetalheDespesasMensaisDAO detalheDespesasMensais);
+
+    @Override
+    @SqlUpdate
+    void updateDetalheDespesasMensaisOrdenacao(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idOrdem, Integer idNovaOrdem, Integer idFuncionario);
 
     @Override
     @SqlUpdate
