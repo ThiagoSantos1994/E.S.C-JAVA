@@ -1,6 +1,7 @@
 package br.com.esc.backend.repository;
 
 import br.com.esc.backend.domain.*;
+import br.com.esc.backend.mapper.ChaveKeyMapper;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -10,6 +11,8 @@ import java.util.List;
 public interface AplicacaoRepository {
 
     List<DespesasFixasMensaisDAO> getDespesasFixasMensais(String dsMes, String dsAno, Integer idFuncionario);
+
+    List<DespesasFixasMensaisDAO> getDespesasFixasMensaisPorID(Integer idDespesa, Integer idFuncionario);
 
     DespesasFixasMensaisDAO getDespesaFixaMensalPorFiltro(Integer idDespesa, Integer idOrdem, Integer idFuncionario);
 
@@ -81,6 +84,8 @@ public interface AplicacaoRepository {
 
     DespesaParceladaDAO getDespesaParcelada(Integer idDespesaParcelada, Integer idFuncionario);
 
+    ChaveKeyDAO getNovaChaveKey(String tpRegistroKey);
+
     void insertDespesasFixasMensais(DespesasFixasMensaisRequest request);
 
     void insertDespesasMensais(DespesasMensaisDAO despesasMensaisDAO);
@@ -100,6 +105,10 @@ public interface AplicacaoRepository {
     void updateDetalheDespesasMensais(DetalheDespesasMensaisDAO detalheDespesasMensais);
 
     void updateDetalheDespesasMensaisOrdenacao(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idOrdem, Integer idNovaOrdem, Integer idFuncionario);
+
+    void updateDespesasMensaisOrdenacao(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idNovaOrdem, Integer idFuncionario);
+
+    void updateDespesasFixasMensaisOrdenacao(Integer idDespesa, Integer idOrdem, Integer idNovaOrdem, Integer idFuncionario);
 
     void updateParcelaStatusPago(String dsObservacoes, Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
 
@@ -128,6 +137,8 @@ public interface AplicacaoRepository {
     void updateDetalheDespesasMensaisParcelaAdiada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, String dsObservacoes, String dsObservacoes2, String vlTotalParcelaAdiantada, Integer idFuncionario);
 
     void updateDetalheDespesasMensaisDesfazerAdiantamento(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, String vlTotal, Integer idFuncionario);
+
+    void updateChaveKeyUtilizada(Integer idChaveKey);
 
     void deleteDespesaParceladaImportada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idFuncionario);
 

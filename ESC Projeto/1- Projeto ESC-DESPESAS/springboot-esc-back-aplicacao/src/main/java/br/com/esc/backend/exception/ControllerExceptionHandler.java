@@ -19,12 +19,29 @@ public class ControllerExceptionHandler {
                 .body(getErroRepresentation(e));
     }
 
+    @ExceptionHandler(CamposObrigatoriosException.class)
+    public ResponseEntity<ErroRepresentation> camposObrigatoriosException(Exception e) {
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .body(getCamposObrigatoriosException(e));
+    }
+
     private static ErroRepresentation getErroRepresentation(Exception e) {
         log.error("ExceptionHandler | Erro ao realizar operação no backend: {}", e.getMessage());
 
         var erro = new ErroRepresentation();
         erro.setCodigo(HttpStatus.BAD_REQUEST.value());
         erro.setMensagem("Ocorreu um erro no servidor >>>> trace: " + e.getCause());
+
+        return erro;
+    }
+
+    private static ErroRepresentation getCamposObrigatoriosException(Exception e) {
+        log.error("ExceptionHandler | Erro ao realizar operação no backend: {}", e.getMessage());
+
+        var erro = new ErroRepresentation();
+        erro.setCodigo(HttpStatus.NO_CONTENT.value());
+        erro.setMensagem(e.getMessage());
 
         return erro;
     }

@@ -1,6 +1,7 @@
 package br.com.esc.backend.business;
 
 import br.com.esc.backend.domain.*;
+import br.com.esc.backend.exception.CamposObrigatoriosException;
 import br.com.esc.backend.repository.AplicacaoRepository;
 import br.com.esc.backend.service.DespesasParceladasServices;
 import br.com.esc.backend.service.DetalheDespesasServices;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.InvocationTargetException;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
 @RequiredArgsConstructor
@@ -57,8 +60,14 @@ public class LancamentosBusinessService {
 
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
-    public void organizarListaDetalheDespesasID(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem) {
-        detalheDespesasServices.organizarListaDetalheDespesasID(idDespesa, idDetalheDespesa, idFuncionario, ordem);
+    public void ordenarListaDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem) {
+        detalheDespesasServices.ordenarListaDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario, ordem);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
+    public void ordenarListaDespesasMensais(Integer idDespesa, Integer idFuncionario) {
+        lancamentosServices.ordenarListaDespesasMensais(idDespesa, idFuncionario);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -160,4 +169,44 @@ public class LancamentosBusinessService {
         repository.updateDespesasParceladasEmAberto(idFuncionario);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
+    public void alterarOrdemRegistroDetalheDespesas(Integer idDespesa, Integer idDetalheDespesa, Integer iOrdemAtual, Integer iOrdemNova, Integer idFuncionario) {
+        log.info("Alterando ordem registros DetalheDespesasMensais - Filtros: idDespesa = {}, idDetalheDespesa = {}, iOrdemAtual = {}, iOrdemNova = {}, idFuncionario = {}", idDespesa, idDetalheDespesa, iOrdemAtual, iOrdemNova, idFuncionario);
+        detalheDespesasServices.alterarOrdemRegistroDetalheDespesas(idDespesa, idDetalheDespesa, iOrdemAtual, iOrdemNova, idFuncionario);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
+    public void alterarOrdemRegistroDespesas(Integer idDespesa, Integer iOrdemAtual, Integer iOrdemNova, Integer idFuncionario) {
+        log.info("Alterando ordem registros DespesasMensais - Filtros: idDespesa = {}, iOrdemAtual = {}, iOrdemNova = {}, idFuncionario = {}", idDespesa, iOrdemAtual, iOrdemNova, idFuncionario);
+        lancamentosServices.alterarOrdemRegistroDespesas(idDespesa, iOrdemAtual, iOrdemNova, idFuncionario);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
+    public void alterarOrdemRegistroDespesasFixas(Integer idDespesa, Integer iOrdemAtual, Integer iOrdemNova, Integer idFuncionario) {
+        log.info("Alterando ordem registros DespesasFixasMensais - Filtros: idDespesa = {}, iOrdemAtual = {}, iOrdemNova = {}, idFuncionario = {}", idDespesa, iOrdemAtual, iOrdemNova, idFuncionario);
+        lancamentosServices.alterarOrdemRegistroDespesasFixas(idDespesa, iOrdemAtual, iOrdemNova, idFuncionario);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
+    public ChaveKeyDAO retornaNovaChaveKey(String tipoChave) {
+        log.info("========= Gerando nova chaveKey, tipoChave: {} =========", tipoChave);
+
+        if (isEmpty(tipoChave)) {
+            throw new CamposObrigatoriosException("tipochave e obrigatorio.");
+        }
+
+        ChaveKeyDAO keyDAO = repository.getNovaChaveKey(tipoChave);
+        if (isEmpty(keyDAO)) {
+            throw new Exception("Sequencia não identificada na tabela de chaves primárias, favor contatar imediatamente o desenvolvedor do software.");
+        }
+
+        log.info("========= ChaveKey gerada com sucesso, tipoChave: {} novaChave: {} =========", tipoChave, keyDAO.getNovaChave());
+        repository.updateChaveKeyUtilizada(keyDAO.getIdChaveKey());
+
+        return keyDAO;
+    }
 }

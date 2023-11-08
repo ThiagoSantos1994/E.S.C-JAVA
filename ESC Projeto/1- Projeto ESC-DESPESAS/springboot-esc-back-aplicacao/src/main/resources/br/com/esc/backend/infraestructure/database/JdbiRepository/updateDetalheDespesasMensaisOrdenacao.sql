@@ -5,6 +5,6 @@ SET
 WHERE
     id_Despesa = :idDespesa
     AND id_DetalheDespesa = :idDetalheDespesa
-    AND id_DespesaParcelada = :idDespesaParcelada
+    AND (:idDespesaParcelada IS NULL OR id_DespesaParcelada = :idDespesaParcelada)
     AND id_Ordem = :idOrdem
     AND id_Funcionario = :idFuncionario

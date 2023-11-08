@@ -68,9 +68,15 @@ public class AplicacaoController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping(path = "/lancamentosFinanceiros/detalheDespesasMensais/organizarListaDespesasID/{idDespesa}/{idDetalheDespesa}/{idFuncionario}/{ordem}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> organizarListaDetalheDespesasID(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("ordem") String ordem) {
-        service.organizarListaDetalheDespesasID(idDespesa, idDetalheDespesa, idFuncionario, ordem);
+    @PostMapping(path = "/lancamentosFinanceiros/detalheDespesasMensais/ordenarListaDespesas/{idDespesa}/{idDetalheDespesa}/{idFuncionario}/{ordem}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> ordenarListaDetalheDespesasMensais(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("ordem") String ordem) {
+        service.ordenarListaDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario, ordem);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping(path = "/lancamentosFinanceiros/ordenarListaDespesas/{idDespesa}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> ordenarListaDespesasMensais(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idFuncionario") Integer idFuncionario) {
+        service.ordenarListaDespesasMensais(idDespesa, idFuncionario);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -107,6 +113,30 @@ public class AplicacaoController {
     @PostMapping(path = "/lancamentosFinanceiros/parcelas/desfazerAdiantamentoFluxoParcelas/{idDespesa}/{idDetalheDespesa}/{idDespesaParcelada}/{idParcela}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> desfazerAdiantamentoFluxoParcelas(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idDespesaParcelada") Integer idDespesaParcelada, @PathVariable("idParcela") Integer idParcela, @PathVariable("idFuncionario") Integer idFuncionario) throws Exception {
         service.desfazerAdiantamentoFluxoParcelas(idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, idFuncionario);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping(path = "/lancamentosFinanceiros/obterNovaChaveKey/{tipoChave}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ChaveKeyDAO> obterNovaChaveKey(@PathVariable("tipoChave") String tipoChave) {
+        var response = service.retornaNovaChaveKey(tipoChave);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(path = "/lancamentosFinanceiros/alterarOrdemRegistroDetalheDespesas/{idDespesa}/{idDetalheDespesa}/{iOrdemAtual}/{iOrdemNova}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> alterarOrdemRegistroDetalheDespesas(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("iOrdemAtual") Integer iOrdemAtual, @PathVariable("iOrdemNova") Integer iOrdemNova, @PathVariable("idFuncionario") Integer idFuncionario) {
+        service.alterarOrdemRegistroDetalheDespesas(idDespesa, idDetalheDespesa, iOrdemAtual, iOrdemNova, idFuncionario);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping(path = "/lancamentosFinanceiros/alterarOrdemRegistroDespesas/{idDespesa}/{iOrdemAtual}/{iOrdemNova}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> alterarOrdemRegistroDespesas(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("iOrdemAtual") Integer iOrdemAtual, @PathVariable("iOrdemNova") Integer iOrdemNova, @PathVariable("idFuncionario") Integer idFuncionario) {
+        service.alterarOrdemRegistroDespesas(idDespesa, iOrdemAtual, iOrdemNova, idFuncionario);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping(path = "/lancamentosFinanceiros/alterarOrdemRegistroDespesasFixas/{idDespesa}/{iOrdemAtual}/{iOrdemNova}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> alterarOrdemRegistroDespesasFixas(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("iOrdemAtual") Integer iOrdemAtual, @PathVariable("iOrdemNova") Integer iOrdemNova, @PathVariable("idFuncionario") Integer idFuncionario) {
+        service.alterarOrdemRegistroDespesasFixas(idDespesa, iOrdemAtual, iOrdemNova, idFuncionario);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

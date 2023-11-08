@@ -1,9 +1,6 @@
 package br.com.esc.backend.service;
 
-import br.com.esc.backend.domain.DespesasFixasMensaisDAO;
-import br.com.esc.backend.domain.DespesasFixasMensaisRequest;
-import br.com.esc.backend.domain.LancamentosFinanceirosDTO;
-import br.com.esc.backend.domain.LancamentosMensaisDAO;
+import br.com.esc.backend.domain.*;
 import br.com.esc.backend.repository.AplicacaoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -117,6 +114,53 @@ public class LancamentosFinanceirosServices {
             log.info("Inserindo despesas fixas mensais - request: {}", request);
             repository.insertDespesasFixasMensais(request);
         }
+    }
+
+    public void ordenarListaDespesasMensais(Integer idDespesa, Integer idFuncionario) {
+        Integer iOrdemNova = 1;
+
+        for (DespesasFixasMensaisDAO fixas : repository.getDespesasFixasMensaisPorID(idDespesa, idFuncionario)) {
+            log.info("Ordenando registros listaDespesasFixas: idDespesa = {}, idOrdemAntiga = {}, idOrdemNova = {}", fixas.getIdDespesa(), fixas.getIdOrdem(), iOrdemNova);
+            repository.updateDespesasFixasMensaisOrdenacao(fixas.getIdDespesa(), fixas.getIdOrdem(), iOrdemNova, fixas.getIdFuncionario());
+            iOrdemNova++;
+        }
+
+        iOrdemNova = 1;
+        for (DespesasMensaisDAO despesas : repository.getDespesasMensais(idDespesa, idFuncionario, null)) {
+            log.info("Ordenando registros listaDespesas: idDespesa = {}, idDetalheDespesa = {}, idOrdemAntiga = {}, idOrdemNova = {}", despesas.getIdDespesa(), despesas.getIdDetalheDespesa(), despesas.getIdOrdemExibicao(), iOrdemNova);
+            repository.updateDespesasMensaisOrdenacao(despesas.getIdDespesa(), despesas.getIdDetalheDespesa(), despesas.getIdOrdemExibicao(), iOrdemNova, despesas.getIdFuncionario());
+            iOrdemNova++;
+        }
+    }
+
+    public void alterarOrdemRegistroDespesas(Integer idDespesa, Integer iOrdemAtual, Integer iOrdemNova, Integer idFuncionario) {
+        var iOrdemTemp1 = 9998;
+        var iOrdemTemp2 = 9999;
+
+        //Substitui o ID da despesa POSICAO ATUAL
+        repository.updateDespesasMensaisOrdenacao(idDespesa, null, iOrdemAtual, iOrdemTemp1, idFuncionario);
+
+        //Substitui o ID da despesa POSICAO NOVA
+        repository.updateDespesasMensaisOrdenacao(idDespesa, null, iOrdemNova, iOrdemTemp2, idFuncionario);
+
+        /*Nesta etapa realiza a alteração da posição fazendo o DE x PARA com base nos ID's temporarios*/
+        repository.updateDespesasMensaisOrdenacao(idDespesa, null, iOrdemTemp1, iOrdemNova, idFuncionario);
+        repository.updateDespesasMensaisOrdenacao(idDespesa, null, iOrdemTemp2, iOrdemAtual, idFuncionario);
+    }
+
+    public void alterarOrdemRegistroDespesasFixas(Integer idDespesa, Integer iOrdemAtual, Integer iOrdemNova, Integer idFuncionario) {
+        var iOrdemTemp1 = 9998;
+        var iOrdemTemp2 = 9999;
+
+        //Substitui o ID da despesa POSICAO ATUAL
+        repository.updateDespesasFixasMensaisOrdenacao(idDespesa, iOrdemAtual, iOrdemTemp1, idFuncionario);
+
+        //Substitui o ID da despesa POSICAO NOVA
+        repository.updateDespesasFixasMensaisOrdenacao(idDespesa, iOrdemNova, iOrdemTemp2, idFuncionario);
+
+        /*Nesta etapa realiza a alteração da posição fazendo o DE x PARA com base nos ID's temporarios*/
+        repository.updateDespesasFixasMensaisOrdenacao(idDespesa, iOrdemTemp1, iOrdemNova, idFuncionario);
+        repository.updateDespesasFixasMensaisOrdenacao(idDespesa, iOrdemTemp2, iOrdemAtual, idFuncionario);
     }
 
     private BigDecimal obterPercentualUtilizacaoDespesaMes(LancamentosFinanceirosDTO dto) {

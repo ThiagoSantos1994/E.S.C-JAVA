@@ -71,10 +71,10 @@ public class DetalheDespesasServices {
         }
     }
 
-    public void organizarListaDetalheDespesasID(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem) {
+    public void ordenarListaDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem) {
         Integer iOrdemNova = 1;
         for (DetalheDespesasMensaisDAO detalheDespesas : repository.getDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario, parserOrdem(ordem))) {
-            log.info("Organizando listaDetalheDespesasID: idDespesa = {}, idDetalheDespesa = {}, idOrdemAntiga = {}, idOrdemNova = {}", detalheDespesas.getIdDespesa(), detalheDespesas.getIdDetalheDespesa(), detalheDespesas.getIdOrdem(), iOrdemNova);
+            log.info("Ordenando registros listaDetalheDespesas: idDespesa = {}, idDetalheDespesa = {}, idOrdemAntiga = {}, idOrdemNova = {}", detalheDespesas.getIdDespesa(), detalheDespesas.getIdDetalheDespesa(), detalheDespesas.getIdOrdem(), iOrdemNova);
             repository.updateDetalheDespesasMensaisOrdenacao(detalheDespesas.getIdDespesa(), detalheDespesas.getIdDetalheDespesa(), detalheDespesas.getIdDespesaParcelada(), detalheDespesas.getIdOrdem(), iOrdemNova, detalheDespesas.getIdFuncionario());
             iOrdemNova++;
         }
@@ -177,6 +177,21 @@ public class DetalheDespesasServices {
 
         /*Atualiza o stts pagamento para as linhas de separacao*/
         repository.updateStatusBaixaLinhaSeparacao(request.getIdDespesa(), request.getIdFuncionario());
+    }
+
+    public void alterarOrdemRegistroDetalheDespesas(Integer idDespesa, Integer idDetalheDespesa, Integer iOrdemAtual, Integer iOrdemNova, Integer idFuncionario) {
+        var iOrdemTemp1 = 9998;
+        var iOrdemTemp2 = 9999;
+
+        //Substitui o ID da despesa POSICAO ATUAL
+        repository.updateDetalheDespesasMensaisOrdenacao(idDespesa, idDetalheDespesa, null, iOrdemAtual, iOrdemTemp1, idFuncionario);
+
+        //Substitui o ID da despesa POSICAO NOVA
+        repository.updateDetalheDespesasMensaisOrdenacao(idDespesa, idDetalheDespesa, null, iOrdemNova, iOrdemTemp2, idFuncionario);
+
+        /*Nesta etapa realiza a alteração da posição fazendo o DE x PARA com base nos ID's temporarios*/
+        repository.updateDetalheDespesasMensaisOrdenacao(idDespesa, idDetalheDespesa, null, iOrdemTemp1, iOrdemNova, idFuncionario);
+        repository.updateDetalheDespesasMensaisOrdenacao(idDespesa, idDetalheDespesa, null, iOrdemTemp2, iOrdemAtual, idFuncionario);
     }
 
     private Boolean isDetalheDespesaExistente(DetalheDespesasMensaisDAO detalhe) {

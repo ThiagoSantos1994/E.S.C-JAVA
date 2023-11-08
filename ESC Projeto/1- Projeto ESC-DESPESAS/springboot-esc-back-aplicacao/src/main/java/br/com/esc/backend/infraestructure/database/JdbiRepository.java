@@ -24,6 +24,11 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlQuery
     @UseRowMapper(DespesasFixasMensaisRowMapper.class)
+    List<DespesasFixasMensaisDAO> getDespesasFixasMensaisPorID(Integer idDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
+    @UseRowMapper(DespesasFixasMensaisRowMapper.class)
     DespesasFixasMensaisDAO getDespesaFixaMensalPorFiltro(Integer idDespesa, Integer idOrdem, Integer idFuncionario);
 
     @Override
@@ -174,6 +179,11 @@ public interface JdbiRepository extends AplicacaoRepository {
     DespesaParceladaDAO getDespesaParcelada(Integer idDespesaParcelada, Integer idFuncionario);
 
     @Override
+    @SqlQuery
+    @UseRowMapper(ChaveKeyMapper.class)
+    ChaveKeyDAO getNovaChaveKey(String tpRegistroKey);
+
+    @Override
     @SqlUpdate
     void insertDespesasFixasMensais(@BindBean("fixas") DespesasFixasMensaisRequest request);
 
@@ -208,6 +218,14 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlUpdate
     void updateDetalheDespesasMensaisOrdenacao(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idOrdem, Integer idNovaOrdem, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void updateDespesasMensaisOrdenacao(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idNovaOrdem, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void updateDespesasFixasMensaisOrdenacao(Integer idDespesa, Integer idOrdem, Integer idNovaOrdem, Integer idFuncionario);
 
     @Override
     @SqlUpdate
@@ -268,6 +286,10 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlUpdate
     void updateDetalheDespesasMensaisDesfazerAdiantamento(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, String vlTotal, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void updateChaveKeyUtilizada(Integer idChaveKey);
 
     @Override
     @SqlUpdate
