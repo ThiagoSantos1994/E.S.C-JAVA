@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.InvocationTargetException;
 
+import static br.com.esc.backend.utils.ObjectUtils.isNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
@@ -33,23 +34,13 @@ public class LancamentosBusinessService {
     @SneakyThrows
     public LancamentosFinanceirosDTO obterLancamentosFinanceiros(String dsMes, String dsAno, Integer idFuncionario) {
         log.info("Consultando lancamentos financeiros - request: dsMes= {} - dsAno= {} - idFuncionario= {}", dsMes, dsAno, idFuncionario);
-
-        var result = lancamentosServices.obterLancamentosFinanceiros(dsMes, dsAno, idFuncionario);
-
-        log.info("Consultando lancamentos financeiros - result: {}", result);
-
-        return result;
+        return lancamentosServices.obterLancamentosFinanceiros(dsMes, dsAno, idFuncionario);
     }
 
     @SneakyThrows
     public DetalheDespesasMensaisDTO obterDetalheDespesaMensal(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem) {
         log.info("Consultando detalhes despesa mensal >>>  idDespesa = {} - idDetalheDespesa = {} - idFuncionario = {}", idDespesa, idDetalheDespesa, idFuncionario);
-
-        var result = detalheDespesasServices.obterDetalheDespesaMensal(idDespesa, idDetalheDespesa, idFuncionario, ordem);
-
-        log.info("Consultando detalhes despesa mensal >>>  result = {}", result);
-
-        return result;
+        return detalheDespesasServices.obterDetalheDespesaMensal(idDespesa, idDetalheDespesa, idFuncionario, ordem);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -188,6 +179,27 @@ public class LancamentosBusinessService {
     public void alterarOrdemRegistroDespesasFixas(Integer idDespesa, Integer iOrdemAtual, Integer iOrdemNova, Integer idFuncionario) {
         log.info("Alterando ordem registros DespesasFixasMensais - Filtros: idDespesa = {}, iOrdemAtual = {}, iOrdemNova = {}, idFuncionario = {}", idDespesa, iOrdemAtual, iOrdemNova, idFuncionario);
         lancamentosServices.alterarOrdemRegistroDespesasFixas(idDespesa, iOrdemAtual, iOrdemNova, idFuncionario);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
+    public DespesaFixaTemporariaResponse gerarTemporariamenteDespesasMensais(Integer sMes, Integer sAno, Integer idFuncionario) throws Exception {
+        log.info("Gerando temporariamente despesas mensais para pre-visualizacao...");
+        return importacaoServices.gerarTemporariamenteDespesasMensais(sMes, sAno, idFuncionario);
+    }
+
+    public MesAnoResponse obterMesAnoPorID(Integer idDespesa, Integer idFuncionario) throws Exception {
+        log.info("Consultando MesAnoPorID >>> despesaID: {}", idDespesa);
+
+        var result = repository.getMesAnoPorID(idDespesa, idFuncionario);
+        if (isNull(result)) {
+            result = repository.getMesAnoPorIDTemp(idDespesa, idFuncionario);
+        }
+
+        log.info("Consultando MesAnoPorID >>> response: {}", result);
+        return MesAnoResponse.builder()
+                .mesAno(result)
+                .build();
     }
 
     @Transactional(rollbackFor = Exception.class)

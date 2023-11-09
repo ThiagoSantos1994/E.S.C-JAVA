@@ -2,6 +2,8 @@ package br.com.esc.backend.repository;
 
 import br.com.esc.backend.domain.*;
 import br.com.esc.backend.mapper.ChaveKeyMapper;
+import org.jdbi.v3.sqlobject.statement.SqlQuery;
+import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -86,6 +88,16 @@ public interface AplicacaoRepository {
 
     ChaveKeyDAO getNovaChaveKey(String tpRegistroKey);
 
+    Integer getMaxIdDespesaTemp(Integer idFuncionario);
+
+    Integer getMaxIdDespesa(Integer idFuncionario);
+
+    String getMesAnoPorID(Integer idDespesa, Integer idFuncionario);
+
+    String getMesAnoPorIDTemp(Integer idDespesa, Integer idFuncionario);
+
+    void insertNovaDespesaFixaTemp(Integer idDespesaTemp, Integer dsMesTemp, Integer dsAnoTemp, Integer idFuncionario);
+
     void insertDespesasFixasMensais(DespesasFixasMensaisRequest request);
 
     void insertDespesasMensais(DespesasMensaisDAO despesasMensaisDAO);
@@ -140,9 +152,11 @@ public interface AplicacaoRepository {
 
     void updateChaveKeyUtilizada(Integer idChaveKey);
 
-    void deleteDespesaParceladaImportada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idFuncionario);
+    void updateDespesasMensaisTipoTemporario(Integer idDespesa, Integer idFuncionario);
 
-    void deleteDespesasFixasMensaisTemp(Integer idFuncionario);
+    void updateDetalheDespesasMensaisTipoTemporario(Integer idDespesa, Integer idFuncionario);
+
+    void deleteDespesaParceladaImportada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idFuncionario);
 
     void deleteDespesasMensaisTemp(Integer idFuncionario);
 

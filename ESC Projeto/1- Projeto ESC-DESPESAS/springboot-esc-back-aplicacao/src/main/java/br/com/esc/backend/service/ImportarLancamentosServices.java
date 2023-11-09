@@ -26,12 +26,14 @@ public class ImportarLancamentosServices {
     private final DetalheDespesasServices detalheDespesasServices;
     private boolean bDespesaComStatusPago;
     private boolean bDespesaComParcelaAdiantada;
+    private boolean bProcessamentoTemporario;
 
     public void processarImportacaoDespesasMensais(Integer idDespesa, Integer idFuncionario, String dsMes, String dsAno) throws Exception {
-        /*Limpa a base dos dados temporarios gerados para visualizacao temporaria*/
-        repository.deleteDespesasFixasMensaisTemp(idFuncionario);
-        repository.deleteDespesasMensaisTemp(idFuncionario);
-        repository.deleteDetalheDespesasMensaisTemp(idFuncionario);
+        if (bProcessamentoTemporario == false) {
+            /*Limpa a base dos dados temporarios gerados para visualizacao temporaria*/
+            repository.deleteDespesasMensaisTemp(idFuncionario);
+            repository.deleteDetalheDespesasMensaisTemp(idFuncionario);
+        }
 
         Integer idDespesaImportacao = idDespesa;
         if (idDespesa == 0) {
@@ -84,6 +86,32 @@ public class ImportarLancamentosServices {
                 }
             }
         }
+    }
+
+    public DespesaFixaTemporariaResponse gerarTemporariamenteDespesasMensais(Integer sMes, Integer sAno, Integer idFuncionario) throws Exception {
+        Integer idDespesaReferencia;
+        Integer iMesReferencia = ((sMes + 1) > 12) ? 1 : (sMes + 1);
+        Integer iAnoReferencia = ((sMes + 1) > 12) ? sAno + 1 : sAno;
+
+        var idDespesaTemp = repository.getMaxIdDespesaTemp(idFuncionario);
+        idDespesaReferencia = isNull(idDespesaTemp) ? repository.getMaxIdDespesa(idFuncionario) : idDespesaTemp;
+        idDespesaReferencia++;
+
+        log.info("Gravando Despesa Fixa Temporaria >>> idDespesaTemp: {} - mesRef: {} - anoRef: {}", idDespesaReferencia, iMesReferencia, iAnoReferencia);
+        repository.insertNovaDespesaFixaTemp(idDespesaReferencia, iMesReferencia, iAnoReferencia, idFuncionario);
+
+        bProcessamentoTemporario = true;
+        this.processarImportacaoDespesasMensais(idDespesaReferencia, idFuncionario, parserMesToString(iMesReferencia), iAnoReferencia.toString());
+        bProcessamentoTemporario = false;
+
+        log.info("Importacao das despesas temporarias realizada com sucesso, setando flag Temporario nas Despesas Mensais e Detalhes");
+        repository.updateDespesasMensaisTipoTemporario(idDespesaReferencia, idFuncionario);
+        repository.updateDetalheDespesasMensaisTipoTemporario(idDespesaReferencia, idFuncionario);
+
+        return DespesaFixaTemporariaResponse.builder()
+                .idDespesaTemp(idDespesaReferencia)
+                .dsMesAnoTemp(parserMesToString(iMesReferencia).concat("/").concat(iAnoReferencia.toString()))
+                .build();
     }
 
     private List<DespesasFixasMensaisRequest> processarDespesasFixasMensais(Integer idDespesa, Integer idFuncionario, String dsMes, String dsAno) throws Exception {
@@ -194,6 +222,10 @@ public class ImportarLancamentosServices {
         var dsMesAnterior = (parseInt(dsMes) - 1 < 1 ? 12 : parseInt(dsMes) - 1);
         var result = (dsMesAnterior <= 9 ? "0" + dsMesAnterior : valueOf(dsMesAnterior));
         return result;
+    }
+
+    private String parserMesToString(Integer dsMes) {
+        return (dsMes <= 9 ? "0" + dsMes : valueOf(dsMes));
     }
 
     private Boolean isDetalheDespesaExistente(DetalheDespesasMensaisDAO detalhe) {

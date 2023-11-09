@@ -184,6 +184,26 @@ public interface JdbiRepository extends AplicacaoRepository {
     ChaveKeyDAO getNovaChaveKey(String tpRegistroKey);
 
     @Override
+    @SqlQuery
+    Integer getMaxIdDespesaTemp(Integer idFuncionario);
+
+    @Override
+    @SqlQuery
+    Integer getMaxIdDespesa(Integer idFuncionario);
+
+    @Override
+    @SqlQuery
+    String getMesAnoPorID(Integer idDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
+    String getMesAnoPorIDTemp(Integer idDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void insertNovaDespesaFixaTemp(Integer idDespesaTemp, Integer dsMesTemp, Integer dsAnoTemp, Integer idFuncionario);
+
+    @Override
     @SqlUpdate
     void insertDespesasFixasMensais(@BindBean("fixas") DespesasFixasMensaisRequest request);
 
@@ -293,11 +313,15 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlUpdate
-    void deleteDespesaParceladaImportada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idFuncionario);
+    void updateDespesasMensaisTipoTemporario(Integer idDespesa, Integer idFuncionario);
 
     @Override
     @SqlUpdate
-    void deleteDespesasFixasMensaisTemp(Integer idFuncionario);
+    void updateDetalheDespesasMensaisTipoTemporario(Integer idDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void deleteDespesaParceladaImportada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idFuncionario);
 
     @Override
     @SqlUpdate

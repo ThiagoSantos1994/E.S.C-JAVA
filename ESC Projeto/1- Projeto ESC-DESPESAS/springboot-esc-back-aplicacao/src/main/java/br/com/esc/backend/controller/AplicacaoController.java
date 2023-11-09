@@ -122,6 +122,12 @@ public class AplicacaoController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping(path = "/lancamentosFinanceiros/obterMesAnoPorID/{idDespesa}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<MesAnoResponse> obterMesAnoPorID(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idFuncionario") Integer idFuncionario) throws Exception {
+        var response = service.obterMesAnoPorID(idDespesa, idFuncionario);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping(path = "/lancamentosFinanceiros/alterarOrdemRegistroDetalheDespesas/{idDespesa}/{idDetalheDespesa}/{iOrdemAtual}/{iOrdemNova}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> alterarOrdemRegistroDetalheDespesas(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("iOrdemAtual") Integer iOrdemAtual, @PathVariable("iOrdemNova") Integer iOrdemNova, @PathVariable("idFuncionario") Integer idFuncionario) {
         service.alterarOrdemRegistroDetalheDespesas(idDespesa, idDetalheDespesa, iOrdemAtual, iOrdemNova, idFuncionario);
@@ -138,5 +144,11 @@ public class AplicacaoController {
     public ResponseEntity<Void> alterarOrdemRegistroDespesasFixas(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("iOrdemAtual") Integer iOrdemAtual, @PathVariable("iOrdemNova") Integer iOrdemNova, @PathVariable("idFuncionario") Integer idFuncionario) {
         service.alterarOrdemRegistroDespesasFixas(idDespesa, iOrdemAtual, iOrdemNova, idFuncionario);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping(path = "/lancamentosFinanceiros/gerarDespesasFuturas/{dsMes}/{dsAno}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DespesaFixaTemporariaResponse> gerarDespesasFuturas(@PathVariable("dsMes") Integer dsMes, @PathVariable("dsAno") Integer dsAno, @PathVariable("idFuncionario") Integer idFuncionario) throws Exception {
+        var response = service.gerarTemporariamenteDespesasMensais(dsMes, dsAno, idFuncionario);
+        return ResponseEntity.ok(response);
     }
 }
