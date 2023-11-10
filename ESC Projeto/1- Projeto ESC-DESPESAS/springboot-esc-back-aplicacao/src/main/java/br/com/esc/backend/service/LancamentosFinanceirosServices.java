@@ -44,26 +44,12 @@ public class LancamentosFinanceirosServices {
         dto.setVlSaldoDisponivelMes(dto.getVlSaldoPositivo().subtract(dto.getVlTotalDespesas()));
         dto.setDespesasFixasMensais(despesasFixasMensais);
         dto.setLancamentosMensais(this.obterLancamentosMensais(idDespesa, idDespesaAnterior, idFuncionario));
-        dto.setLabelQuitacaoParcelasMes(this.obterExtratoDespesasParceladasQuitacaoMes(idDespesa, idFuncionario));
 
         /*Especifico para aplicação VB6*/
         dto.setSizeDespesasFixasMensaisVB(despesasFixasMensais.size());
         dto.setSizeLancamentosMensaisVB(dto.getLancamentosMensais().size());
 
         return dto;
-    }
-
-    private String obterExtratoDespesasParceladasQuitacaoMes(Integer idDespesa, Integer idFuncionario) {
-        var qtdeDespesasParceladasMes = repository.getQuantidadeDespesasParceladasMes(idDespesa, idFuncionario);
-        var qtdeDespesasQuitacaoMes = repository.getQuantidadeDespesasParceladasQuitacaoMes(idDespesa, idFuncionario);
-
-        StringBuffer buffer = new StringBuffer();
-
-        buffer.append("Neste mês foi quitado ");
-        buffer.append(qtdeDespesasQuitacaoMes.getQtdeParcelas() + "/" + qtdeDespesasParceladasMes);
-        buffer.append(" Despesas Parceladas, Totalizando: " + qtdeDespesasQuitacaoMes.getVlParcelas() + "R$");
-
-        return buffer.toString();
     }
 
     private List<LancamentosMensaisDAO> obterLancamentosMensais(Integer idDespesa, Integer idDespesaAnterior, Integer idFuncionario) {
@@ -146,6 +132,21 @@ public class LancamentosFinanceirosServices {
         /*Nesta etapa realiza a alteração da posição fazendo o DE x PARA com base nos ID's temporarios*/
         repository.updateDespesasMensaisOrdenacao(idDespesa, null, iOrdemTemp1, iOrdemNova, idFuncionario);
         repository.updateDespesasMensaisOrdenacao(idDespesa, null, iOrdemTemp2, iOrdemAtual, idFuncionario);
+    }
+
+    public MesAnoResponse obterMesAnoPorID(Integer idDespesa, Integer idFuncionario) {
+        var result = repository.getMesAnoPorID(idDespesa, idFuncionario);
+        if (isNull(result)) {
+            result = repository.getMesAnoPorIDTemp(idDespesa, idFuncionario);
+            if (isNull(result)) {
+                result = "ERRO";
+            }
+        }
+
+        log.info("Consultando MesAnoPorID >>> despesaID: {} - response: {}", idDespesa, result);
+        return MesAnoResponse.builder()
+                .mesAno(result)
+                .build();
     }
 
     public void alterarOrdemRegistroDespesasFixas(Integer idDespesa, Integer iOrdemAtual, Integer iOrdemNova, Integer idFuncionario) {

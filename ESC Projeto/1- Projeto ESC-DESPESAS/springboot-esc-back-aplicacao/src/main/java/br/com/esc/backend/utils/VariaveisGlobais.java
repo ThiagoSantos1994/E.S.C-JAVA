@@ -10,4 +10,6 @@ public class VariaveisGlobais {
     public static final String DESCRICAO_DESPESA_PARCELADA = "*PRC";
     public static final String DESCRICAO_DESPESA_EMPRESTIMO = "*EMP";
     public static final String PARCELA_ADIANTADA_DESTE_MES_PARA = "<!> Parcela adiantada deste mes para ->> ";
+    public static final String NESTE_MES_FOI_QUITADO = "Neste mês foi quitado ";
+    public static final String NESTE_MES_SERA_QUITADO = "Neste mês será quitado ";
 }

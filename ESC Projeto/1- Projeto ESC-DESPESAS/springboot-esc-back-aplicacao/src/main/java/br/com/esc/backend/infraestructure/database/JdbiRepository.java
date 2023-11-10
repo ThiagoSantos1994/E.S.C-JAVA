@@ -84,6 +84,10 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlQuery
+    BigDecimal getQuantidadeDetalheDespesasParceladasMes(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
     @UseRowMapper(DespesasParceladasQuitacaoRowMapper.class)
     DespesasParceladasQuitacaoDAO getQuantidadeDespesasParceladasQuitacaoMes(Integer idDespesa, Integer idFuncionario);
 
@@ -198,6 +202,16 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlQuery
     String getMesAnoPorIDTemp(Integer idDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
+    @UseRowMapper(ExtratoDespesasRowMapper.class)
+    ExtratoDespesasDAO getExtratoDespesasMes(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
+    @UseRowMapper(ExtratoDespesasRowMapper.class)
+    ExtratoDespesasDAO getExtratoDespesasParceladasMes(String dsMes, String dsAno, Integer idFuncionario);
 
     @Override
     @SqlUpdate

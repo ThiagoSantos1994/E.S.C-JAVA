@@ -42,6 +42,8 @@ public interface AplicacaoRepository {
 
     BigDecimal getQuantidadeDespesasParceladasMes(Integer idDespesa, Integer idFuncionario);
 
+    BigDecimal getQuantidadeDetalheDespesasParceladasMes(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+
     DespesasParceladasQuitacaoDAO getQuantidadeDespesasParceladasQuitacaoMes(Integer idDespesa, Integer idFuncionario);
 
     List<DetalheDespesasMensaisDAO> getDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem);
@@ -95,6 +97,10 @@ public interface AplicacaoRepository {
     String getMesAnoPorID(Integer idDespesa, Integer idFuncionario);
 
     String getMesAnoPorIDTemp(Integer idDespesa, Integer idFuncionario);
+
+    ExtratoDespesasDAO getExtratoDespesasMes(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+
+    ExtratoDespesasDAO getExtratoDespesasParceladasMes(String dsMes, String dsAno, Integer idFuncionario);
 
     void insertNovaDespesaFixaTemp(Integer idDespesaTemp, Integer dsMesTemp, Integer dsAnoTemp, Integer idFuncionario);
 

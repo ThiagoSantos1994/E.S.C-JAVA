@@ -7,6 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.util.Calendar;
+
 import static br.com.esc.backend.utils.MotorCalculoUtils.convertDecimalToString;
 import static br.com.esc.backend.utils.ObjectUtils.isNotNull;
 import static br.com.esc.backend.utils.ObjectUtils.isNull;
@@ -194,6 +197,69 @@ public class DetalheDespesasServices {
         repository.updateDetalheDespesasMensaisOrdenacao(idDespesa, idDetalheDespesa, null, iOrdemTemp2, iOrdemAtual, idFuncionario);
     }
 
+    public SubTotalDetalheDespesaResponse obterSubTotalDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem) {
+        var result = new BigDecimal(0);
+
+        if (ordem.equals("relatorio")) {
+            result = repository.getCalculoDespesaTipoRelatorio(idDespesa, idDetalheDespesa, idFuncionario);
+        } else {
+            result = repository.getCalculoTotalDespesa(idDespesa, idDetalheDespesa, idFuncionario);
+        }
+
+        return SubTotalDetalheDespesaResponse.builder().
+                vlSubTotalDespesa(convertDecimalToString(result))
+                .build();
+
+    }
+
+    public ExtratoDespesasDAO obterExtratoDespesasMes(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String tipo) {
+        StringBuffer mensagemBuffer = new StringBuffer();
+        Boolean isExtratoMesAtual = false;
+
+        /*Regra para validar se o mes de pesquisa é o mes atual e tratar a mensagem*/
+        var despesasFixas = repository.getDespesasFixasMensaisPorID(idDespesa, idFuncionario).get(0);
+        if (despesasFixas.getDsMes().equalsIgnoreCase(getMesAtual()) && despesasFixas.getDsAno().equalsIgnoreCase(getAnoAtual())) {
+            isExtratoMesAtual = true;
+        }
+
+        var extrato = new ExtratoDespesasDAO();
+        if (tipo.equalsIgnoreCase("cadastroParcelas")) {
+            extrato = repository.getExtratoDespesasParceladasMes(getMesAtual(), getAnoAtual(), idFuncionario);
+
+            mensagemBuffer.append(NESTE_MES_SERA_QUITADO);
+            mensagemBuffer.append(extrato.getVlDespesas() + "R$");
+
+        } else if (tipo.equalsIgnoreCase("lancamentosMensais")) {
+            var qtdeDespesasParceladasMes = repository.getQuantidadeDespesasParceladasMes(idDespesa, idFuncionario);
+            var qtdeDespesasQuitacaoMes = repository.getQuantidadeDespesasParceladasQuitacaoMes(idDespesa, idFuncionario);
+
+            extrato.setQtDespesas(qtdeDespesasQuitacaoMes.getQtdeParcelas());
+            extrato.setVlDespesas(convertDecimalToString(qtdeDespesasQuitacaoMes.getVlParcelas()));
+
+            mensagemBuffer.append(isExtratoMesAtual? NESTE_MES_SERA_QUITADO : NESTE_MES_FOI_QUITADO);
+            mensagemBuffer.append(qtdeDespesasQuitacaoMes.getQtdeParcelas() + "/" + qtdeDespesasParceladasMes);
+            mensagemBuffer.append(" Despesas Parceladas, Totalizando: " + qtdeDespesasQuitacaoMes.getVlParcelas() + "R$");
+            mensagemBuffer.append("                                   ");
+            mensagemBuffer.append("[ Despesa (2022): ").append(convertDecimalToString(repository.getCalculoReceitaNegativaMES((idDespesa - 12), idFuncionario))).append("R$ ]");
+
+            extrato.setMensagem(mensagemBuffer.toString());
+
+        } else if(tipo.equalsIgnoreCase("detalheDespesas")) {
+            extrato = repository.getExtratoDespesasMes(idDespesa, idDetalheDespesa, idFuncionario);
+
+            var qtdeTotalDespParceladasMes = repository.getQuantidadeDetalheDespesasParceladasMes(idDespesa, idDetalheDespesa, idFuncionario);
+
+            mensagemBuffer.append(isExtratoMesAtual? NESTE_MES_SERA_QUITADO : NESTE_MES_FOI_QUITADO);
+            mensagemBuffer.append(extrato.getQtDespesas() + "/" + qtdeTotalDespParceladasMes);
+            mensagemBuffer.append(" Despesas Parceladas, Totalizando: " + extrato.getVlDespesas() + "R$");
+        }
+
+        extrato.setMensagem(mensagemBuffer.toString());
+
+        log.info("Consultando extrato despesa mes >> response: {}", extrato);
+        return extrato;
+    }
+
     private Boolean isDetalheDespesaExistente(DetalheDespesasMensaisDAO detalhe) {
         var filtro = DetalheDespesasMensaisDAO.builder()
                 .idDespesa(detalhe.getIdDespesa())
@@ -245,6 +311,7 @@ public class DetalheDespesasServices {
         return repository.getDespesaFixaMensalPorFiltro(idDespesa, 1, idFuncionario);
     }
 
+
     private String parserOrdem(String ordem) {
         if (isEmpty(ordem)) {
             return "a.id_Ordem";
@@ -252,5 +319,17 @@ public class DetalheDespesasServices {
 
         return ordem.equals("prazo") ? "(c.nr_Parcela + '/' + CAST(b.nr_TotalParcelas AS VarChar(10))), a.id_Ordem"
                 : ordem.equals("relatorio") ? "a.id_DespesaLinkRelatorio, a.id_DespesaParcelada, a.id_Ordem ASC" : "a.id_Ordem";
+    }
+
+    private String getMesAtual() {
+        Calendar cal = Calendar.getInstance();
+        var mes = cal.get(Calendar.MONTH) + 1;
+        return String.valueOf(mes);
+    }
+
+    private String getAnoAtual() {
+        Calendar cal = Calendar.getInstance();
+        var mes = cal.get(Calendar.YEAR);
+        return String.valueOf(mes);
     }
 }

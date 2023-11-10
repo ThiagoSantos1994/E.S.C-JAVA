@@ -1,5 +1,5 @@
 SELECT
-	DISTINCT(ds_Mes + '/' + ds_Ano)
+	DISTINCT (CASE WHEN ds_Mes = '' THEN 'ERRO' ELSE (CAST(ds_Mes AS VARCHAR(2)) + '/' + CAST(ds_Ano AS VARCHAR(4))) END)
 FROM
     tbd_DespesasFixasMensaisTemp
 WHERE

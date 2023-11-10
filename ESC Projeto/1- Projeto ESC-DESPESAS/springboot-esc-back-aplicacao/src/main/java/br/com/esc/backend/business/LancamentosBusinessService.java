@@ -15,9 +15,6 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.InvocationTargetException;
-
-import static br.com.esc.backend.utils.ObjectUtils.isNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
@@ -34,12 +31,16 @@ public class LancamentosBusinessService {
     @SneakyThrows
     public LancamentosFinanceirosDTO obterLancamentosFinanceiros(String dsMes, String dsAno, Integer idFuncionario) {
         log.info("Consultando lancamentos financeiros - request: dsMes= {} - dsAno= {} - idFuncionario= {}", dsMes, dsAno, idFuncionario);
-        return lancamentosServices.obterLancamentosFinanceiros(dsMes, dsAno, idFuncionario);
+
+        var result = lancamentosServices.obterLancamentosFinanceiros(dsMes, dsAno, idFuncionario);
+        result.setLabelQuitacaoParcelasMes(detalheDespesasServices.obterExtratoDespesasMes(result.getIdDespesa(), null, idFuncionario, "lancamentosMensais").getMensagem());
+
+        return result;
     }
 
     @SneakyThrows
     public DetalheDespesasMensaisDTO obterDetalheDespesaMensal(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem) {
-        log.info("Consultando detalhes despesa mensal >>>  idDespesa = {} - idDetalheDespesa = {} - idFuncionario = {}", idDespesa, idDetalheDespesa, idFuncionario);
+        log.info("Consultando detalhes despesa mensal >>>  idDespesa = {} - idDetalheDespesa = {} - idFuncionario = {} - ordem = {}", idDespesa, idDetalheDespesa, idFuncionario, ordem);
         return detalheDespesasServices.obterDetalheDespesaMensal(idDespesa, idDetalheDespesa, idFuncionario, ordem);
     }
 
@@ -77,7 +78,7 @@ public class LancamentosBusinessService {
 
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
-    public void deleteDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario) throws Exception {
+    public void deleteDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario) {
         log.info("Excluindo detalhe despesa mensal - request: idDespesa= {} - idDetalheDespesa= {} - idOrdem= {} - idFuncionario= {}", idDespesa, idDetalheDespesa, idOrdem, idFuncionario);
         detalheDespesasServices.deleteDetalheDespesasMensais(idDespesa, idDetalheDespesa, idOrdem, idFuncionario);
     }
@@ -103,7 +104,7 @@ public class LancamentosBusinessService {
 
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
-    public void processarImportacaoDespesasMensais(Integer idDespesa, Integer idFuncionario, String dsMes, String dsAno) throws Exception {
+    public void processarImportacaoDespesasMensais(Integer idDespesa, Integer idFuncionario, String dsMes, String dsAno) {
         log.info("Processando importacao lancamentos e despesas mensais - idDespesa {} - idFuncionario {} - dsMes {} - dsAno {}", idDespesa, idFuncionario, dsMes, dsAno);
         importacaoServices.processarImportacaoDespesasMensais(idDespesa, idFuncionario, dsMes, dsAno);
         this.atualizaStatusDespesasParceladasEmAberto(idFuncionario);
@@ -119,7 +120,7 @@ public class LancamentosBusinessService {
 
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
-    public void gravarDespesaMensal(DespesasMensaisRequest request) throws InvocationTargetException, IllegalAccessException {
+    public void gravarDespesaMensal(DespesasMensaisRequest request) {
         DespesasMensaisDAO mensaisDAO = new DespesasMensaisDAO();
         BeanUtils.copyProperties(mensaisDAO, request);
         detalheDespesasServices.gravarDespesasMensais(mensaisDAO);
@@ -127,7 +128,7 @@ public class LancamentosBusinessService {
 
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
-    public void gravarDetalheDespesasMensais(DetalheDespesasMensaisRequest request) throws Exception {
+    public void gravarDetalheDespesasMensais(DetalheDespesasMensaisRequest request) {
         DetalheDespesasMensaisDAO detalheDAO = new DetalheDespesasMensaisDAO();
         BeanUtils.copyProperties(detalheDAO, request);
         detalheDespesasServices.gravarDetalheDespesasMensais(detalheDAO);
@@ -135,21 +136,21 @@ public class LancamentosBusinessService {
 
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
-    public void processarPagamentoDetalheDespesas(PagamentoDespesasRequest request) throws Exception {
+    public void processarPagamentoDetalheDespesas(PagamentoDespesasRequest request) {
         log.info("Processando pagamento despesas mensais - Filtros: {}", request.toString());
         detalheDespesasServices.baixarPagamentoDespesas(request);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
-    public void adiantarFluxoParcelas(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario) throws Exception {
+    public void adiantarFluxoParcelas(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario) {
         log.info("Processando adiantamento fluxo de parcelas - Filtros: idDespesa = {}, idDetalheDespesa = {}, idDespesaParcelada = {}, idParcela = {}, idFuncionario = {}", idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, idFuncionario);
         despesasParceladasServices.adiantarFluxoParcelas(idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, idFuncionario);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
-    public void desfazerAdiantamentoFluxoParcelas(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario) throws Exception {
+    public void desfazerAdiantamentoFluxoParcelas(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario) {
         log.info("Processando fluxo para desfazer o adiantamento de parcelas - Filtros: idDespesa = {}, idDetalheDespesa = {}, idDespesaParcelada = {}, idParcela = {}, idFuncionario = {}", idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, idFuncionario);
         despesasParceladasServices.desfazerAdiantamentoFluxoParcelas(idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, idFuncionario);
     }
@@ -183,23 +184,22 @@ public class LancamentosBusinessService {
 
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
-    public DespesaFixaTemporariaResponse gerarTemporariamenteDespesasMensais(Integer sMes, Integer sAno, Integer idFuncionario) throws Exception {
+    public DespesaFixaTemporariaResponse gerarTemporariamenteDespesasMensais(Integer sMes, Integer sAno, Integer idFuncionario) {
         log.info("Gerando temporariamente despesas mensais para pre-visualizacao...");
         return importacaoServices.gerarTemporariamenteDespesasMensais(sMes, sAno, idFuncionario);
     }
 
-    public MesAnoResponse obterMesAnoPorID(Integer idDespesa, Integer idFuncionario) throws Exception {
-        log.info("Consultando MesAnoPorID >>> despesaID: {}", idDespesa);
+    public SubTotalDetalheDespesaResponse obterSubTotalDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem) {
+        log.info("Consultando subtotal despesa >> idDespesa: {}", idDespesa);
+        return detalheDespesasServices.obterSubTotalDespesa(idDespesa, idDetalheDespesa, idFuncionario, ordem);
+    }
 
-        var result = repository.getMesAnoPorID(idDespesa, idFuncionario);
-        if (isNull(result)) {
-            result = repository.getMesAnoPorIDTemp(idDespesa, idFuncionario);
-        }
+    public MesAnoResponse obterMesAnoPorID(Integer idDespesa, Integer idFuncionario) {
+        return lancamentosServices.obterMesAnoPorID(idDespesa, idFuncionario);
+    }
 
-        log.info("Consultando MesAnoPorID >>> response: {}", result);
-        return MesAnoResponse.builder()
-                .mesAno(result)
-                .build();
+    public ExtratoDespesasDAO obterExtratoDespesasMes(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String tipo) {
+        return detalheDespesasServices.obterExtratoDespesasMes(idDespesa, idDetalheDespesa, idFuncionario, tipo);
     }
 
     @Transactional(rollbackFor = Exception.class)
