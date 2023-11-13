@@ -102,6 +102,14 @@ public interface AplicacaoRepository {
 
     ExtratoDespesasDAO getExtratoDespesasParceladasMes(String dsMes, String dsAno, Integer idFuncionario);
 
+    Integer getValidaDespesaExistenteDebitoCartao(Integer idDespesa, Integer idFuncionario);
+
+    Integer getValidaDespesaExistente(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+
+    Integer getIDDetalheDespesaPorTitulo(String dsNomeDespesa, Integer idFuncionario);
+
+    Integer getValidaTituloDespesaDuplicado(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String dsTituloDespesa);
+
     void insertNovaDespesaFixaTemp(Integer idDespesaTemp, Integer dsMesTemp, Integer dsAnoTemp, Integer idFuncionario);
 
     void insertDespesasFixasMensais(DespesasFixasMensaisRequest request);
@@ -161,6 +169,12 @@ public interface AplicacaoRepository {
     void updateDespesasMensaisTipoTemporario(Integer idDespesa, Integer idFuncionario);
 
     void updateDetalheDespesasMensaisTipoTemporario(Integer idDespesa, Integer idFuncionario);
+
+    void updateDespesaMensalTituloReuso(Integer idDespesa, Integer idDetalheDespesa, Integer idDetalheDespesaNova, String dsNomeDespesa, Integer idFuncionario);
+
+    void updateDetalheDespesasMensaisID(Integer idDespesa, Integer idDetalheDespesa, Integer idDetalheDespesaNova, Integer idFuncionario);
+
+    void updateTituloDespesasMensais(Integer idDetalheDespesa, Integer idFuncionario, String dsNomeDespesa, String anoReferencia);
 
     void deleteDespesaParceladaImportada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idFuncionario);
 

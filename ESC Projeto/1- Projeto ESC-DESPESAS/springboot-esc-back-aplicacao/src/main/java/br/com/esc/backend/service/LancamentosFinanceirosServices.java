@@ -12,8 +12,10 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import static br.com.esc.backend.utils.GlobalUtils.getAnoAtual;
 import static br.com.esc.backend.utils.MotorCalculoUtils.*;
 import static br.com.esc.backend.utils.ObjectUtils.isNull;
+import static br.com.esc.backend.utils.VariaveisGlobais.*;
 
 @Service
 @RequiredArgsConstructor
@@ -134,7 +136,7 @@ public class LancamentosFinanceirosServices {
         repository.updateDespesasMensaisOrdenacao(idDespesa, null, iOrdemTemp2, iOrdemAtual, idFuncionario);
     }
 
-    public MesAnoResponse obterMesAnoPorID(Integer idDespesa, Integer idFuncionario) {
+    public StringResponse obterMesAnoPorID(Integer idDespesa, Integer idFuncionario) {
         var result = repository.getMesAnoPorID(idDespesa, idFuncionario);
         if (isNull(result)) {
             result = repository.getMesAnoPorIDTemp(idDespesa, idFuncionario);
@@ -144,7 +146,7 @@ public class LancamentosFinanceirosServices {
         }
 
         log.info("Consultando MesAnoPorID >>> despesaID: {} - response: {}", idDespesa, result);
-        return MesAnoResponse.builder()
+        return StringResponse.builder()
                 .mesAno(result)
                 .build();
     }
@@ -162,6 +164,65 @@ public class LancamentosFinanceirosServices {
         /*Nesta etapa realiza a alteração da posição fazendo o DE x PARA com base nos ID's temporarios*/
         repository.updateDespesasFixasMensaisOrdenacao(idDespesa, iOrdemTemp1, iOrdemNova, idFuncionario);
         repository.updateDespesasFixasMensaisOrdenacao(idDespesa, iOrdemTemp2, iOrdemAtual, idFuncionario);
+    }
+
+    public String validaDespesaExistenteDebitoCartao(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario) {
+        var despesa = repository.getValidaDespesaExistenteDebitoCartao(idDespesa, idFuncionario);
+        var mensagem = "OK";
+
+        if (isNull(despesa)) {
+            return mensagem;
+        }
+
+        if (despesa.compareTo(idDetalheDespesa) != 0) {
+            mensagem = VALIDACAO_DESPESA_DEBITO_CARTAO_EXISTENTE;
+        }
+
+        log.info("validaDespesaExistenteDebtCart Mensagem Validacao: >>> {}", mensagem);
+        return mensagem;
+    }
+
+    public String validarAlteracaoTituloDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String novoNomeDespesa) {
+        var validaDespesaExistente = validaDespesaExistente(idDespesa, idDetalheDespesa, idFuncionario);
+        if (!validaDespesaExistente.equalsIgnoreCase("OK")) {
+            return validaDespesaExistente;
+        }
+
+        var idDetalheDespesaTemp = repository.getIDDetalheDespesaPorTitulo(novoNomeDespesa, idFuncionario);
+        if (isNull(idDetalheDespesaTemp)) {
+            return TITULO_DESPESA_INEXISTENTE;
+        }
+
+        log.info("Realizando a alteração do titulo da despesaID: {} >>> idDetalheDespesa {} ->>> {}", idDespesa, idDetalheDespesa, idDetalheDespesaTemp);
+
+        repository.updateDespesaMensalTituloReuso(idDespesa, idDetalheDespesa, idDetalheDespesaTemp, novoNomeDespesa, idFuncionario);
+        repository.updateDetalheDespesasMensaisID(idDespesa, idDetalheDespesa, idDetalheDespesaTemp, idFuncionario);
+
+        return "OK";
+    }
+
+    public void alterarTituloDespesa(Integer idDetalheDespesa, Integer idFuncionario, String dsNomeDespesa) {
+        repository.updateTituloDespesasMensais(idDetalheDespesa, idFuncionario, dsNomeDespesa, getAnoAtual());
+    }
+
+    public String validaTituloDespesaDuplicado(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String dsTituloDespesa) {
+        Integer response = repository.getValidaTituloDespesaDuplicado(idDespesa, idDetalheDespesa, idFuncionario, dsTituloDespesa);
+
+        if (response > 0) {
+            return TITULO_DESPESA_DUPLICADO;
+        }
+
+        return "OK";
+    }
+
+    private String validaDespesaExistente(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario) {
+        var despesa = repository.getValidaDespesaExistente(idDespesa, idDetalheDespesa, idFuncionario);
+
+        if (isNull(despesa)) {
+            return VALIDACAO_DESPESA_INEXISTENTE;
+        }
+
+        return "OK";
     }
 
     private BigDecimal obterPercentualUtilizacaoDespesaMes(LancamentosFinanceirosDTO dto) {

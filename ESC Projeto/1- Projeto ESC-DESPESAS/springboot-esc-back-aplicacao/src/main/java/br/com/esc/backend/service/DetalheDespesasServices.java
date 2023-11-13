@@ -8,8 +8,9 @@ import lombok.var;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Calendar;
 
+import static br.com.esc.backend.utils.GlobalUtils.getAnoAtual;
+import static br.com.esc.backend.utils.GlobalUtils.getMesAtual;
 import static br.com.esc.backend.utils.MotorCalculoUtils.convertDecimalToString;
 import static br.com.esc.backend.utils.ObjectUtils.isNotNull;
 import static br.com.esc.backend.utils.ObjectUtils.isNull;
@@ -197,7 +198,7 @@ public class DetalheDespesasServices {
         repository.updateDetalheDespesasMensaisOrdenacao(idDespesa, idDetalheDespesa, null, iOrdemTemp2, iOrdemAtual, idFuncionario);
     }
 
-    public SubTotalDetalheDespesaResponse obterSubTotalDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem) {
+    public StringResponse obterSubTotalDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem) {
         var result = new BigDecimal(0);
 
         if (ordem.equals("relatorio")) {
@@ -206,8 +207,8 @@ public class DetalheDespesasServices {
             result = repository.getCalculoTotalDespesa(idDespesa, idDetalheDespesa, idFuncionario);
         }
 
-        return SubTotalDetalheDespesaResponse.builder().
-                vlSubTotalDespesa(convertDecimalToString(result))
+        return StringResponse.builder()
+                .vlSubTotalDespesa(convertDecimalToString(result))
                 .build();
 
     }
@@ -215,14 +216,20 @@ public class DetalheDespesasServices {
     public ExtratoDespesasDAO obterExtratoDespesasMes(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String tipo) {
         StringBuffer mensagemBuffer = new StringBuffer();
         Boolean isExtratoMesAtual = false;
+        var extrato = new ExtratoDespesasDAO();
+
+
+        var despesasFixas = repository.getDespesasFixasMensaisPorID(idDespesa, idFuncionario);
+        if (despesasFixas.size() == 0) {
+            extrato.setMensagem(VISUALIZACAO_TEMPORARIA_DE_LANCAMENTOS);
+            return extrato;
+        }
 
         /*Regra para validar se o mes de pesquisa é o mes atual e tratar a mensagem*/
-        var despesasFixas = repository.getDespesasFixasMensaisPorID(idDespesa, idFuncionario).get(0);
-        if (despesasFixas.getDsMes().equalsIgnoreCase(getMesAtual()) && despesasFixas.getDsAno().equalsIgnoreCase(getAnoAtual())) {
+        if (despesasFixas.get(0).getDsMes().equalsIgnoreCase(getMesAtual()) && despesasFixas.get(0).getDsAno().equalsIgnoreCase(getAnoAtual())) {
             isExtratoMesAtual = true;
         }
 
-        var extrato = new ExtratoDespesasDAO();
         if (tipo.equalsIgnoreCase("cadastroParcelas")) {
             extrato = repository.getExtratoDespesasParceladasMes(getMesAtual(), getAnoAtual(), idFuncionario);
 
@@ -236,7 +243,7 @@ public class DetalheDespesasServices {
             extrato.setQtDespesas(qtdeDespesasQuitacaoMes.getQtdeParcelas());
             extrato.setVlDespesas(convertDecimalToString(qtdeDespesasQuitacaoMes.getVlParcelas()));
 
-            mensagemBuffer.append(isExtratoMesAtual? NESTE_MES_SERA_QUITADO : NESTE_MES_FOI_QUITADO);
+            mensagemBuffer.append(isExtratoMesAtual ? NESTE_MES_SERA_QUITADO : NESTE_MES_FOI_QUITADO);
             mensagemBuffer.append(qtdeDespesasQuitacaoMes.getQtdeParcelas() + "/" + qtdeDespesasParceladasMes);
             mensagemBuffer.append(" Despesas Parceladas, Totalizando: " + qtdeDespesasQuitacaoMes.getVlParcelas() + "R$");
             mensagemBuffer.append("                                   ");
@@ -244,12 +251,12 @@ public class DetalheDespesasServices {
 
             extrato.setMensagem(mensagemBuffer.toString());
 
-        } else if(tipo.equalsIgnoreCase("detalheDespesas")) {
+        } else if (tipo.equalsIgnoreCase("detalheDespesas")) {
             extrato = repository.getExtratoDespesasMes(idDespesa, idDetalheDespesa, idFuncionario);
 
             var qtdeTotalDespParceladasMes = repository.getQuantidadeDetalheDespesasParceladasMes(idDespesa, idDetalheDespesa, idFuncionario);
 
-            mensagemBuffer.append(isExtratoMesAtual? NESTE_MES_SERA_QUITADO : NESTE_MES_FOI_QUITADO);
+            mensagemBuffer.append(isExtratoMesAtual ? NESTE_MES_SERA_QUITADO : NESTE_MES_FOI_QUITADO);
             mensagemBuffer.append(extrato.getQtDespesas() + "/" + qtdeTotalDespParceladasMes);
             mensagemBuffer.append(" Despesas Parceladas, Totalizando: " + extrato.getVlDespesas() + "R$");
         }
@@ -321,15 +328,5 @@ public class DetalheDespesasServices {
                 : ordem.equals("relatorio") ? "a.id_DespesaLinkRelatorio, a.id_DespesaParcelada, a.id_Ordem ASC" : "a.id_Ordem";
     }
 
-    private String getMesAtual() {
-        Calendar cal = Calendar.getInstance();
-        var mes = cal.get(Calendar.MONTH) + 1;
-        return String.valueOf(mes);
-    }
 
-    private String getAnoAtual() {
-        Calendar cal = Calendar.getInstance();
-        var mes = cal.get(Calendar.YEAR);
-        return String.valueOf(mes);
-    }
 }

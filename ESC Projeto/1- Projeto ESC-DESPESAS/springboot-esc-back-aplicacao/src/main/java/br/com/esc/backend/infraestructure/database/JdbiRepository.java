@@ -150,6 +150,18 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlQuery
+    Integer getValidaDespesaExistenteDebitoCartao(Integer idDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
+    Integer getValidaDespesaExistente(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
+    Integer getIDDetalheDespesaPorTitulo(String dsNomeDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
     @UseRowMapper(DespesasFixasMensaisRowMapper.class)
     DespesasFixasMensaisDAO getDespesasFixasTipoDebitoCartao(Integer idDespesa, Integer idFuncionario);
 
@@ -212,6 +224,10 @@ public interface JdbiRepository extends AplicacaoRepository {
     @SqlQuery
     @UseRowMapper(ExtratoDespesasRowMapper.class)
     ExtratoDespesasDAO getExtratoDespesasParceladasMes(String dsMes, String dsAno, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
+    Integer getValidaTituloDespesaDuplicado(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String dsTituloDespesa);
 
     @Override
     @SqlUpdate
@@ -332,6 +348,18 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlUpdate
     void updateDetalheDespesasMensaisTipoTemporario(Integer idDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void updateDespesaMensalTituloReuso(Integer idDespesa, Integer idDetalheDespesa, Integer idDetalheDespesaNova, String dsNomeDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void updateDetalheDespesasMensaisID(Integer idDespesa, Integer idDetalheDespesa, Integer idDetalheDespesaNova, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void updateTituloDespesasMensais(Integer idDetalheDespesa, Integer idFuncionario, String dsNomeDespesa, String anoReferencia);
 
     @Override
     @SqlUpdate

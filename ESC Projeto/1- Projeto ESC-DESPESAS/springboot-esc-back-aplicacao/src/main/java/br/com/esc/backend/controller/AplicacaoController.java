@@ -123,13 +123,13 @@ public class AplicacaoController {
     }
 
     @GetMapping(path = "/lancamentosFinanceiros/obterMesAnoPorID/{idDespesa}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<MesAnoResponse> obterMesAnoPorID(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idFuncionario") Integer idFuncionario) {
+    public ResponseEntity<StringResponse> obterMesAnoPorID(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idFuncionario") Integer idFuncionario) {
         var response = service.obterMesAnoPorID(idDespesa, idFuncionario);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping(path = "/lancamentosFinanceiros/obterSubTotalDespesa/{idDespesa}/{idDetalheDespesa}/{idFuncionario}/{ordem}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<SubTotalDetalheDespesaResponse> obterSubTotalDespesa(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("ordem") String ordem) {
+    public ResponseEntity<StringResponse> obterSubTotalDespesa(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("ordem") String ordem) {
         var response = service.obterSubTotalDespesa(idDespesa, idDetalheDespesa, idFuncionario, ordem);
         return ResponseEntity.ok(response);
     }
@@ -138,6 +138,30 @@ public class AplicacaoController {
     public ResponseEntity<ExtratoDespesasDAO> obterExtratoDespesasMes(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("tipo") String tipo) {
         var response = service.obterExtratoDespesasMes(idDespesa, idDetalheDespesa, idFuncionario, tipo);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(path = "/lancamentosFinanceiros/validaDespesaExistenteDebitoCartao/{idDespesa}/{idDetalheDespesa}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StringResponse> validaDespesaExistenteDebitoCartao(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idFuncionario") Integer idFuncionario) {
+        var response = service.validaDespesaExistenteDebitoCartao(idDespesa, idDetalheDespesa, idFuncionario);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(path = "/lancamentosFinanceiros/validaTituloDespesaDuplicado/{idDespesa}/{idDetalheDespesa}/{idFuncionario}/{tituloDespesa}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StringResponse> validaTituloDespesaDuplicado(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("tituloDespesa") String tituloDespesa) {
+        var response = service.validaTituloDespesaDuplicado(idDespesa, idDetalheDespesa, idFuncionario, tituloDespesa);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(path = "/lancamentosFinanceiros/alterarTituloDespesaReuso/{idDespesa}/{idDetalheDespesa}/{idFuncionario}/{novoTituloDespesa}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StringResponse> alterarTituloDespesaReuso(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("novoTituloDespesa") String novoTituloDespesa) {
+        var response = service.alterarTituloDespesaReuso(idDespesa, idDetalheDespesa, idFuncionario, novoTituloDespesa);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(path = "/lancamentosFinanceiros/alterarTituloDespesa/{idDetalheDespesa}/{idFuncionario}/{novoTituloDespesa}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> alterarTituloDespesa(@PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("novoTituloDespesa") String novoTituloDespesa) {
+        service.alterarTituloDespesa(idDetalheDespesa, idFuncionario, novoTituloDespesa);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping(path = "/lancamentosFinanceiros/alterarOrdemRegistroDetalheDespesas/{idDespesa}/{idDetalheDespesa}/{iOrdemAtual}/{iOrdemNova}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)

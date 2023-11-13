@@ -189,17 +189,48 @@ public class LancamentosBusinessService {
         return importacaoServices.gerarTemporariamenteDespesasMensais(sMes, sAno, idFuncionario);
     }
 
-    public SubTotalDetalheDespesaResponse obterSubTotalDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem) {
+    public StringResponse obterSubTotalDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem) {
         log.info("Consultando subtotal despesa >> idDespesa: {}", idDespesa);
         return detalheDespesasServices.obterSubTotalDespesa(idDespesa, idDetalheDespesa, idFuncionario, ordem);
     }
 
-    public MesAnoResponse obterMesAnoPorID(Integer idDespesa, Integer idFuncionario) {
+    public StringResponse obterMesAnoPorID(Integer idDespesa, Integer idFuncionario) {
         return lancamentosServices.obterMesAnoPorID(idDespesa, idFuncionario);
     }
 
     public ExtratoDespesasDAO obterExtratoDespesasMes(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String tipo) {
         return detalheDespesasServices.obterExtratoDespesasMes(idDespesa, idDetalheDespesa, idFuncionario, tipo);
+    }
+
+    public StringResponse validaDespesaExistenteDebitoCartao(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario) {
+        var response = lancamentosServices.validaDespesaExistenteDebitoCartao(idDespesa, idDetalheDespesa, idFuncionario);
+
+        log.info("Validando despesa existente tipo Debito Cartao >> response: {}", response);
+        return StringResponse.builder()
+                .mensagem(response)
+                .build();
+    }
+
+    public StringResponse alterarTituloDespesaReuso(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String novoNomeDespesa) {
+        var response = lancamentosServices.validarAlteracaoTituloDespesa(idDespesa, idDetalheDespesa, idFuncionario, novoNomeDespesa);
+
+        return StringResponse.builder()
+                .mensagem(response)
+                .build();
+    }
+
+    public void alterarTituloDespesa(Integer idDetalheDespesa, Integer idFuncionario, String dsNomeDespesa) {
+        log.info("Alterando titulo despesas >> idDetalheDespesa: {} para: {}", idDetalheDespesa, dsNomeDespesa);
+        lancamentosServices.alterarTituloDespesa(idDetalheDespesa,idFuncionario, dsNomeDespesa);
+    }
+
+    public StringResponse validaTituloDespesaDuplicado(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String dsTituloDespesa) {
+        var response = lancamentosServices.validaTituloDespesaDuplicado(idDespesa, idDetalheDespesa, idFuncionario, dsTituloDespesa);
+
+        log.info("Validando Titulo Duplicado >> Response: {}", response);
+        return StringResponse.builder()
+                .mensagem(response)
+                .build();
     }
 
     @Transactional(rollbackFor = Exception.class)

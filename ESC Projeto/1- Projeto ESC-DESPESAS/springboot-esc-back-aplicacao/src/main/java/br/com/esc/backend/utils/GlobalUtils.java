@@ -2,11 +2,13 @@ package br.com.esc.backend.utils;
 
 import com.google.common.io.BaseEncoding;
 import lombok.extern.slf4j.Slf4j;
+import lombok.var;
 import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.ini4j.Ini;
 
 import java.io.*;
 import java.math.BigDecimal;
+import java.util.Calendar;
 import java.util.Properties;
 
 /**
@@ -102,5 +104,17 @@ public class GlobalUtils {
         } catch (Exception e) {
             throw new Exception(e);
         }
+    }
+
+    public static String getMesAtual() {
+        Calendar cal = Calendar.getInstance();
+        var mes = cal.get(Calendar.MONTH) + 1;
+        return String.valueOf(mes);
+    }
+
+    public static String getAnoAtual() {
+        Calendar cal = Calendar.getInstance();
+        var mes = cal.get(Calendar.YEAR);
+        return String.valueOf(mes);
     }
 }
