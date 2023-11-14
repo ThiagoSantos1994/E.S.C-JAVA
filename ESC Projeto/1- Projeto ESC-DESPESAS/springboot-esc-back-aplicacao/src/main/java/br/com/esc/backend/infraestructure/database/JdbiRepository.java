@@ -230,6 +230,14 @@ public interface JdbiRepository extends AplicacaoRepository {
     Integer getValidaTituloDespesaDuplicado(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String dsTituloDespesa);
 
     @Override
+    @SqlQuery
+    List<String> getTituloDespesa();
+
+    @Override
+    @SqlQuery
+    List<String> getTituloDespesaEmprestimo();
+
+    @Override
     @SqlUpdate
     void insertNovaDespesaFixaTemp(Integer idDespesaTemp, Integer dsMesTemp, Integer dsAnoTemp, Integer idFuncionario);
 

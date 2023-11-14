@@ -11,11 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static br.com.esc.backend.utils.DataUtils.DataHoraAtual;
+import static br.com.esc.backend.utils.GlobalUtils.parserMesToString;
+import static br.com.esc.backend.utils.GlobalUtils.retornaMesAnterior;
 import static br.com.esc.backend.utils.ObjectUtils.isNotNull;
 import static br.com.esc.backend.utils.ObjectUtils.isNull;
 import static br.com.esc.backend.utils.VariaveisGlobais.*;
 import static java.lang.Integer.parseInt;
-import static java.lang.String.valueOf;
 
 @Service
 @RequiredArgsConstructor
@@ -216,16 +217,6 @@ public class ImportarLancamentosServices {
         }
 
         return detalheDespesasList;
-    }
-
-    private String retornaMesAnterior(String dsMes) {
-        var dsMesAnterior = (parseInt(dsMes) - 1 < 1 ? 12 : parseInt(dsMes) - 1);
-        var result = (dsMesAnterior <= 9 ? "0" + dsMesAnterior : valueOf(dsMesAnterior));
-        return result;
-    }
-
-    private String parserMesToString(Integer dsMes) {
-        return (dsMes <= 9 ? "0" + dsMes : valueOf(dsMes));
     }
 
     private Boolean isDetalheDespesaExistente(DetalheDespesasMensaisDAO detalhe) {

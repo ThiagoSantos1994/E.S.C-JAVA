@@ -11,6 +11,9 @@ import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Properties;
 
+import static java.lang.Integer.parseInt;
+import static java.lang.String.valueOf;
+
 /**
  * Classe global da aplicação, nela deve ser declarada variaveis, metodos,
  * regras de negocio global do sistema
@@ -116,5 +119,15 @@ public class GlobalUtils {
         Calendar cal = Calendar.getInstance();
         var mes = cal.get(Calendar.YEAR);
         return String.valueOf(mes);
+    }
+
+    public static String retornaMesAnterior(String dsMes) {
+        var dsMesAnterior = (parseInt(dsMes) - 1 < 1 ? 12 : parseInt(dsMes) - 1);
+        var result = (dsMesAnterior <= 9 ? "0" + dsMesAnterior : valueOf(dsMesAnterior));
+        return result;
+    }
+
+    public static String parserMesToString(Integer dsMes) {
+        return (dsMes <= 9 ? "0" + dsMes : valueOf(dsMes));
     }
 }

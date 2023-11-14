@@ -283,12 +283,6 @@ public class DetalheDespesasServices {
     }
 
     private Boolean isDespesaExistente(DespesasMensaisDAO despesa) {
-        var filtro = DespesasMensaisDAO.builder()
-                .idDespesa(despesa.getIdDespesa())
-                .idDetalheDespesa(despesa.getIdDetalheDespesa())
-                .idFuncionario(despesa.getIdFuncionario())
-                .build();
-
         var despesaMensal = repository.getDespesaMensalPorFiltro(despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdFuncionario());
         if (isNull(despesaMensal)) {
             return false;

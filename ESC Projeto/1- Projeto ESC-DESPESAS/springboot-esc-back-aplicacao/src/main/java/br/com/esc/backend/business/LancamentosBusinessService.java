@@ -123,6 +123,10 @@ public class LancamentosBusinessService {
     public void gravarDespesaMensal(DespesasMensaisRequest request) {
         DespesasMensaisDAO mensaisDAO = new DespesasMensaisDAO();
         BeanUtils.copyProperties(mensaisDAO, request);
+
+        if (request.getTpLinhaSeparacao().equalsIgnoreCase("S") && request.getIdDetalheDespesa().equals(-1)) {
+            mensaisDAO.setIdDetalheDespesa(this.retornaNovaChaveKey("DETALHEDESPESA").getNovaChave());
+        }
         detalheDespesasServices.gravarDespesasMensais(mensaisDAO);
     }
 
@@ -211,6 +215,8 @@ public class LancamentosBusinessService {
                 .build();
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
     public StringResponse alterarTituloDespesaReuso(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String novoNomeDespesa) {
         var response = lancamentosServices.validarAlteracaoTituloDespesa(idDespesa, idDetalheDespesa, idFuncionario, novoNomeDespesa);
 
@@ -219,9 +225,11 @@ public class LancamentosBusinessService {
                 .build();
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
     public void alterarTituloDespesa(Integer idDetalheDespesa, Integer idFuncionario, String dsNomeDespesa) {
         log.info("Alterando titulo despesas >> idDetalheDespesa: {} para: {}", idDetalheDespesa, dsNomeDespesa);
-        lancamentosServices.alterarTituloDespesa(idDetalheDespesa,idFuncionario, dsNomeDespesa);
+        lancamentosServices.alterarTituloDespesa(idDetalheDespesa, idFuncionario, dsNomeDespesa);
     }
 
     public StringResponse validaTituloDespesaDuplicado(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String dsTituloDespesa) {
@@ -231,6 +239,16 @@ public class LancamentosBusinessService {
         return StringResponse.builder()
                 .mensagem(response)
                 .build();
+    }
+
+    public TituloDespesaResponse obterTitulosDespesas() {
+        log.info("Consultando titulos das despesas cadastradas");
+        return lancamentosServices.getTituloDespesa();
+    }
+
+    public TituloDespesaResponse obterTitulosEmprestimos() {
+        log.info("Consultando titulos dos emprestimos cadastrados");
+        return lancamentosServices.getTituloEmprestimo();
     }
 
     @Transactional(rollbackFor = Exception.class)

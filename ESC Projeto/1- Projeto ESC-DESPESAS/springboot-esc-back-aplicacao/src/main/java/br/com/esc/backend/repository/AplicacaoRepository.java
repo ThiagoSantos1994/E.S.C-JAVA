@@ -110,6 +110,10 @@ public interface AplicacaoRepository {
 
     Integer getValidaTituloDespesaDuplicado(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String dsTituloDespesa);
 
+    List<String> getTituloDespesa();
+
+    List<String> getTituloDespesaEmprestimo();
+
     void insertNovaDespesaFixaTemp(Integer idDespesaTemp, Integer dsMesTemp, Integer dsAnoTemp, Integer idFuncionario);
 
     void insertDespesasFixasMensais(DespesasFixasMensaisRequest request);

@@ -11,9 +11,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class StringResponse {
-    /*Classe generica para ser utilizada em operacoes que retorne um campo do tipo STRING*/
-    private String mensagem;
-    private String vlSubTotalDespesa;
-    private String mesAno;
+public class TituloDespesaResponse {
+    private List<String> tituloDespesa;
+    private Integer sizeTituloDespesaVB;
 }

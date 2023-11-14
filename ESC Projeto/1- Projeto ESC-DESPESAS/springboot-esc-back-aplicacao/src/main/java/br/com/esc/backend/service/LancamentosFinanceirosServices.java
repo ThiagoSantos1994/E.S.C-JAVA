@@ -215,14 +215,34 @@ public class LancamentosFinanceirosServices {
         return "OK";
     }
 
-    private String validaDespesaExistente(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario) {
-        var despesa = repository.getValidaDespesaExistente(idDespesa, idDetalheDespesa, idFuncionario);
+    public TituloDespesaResponse getTituloDespesa() {
+        var tituloDespesaList = repository.getTituloDespesa();
 
-        if (isNull(despesa)) {
-            return VALIDACAO_DESPESA_INEXISTENTE;
+        List<String> tituloDespesa = new ArrayList<>();
+        for (String titulo : tituloDespesaList) {
+            tituloDespesa.add(titulo);
         }
 
-        return "OK";
+        TituloDespesaResponse tituloDespesaResponse = new TituloDespesaResponse();
+        tituloDespesaResponse.setSizeTituloDespesaVB(tituloDespesa.size());
+        tituloDespesaResponse.setTituloDespesa(tituloDespesa);
+
+        return tituloDespesaResponse;
+    }
+
+    public TituloDespesaResponse getTituloEmprestimo() {
+        var tituloList = repository.getTituloDespesaEmprestimo();
+
+        List<String> tituloDespesa = new ArrayList<>();
+        for (String titulo : tituloList) {
+            tituloDespesa.add(titulo);
+        }
+
+        TituloDespesaResponse tituloDespesaResponse = new TituloDespesaResponse();
+        tituloDespesaResponse.setSizeTituloDespesaVB(tituloDespesa.size());
+        tituloDespesaResponse.setTituloDespesa(tituloDespesa);
+
+        return tituloDespesaResponse;
     }
 
     private BigDecimal obterPercentualUtilizacaoDespesaMes(LancamentosFinanceirosDTO dto) {
@@ -238,5 +258,15 @@ public class LancamentosFinanceirosServices {
             return false;
         }
         return true;
+    }
+
+    private String validaDespesaExistente(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario) {
+        var despesa = repository.getValidaDespesaExistente(idDespesa, idDetalheDespesa, idFuncionario);
+
+        if (isNull(despesa)) {
+            return VALIDACAO_DESPESA_INEXISTENTE;
+        }
+
+        return "OK";
     }
 }

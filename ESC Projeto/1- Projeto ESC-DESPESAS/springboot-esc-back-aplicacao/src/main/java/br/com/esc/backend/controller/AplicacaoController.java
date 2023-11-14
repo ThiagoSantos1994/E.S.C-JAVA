@@ -26,7 +26,7 @@ public class AplicacaoController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping(path = "/lancamentosFinanceiros/detalhes/consultar/{idDespesa}/{idDetalheDespesa}/{idFuncionario}/{ordem}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/lancamentosFinanceiros/detalheDespesasMensais/consultar/{idDespesa}/{idDetalheDespesa}/{idFuncionario}/{ordem}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DetalheDespesasMensaisDTO> obterDetalheDespesasMensais(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("ordem") String ordem) {
         var response = service.obterDetalheDespesaMensal(idDespesa, idDetalheDespesa, idFuncionario, ordem);
         return ResponseEntity.ok(response);
@@ -137,6 +137,18 @@ public class AplicacaoController {
     @GetMapping(path = "/lancamentosFinanceiros/detalheDespesasMensais/obterExtratoDespesasMes/{idDespesa}/{idDetalheDespesa}/{idFuncionario}/{tipo}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ExtratoDespesasDAO> obterExtratoDespesasMes(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("tipo") String tipo) {
         var response = service.obterExtratoDespesasMes(idDespesa, idDetalheDespesa, idFuncionario, tipo);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(path = "/lancamentosFinanceiros/obterTitulosDespesas", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TituloDespesaResponse> obterTitulosDespesas() {
+        var response = service.obterTitulosDespesas();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(path = "/lancamentosFinanceiros/obterTitulosEmprestimos", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TituloDespesaResponse> obterTitulosEmprestimos() {
+        var response = service.obterTitulosEmprestimos();
         return ResponseEntity.ok(response);
     }
 
