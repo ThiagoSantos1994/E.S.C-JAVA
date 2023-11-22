@@ -5,5 +5,6 @@ FROM
 WHERE
     id_Emprestimo <> 0
     AND tp_EmprestimoAReceber = 'S'
+    AND id_Funcionario = :idFuncionario
 ORDER BY
     ds_TituloEmprestimo

@@ -7,6 +7,7 @@ import br.com.esc.backend.service.DespesasParceladasServices;
 import br.com.esc.backend.service.DetalheDespesasServices;
 import br.com.esc.backend.service.ImportarLancamentosServices;
 import br.com.esc.backend.service.LancamentosFinanceirosServices;
+import br.com.esc.backend.utils.ObjectUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +16,8 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.springframework.util.ObjectUtils.isEmpty;
+import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
@@ -241,14 +243,49 @@ public class LancamentosBusinessService {
                 .build();
     }
 
-    public TituloDespesaResponse obterTitulosDespesas() {
+    public TituloDespesaResponse obterTitulosDespesas(Integer idFuncionario) {
         log.info("Consultando titulos das despesas cadastradas");
-        return lancamentosServices.getTituloDespesa();
+        return lancamentosServices.getTituloDespesa(idFuncionario);
     }
 
-    public TituloDespesaResponse obterTitulosEmprestimos() {
+    public TituloDespesaResponse obterTitulosEmprestimos(Integer idFuncionario) {
         log.info("Consultando titulos dos emprestimos cadastrados");
-        return lancamentosServices.getTituloEmprestimo();
+        return lancamentosServices.getTituloEmprestimo(idFuncionario);
+    }
+
+    public DespesasParceladasResponse obterDespesasParceladas(Integer idFuncionario, String status) {
+        log.info("Consultando lista de despesas parceladas");
+        return despesasParceladasServices.getDespesasParceladas(idFuncionario, status);
+    }
+
+    public StringResponse obterValorDespesaParcelada(Integer idDespesaParcelada, Integer idParcela, String mesAnoReferencia, Integer idFuncionario) {
+        log.info("Consultando valor despesa parcelada >>> filtros: idDespesaParcelada: {} - idParcela: {} - mesAnoReferencia: {} - idFuncionario: {}", idDespesaParcelada, idParcela, mesAnoReferencia, idFuncionario);
+        return despesasParceladasServices.obterValorDespesa(idDespesaParcelada, idParcela, mesAnoReferencia, idFuncionario);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
+    public void deleteParcela(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario) {
+        log.info("Excluindo parcela >>> filtros: idDespesaParcelada: {} - idParcela: {} - idFuncionario: {}", idDespesaParcelada, idParcela, idFuncionario);
+        despesasParceladasServices.excluirParcela(idDespesaParcelada, idParcela, idFuncionario);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
+    public void deleteDespesaParcelada(Integer idDespesaParcelada, Integer idFuncionario) {
+        log.info("Excluindo despesa parcelada >>> filtros: idDespesaParcelada: {} - idFuncionario: {}", idDespesaParcelada, idFuncionario);
+        despesasParceladasServices.excluirDespesaParcelada(idDespesaParcelada, idFuncionario);
+    }
+
+    public DetalheDespesasParceladasResponse obterDespesaParceladaPorNome(String nomeDespesaParcelada, Integer idFuncionario) {
+        log.info("Consultando detalhe despesa parcelada por filtros >>> nomeDespesaParcelada= {} - idFuncionario= {}", nomeDespesaParcelada, idFuncionario);
+        return despesasParceladasServices.obterDespesaParceladaPorNome(nomeDespesaParcelada, idFuncionario);
+    }
+
+    @SneakyThrows
+    public List<ParcelasDAO> gerarFluxoParcelas(Integer idDespesaParcelada, String valorParcela, Integer qtdeParcelas, String dataReferencia, Integer idFuncionario) {
+        log.info("Gerando fluxo de parcelas >>> filtros: idDespesaParcelada: {} - valorParcela: {} - qtdeParcelas: {} - dataReferencia: {} - idFuncionario: {}", idDespesaParcelada, valorParcela, qtdeParcelas, dataReferencia, idFuncionario);
+        return despesasParceladasServices.gerarFluxoParcelas(idDespesaParcelada, valorParcela, qtdeParcelas, dataReferencia, idFuncionario);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -256,12 +293,12 @@ public class LancamentosBusinessService {
     public ChaveKeyDAO retornaNovaChaveKey(String tipoChave) {
         log.info("========= Gerando nova chaveKey, tipoChave: {} =========", tipoChave);
 
-        if (isEmpty(tipoChave)) {
+        if (ObjectUtils.isEmpty(tipoChave)) {
             throw new CamposObrigatoriosException("tipochave e obrigatorio.");
         }
 
         ChaveKeyDAO keyDAO = repository.getNovaChaveKey(tipoChave);
-        if (isEmpty(keyDAO)) {
+        if (ObjectUtils.isEmpty(keyDAO)) {
             throw new Exception("Sequencia não identificada na tabela de chaves primárias, favor contatar imediatamente o desenvolvedor do software.");
         }
 

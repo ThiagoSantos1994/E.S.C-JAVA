@@ -17,4 +17,5 @@ public class VariaveisGlobais {
     public static final String VALIDACAO_DESPESA_INEXISTENTE = "ATENÇÃO: Necessário gravar esta despesa ANTES de executar esta ação.";
     public static final String TITULO_DESPESA_INEXISTENTE = "Não foi localizado este titulo de despesa na base de dados.";
     public static final String TITULO_DESPESA_DUPLICADO = "Ja existe uma despesa com o mesmo titulo, favor digitar um outro titulo para esta despesa.";
+    public static final String DESPESA_VINCULADA_A = "Despesa vinculada á: ";
 }

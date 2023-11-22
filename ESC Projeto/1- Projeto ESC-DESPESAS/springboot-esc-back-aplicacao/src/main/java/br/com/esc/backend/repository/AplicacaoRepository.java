@@ -1,9 +1,6 @@
 package br.com.esc.backend.repository;
 
 import br.com.esc.backend.domain.*;
-import br.com.esc.backend.mapper.ChaveKeyMapper;
-import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -56,6 +53,8 @@ public interface AplicacaoRepository {
 
     ParcelasDAO getUltimaParcelaDespesaParcelada(Integer idDespesaParcelada, Integer idFuncionario);
 
+    List<ParcelasDAO> getParcelasPorFiltro(Integer idDespesaParcelada, Integer idParcela, String tpBaixado, Integer idFuncionario);
+
     String getValidaDespesaParceladaAmortizacao(Integer idDespesaParcelada, Integer idFuncionario);
 
     String getValidaParcelaAmortizacao(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
@@ -66,7 +65,9 @@ public interface AplicacaoRepository {
 
     String getValidaDetalheDespesaComParcelaAmortizada(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 
-    String getValidaDespesaParceladaAdiantada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idFuncionario);
+    String getValidaDetalheDespesaParceladaAdiantada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idFuncionario);
+
+    String getDespesaParceladaVinculada(Integer idDespesaParcelada, Integer idFuncionario);
 
     Integer getMaxOrdemDespesasFixasMensais(Integer idDespesa, Integer idFuncionario);
 
@@ -86,7 +87,9 @@ public interface AplicacaoRepository {
 
     String getUsuarioLogado(Integer idFuncionario);
 
-    DespesaParceladaDAO getDespesaParcelada(Integer idDespesaParcelada, Integer idFuncionario);
+    DespesaParceladaDAO getDespesaParcelada(Integer idDespesaParcelada, String dsNomeDespesaParcelada, Integer idFuncionario);
+
+    List<DespesaParceladaDAO> getDespesasParceladas(Integer idFuncionario, String status);
 
     ChaveKeyDAO getNovaChaveKey(String tpRegistroKey);
 
@@ -110,9 +113,25 @@ public interface AplicacaoRepository {
 
     Integer getValidaTituloDespesaDuplicado(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String dsTituloDespesa);
 
-    List<String> getTituloDespesa();
+    List<String> getTituloDespesa(Integer idFuncionario);
 
-    List<String> getTituloDespesaEmprestimo();
+    List<String> getTituloDespesaEmprestimoAReceber(Integer idFuncionario);
+
+    String getTituloDespesaEmprestimoPorID(Integer idEmprestimo, Integer idFuncionario);
+
+    String getValorParcelaPorFiltro(String sWhere);
+
+    String getValorTotalDespesaParcelada(Integer idDespesaParcelada, Integer idFuncionario);
+
+    String getValorTotalDespesaParceladaPaga(Integer idDespesaParcelada, Integer idFuncionario);
+
+    String getValorTotalDespesaParceladaPendente(Integer idDespesaParcelada, Integer idFuncionario);
+
+    String getParcelaAtual(Integer idDespesaParcelada, Integer idFuncionario);
+
+    Integer getQuantidadeParcelasPagas(Integer idDespesaParcelada, Integer idFuncionario);
+
+    String getMaxValorParcela(Integer idDespesaParcelada, Integer idFuncionario);
 
     void insertNovaDespesaFixaTemp(Integer idDespesaTemp, Integer dsMesTemp, Integer dsAnoTemp, Integer idFuncionario);
 
@@ -146,7 +165,7 @@ public interface AplicacaoRepository {
 
     void updateParcelaStatusPendente(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
 
-    void updateParcelaStatusPendenteParcelaAdiada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, String vlParcela, Integer idFuncionario);
+    void updateParcelaStatusPendenteParcelaAdiada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, BigDecimal vlParcela, Integer idFuncionario);
 
     void updateQuantidadeParcelasAdiantadas(Integer idDespesaParcelada, Integer idFuncionario);
 
@@ -166,7 +185,7 @@ public interface AplicacaoRepository {
 
     void updateDetalheDespesasMensaisParcelaAdiada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, String dsObservacoes, String dsObservacoes2, String vlTotalParcelaAdiantada, Integer idFuncionario);
 
-    void updateDetalheDespesasMensaisDesfazerAdiantamento(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, String vlTotal, Integer idFuncionario);
+    void updateDetalheDespesasMensaisDesfazerAdiantamento(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, BigDecimal vlTotal, Integer idFuncionario);
 
     void updateChaveKeyUtilizada(Integer idChaveKey);
 
@@ -181,6 +200,14 @@ public interface AplicacaoRepository {
     void updateTituloDespesasMensais(Integer idDetalheDespesa, Integer idFuncionario, String dsNomeDespesa, String anoReferencia);
 
     void deleteDespesaParceladaImportada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idFuncionario);
+
+    void deleteDetalheDespesaParcelada(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
+
+    void deleteTodasParcelas(Integer idDespesaParcelada, Integer idFuncionario);
+
+    void deleteTodosDetalheDespesaParcelada(Integer idDespesaParcelada, Integer idFuncionario);
+
+    void deleteDespesasParceladas(Integer idDespesaParcelada, Integer idFuncionario);
 
     void deleteDespesasMensaisTemp(Integer idFuncionario);
 

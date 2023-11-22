@@ -85,6 +85,10 @@ public class LancamentosFinanceirosServices {
                 detalhes.setPercentualUtilizacao(new DecimalFormat("0.00").format(percentual).concat("%"));
             }
 
+            if (detalhes.getDsNomeDespesa().equalsIgnoreCase(DESCRICAO_DESPESA_EMPRESTIMO)) {
+                detalhes.setDsNomeDespesa(repository.getTituloDespesaEmprestimoPorID(detalhes.getIdEmprestimo(), idFuncionario));
+            }
+
             lancamentosMensaisList.add(detalhes);
         }
 
@@ -96,8 +100,12 @@ public class LancamentosFinanceirosServices {
             log.info("Atualizando despesas fixas mensais - request: {}", request);
             repository.updateDespesasFixasMensais(request);
         } else {
-            var idOrdemInclusao = repository.getMaxOrdemDespesasFixasMensais(request.getIdDespesa(), request.getIdFuncionario());
-            request.setIdOrdem(idOrdemInclusao);
+            request.setIdOrdem(repository.getMaxOrdemDespesasFixasMensais(request.getIdDespesa(), request.getIdFuncionario()));
+
+            if (request.getIdDespesa() <= 0) {
+                request.setIdOrdem(1);
+                request.setIdDespesa(1);
+            }
 
             log.info("Inserindo despesas fixas mensais - request: {}", request);
             repository.insertDespesasFixasMensais(request);
@@ -215,8 +223,8 @@ public class LancamentosFinanceirosServices {
         return "OK";
     }
 
-    public TituloDespesaResponse getTituloDespesa() {
-        var tituloDespesaList = repository.getTituloDespesa();
+    public TituloDespesaResponse getTituloDespesa(Integer idFuncionario) {
+        var tituloDespesaList = repository.getTituloDespesa(idFuncionario);
 
         List<String> tituloDespesa = new ArrayList<>();
         for (String titulo : tituloDespesaList) {
@@ -230,8 +238,8 @@ public class LancamentosFinanceirosServices {
         return tituloDespesaResponse;
     }
 
-    public TituloDespesaResponse getTituloEmprestimo() {
-        var tituloList = repository.getTituloDespesaEmprestimo();
+    public TituloDespesaResponse getTituloEmprestimo(Integer idFuncionario) {
+        var tituloList = repository.getTituloDespesaEmprestimoAReceber(idFuncionario);
 
         List<String> tituloDespesa = new ArrayList<>();
         for (String titulo : tituloList) {

@@ -14,6 +14,10 @@ public class DataUtils {
         return simpleDateFormat.format(data);
     }
 
+    public static String MesAnoAtual() {
+        return MesAtual().concat("/").concat(AnoAtual());
+    }
+
     public static String MesAtual() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM");
         Date data = new Date(System.currentTimeMillis());
@@ -67,6 +71,11 @@ public class DataUtils {
 
     public static String convertDateToString(Date date) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        return simpleDateFormat.format(date);
+    }
+
+    public static String convertDateToString_MMYYYY(Date date) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/yyyy");
         return simpleDateFormat.format(date);
     }
 }

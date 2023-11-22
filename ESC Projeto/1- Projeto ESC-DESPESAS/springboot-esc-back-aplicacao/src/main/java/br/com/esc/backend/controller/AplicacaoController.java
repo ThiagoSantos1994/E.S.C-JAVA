@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -30,6 +31,78 @@ public class AplicacaoController {
     public ResponseEntity<DetalheDespesasMensaisDTO> obterDetalheDespesasMensais(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("ordem") String ordem) {
         var response = service.obterDetalheDespesaMensal(idDespesa, idDetalheDespesa, idFuncionario, ordem);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(path = "/lancamentosFinanceiros/obterNovaChaveKey/{tipoChave}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ChaveKeyDAO> obterNovaChaveKey(@PathVariable("tipoChave") String tipoChave) {
+        var response = service.retornaNovaChaveKey(tipoChave);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(path = "/lancamentosFinanceiros/obterMesAnoPorID/{idDespesa}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StringResponse> obterMesAnoPorID(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idFuncionario") Integer idFuncionario) {
+        var response = service.obterMesAnoPorID(idDespesa, idFuncionario);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(path = "/lancamentosFinanceiros/obterSubTotalDespesa/{idDespesa}/{idDetalheDespesa}/{idFuncionario}/{ordem}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StringResponse> obterSubTotalDespesa(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("ordem") String ordem) {
+        var response = service.obterSubTotalDespesa(idDespesa, idDetalheDespesa, idFuncionario, ordem);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(path = "/lancamentosFinanceiros/detalheDespesasMensais/obterExtratoDespesasMes/{idDespesa}/{idDetalheDespesa}/{idFuncionario}/{tipo}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ExtratoDespesasDAO> obterExtratoDespesasMes(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("tipo") String tipo) {
+        var response = service.obterExtratoDespesasMes(idDespesa, idDetalheDespesa, idFuncionario, tipo);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(path = "/lancamentosFinanceiros/obterTitulosDespesas/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TituloDespesaResponse> obterTitulosDespesas(@PathVariable("idFuncionario") Integer idFuncionario) {
+        var response = service.obterTitulosDespesas(idFuncionario);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(path = "/lancamentosFinanceiros/obterTitulosEmprestimos/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TituloDespesaResponse> obterTitulosEmprestimos(@PathVariable("idFuncionario") Integer idFuncionario) {
+        var response = service.obterTitulosEmprestimos(idFuncionario);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(path = "/despesasParceladas/obterListaDespesas/{idFuncionario}/{status}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DespesasParceladasResponse> obterDespesasParceladas(@PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("status") String status) {
+        var response = service.obterDespesasParceladas(idFuncionario, status);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(path = "/despesasParceladas/obterValorDespesa/{idDespesaParcelada}/{idParcela}/{mesAnoReferencia}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StringResponse> obterValorDespesaParcelada(@PathVariable("idDespesaParcelada") Integer idDespesaParcelada, @PathVariable("idParcela") Integer idParcela, @PathVariable("mesAnoReferencia") String mesAnoReferencia, @PathVariable("idFuncionario") Integer idFuncionario) {
+        var response = service.obterValorDespesaParcelada(idDespesaParcelada, idParcela, mesAnoReferencia, idFuncionario);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(path = "/despesasParceladas/consultar/{nomeDespesaParcelada}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DetalheDespesasParceladasResponse> obterDespesaParceladaPorNome(@PathVariable("nomeDespesaParcelada") String nomeDespesaParcelada, @PathVariable("idFuncionario") Integer idFuncionario) {
+        var response = service.obterDespesaParceladaPorNome(nomeDespesaParcelada, idFuncionario);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(path = "/despesasParceladas/gerarFluxoParcelas/{idDespesaParcelada}/{valorParcela}/{qtdeParcelas}/{dataReferencia}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ParcelasDAO>> obterDespesaParceladaPorNome(@PathVariable("idDespesaParcelada") Integer idDespesaParcelada, @PathVariable("valorParcela") String valorParcela, @PathVariable("qtdeParcelas") Integer qtdeParcelas, @PathVariable("dataReferencia") String dataReferencia, @PathVariable("idFuncionario") Integer idFuncionario) {
+        var response = service.gerarFluxoParcelas(idDespesaParcelada, valorParcela, qtdeParcelas, dataReferencia, idFuncionario);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(path = "/despesasParceladas/parcelas/excluir/{idDespesaParcelada}/{idParcela}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> excluirParcela(@PathVariable("idDespesaParcelada") Integer idDespesaParcelada, @PathVariable("idParcela") Integer idParcela, @PathVariable("idFuncionario") Integer idFuncionario) {
+        service.deleteParcela(idDespesaParcelada, idParcela, idFuncionario);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping(path = "/despesasParceladas/excluir/{idDespesaParcelada}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> excluirParcela(@PathVariable("idDespesaParcelada") Integer idDespesaParcelada, @PathVariable("idFuncionario") Integer idFuncionario) {
+        service.deleteDespesaParcelada(idDespesaParcelada, idFuncionario);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping(path = "/lancamentosFinanceiros/despesasFixasMensais/gravar", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -114,42 +187,6 @@ public class AplicacaoController {
     public ResponseEntity<Void> desfazerAdiantamentoFluxoParcelas(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idDespesaParcelada") Integer idDespesaParcelada, @PathVariable("idParcela") Integer idParcela, @PathVariable("idFuncionario") Integer idFuncionario) {
         service.desfazerAdiantamentoFluxoParcelas(idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, idFuncionario);
         return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @GetMapping(path = "/lancamentosFinanceiros/obterNovaChaveKey/{tipoChave}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ChaveKeyDAO> obterNovaChaveKey(@PathVariable("tipoChave") String tipoChave) {
-        var response = service.retornaNovaChaveKey(tipoChave);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping(path = "/lancamentosFinanceiros/obterMesAnoPorID/{idDespesa}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<StringResponse> obterMesAnoPorID(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idFuncionario") Integer idFuncionario) {
-        var response = service.obterMesAnoPorID(idDespesa, idFuncionario);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping(path = "/lancamentosFinanceiros/obterSubTotalDespesa/{idDespesa}/{idDetalheDespesa}/{idFuncionario}/{ordem}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<StringResponse> obterSubTotalDespesa(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("ordem") String ordem) {
-        var response = service.obterSubTotalDespesa(idDespesa, idDetalheDespesa, idFuncionario, ordem);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping(path = "/lancamentosFinanceiros/detalheDespesasMensais/obterExtratoDespesasMes/{idDespesa}/{idDetalheDespesa}/{idFuncionario}/{tipo}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ExtratoDespesasDAO> obterExtratoDespesasMes(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("tipo") String tipo) {
-        var response = service.obterExtratoDespesasMes(idDespesa, idDetalheDespesa, idFuncionario, tipo);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping(path = "/lancamentosFinanceiros/obterTitulosDespesas", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TituloDespesaResponse> obterTitulosDespesas() {
-        var response = service.obterTitulosDespesas();
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping(path = "/lancamentosFinanceiros/obterTitulosEmprestimos", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TituloDespesaResponse> obterTitulosEmprestimos() {
-        var response = service.obterTitulosEmprestimos();
-        return ResponseEntity.ok(response);
     }
 
     @PostMapping(path = "/lancamentosFinanceiros/validaDespesaExistenteDebitoCartao/{idDespesa}/{idDetalheDespesa}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)

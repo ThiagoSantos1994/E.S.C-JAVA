@@ -22,8 +22,15 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(CamposObrigatoriosException.class)
     public ResponseEntity<ErroRepresentation> camposObrigatoriosException(Exception e) {
         return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
+                .status(HttpStatus.BAD_REQUEST)
                 .body(getCamposObrigatoriosException(e));
+    }
+
+    @ExceptionHandler(ErroNegocioException.class)
+    public ResponseEntity<ErroRepresentation> erroNegocioException(Exception e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(getErroNegocioRepresentation(e));
     }
 
     private static ErroRepresentation getErroRepresentation(Exception e) {
@@ -32,6 +39,16 @@ public class ControllerExceptionHandler {
         var erro = new ErroRepresentation();
         erro.setCodigo(HttpStatus.BAD_REQUEST.value());
         erro.setMensagem("Ocorreu um erro no servidor >>>> trace: " + e.getCause());
+
+        return erro;
+    }
+
+    private static ErroRepresentation getErroNegocioRepresentation(Exception e) {
+        log.error("ExceptionHandler | Erro de negocio tratado: {}", e.getMessage());
+
+        var erro = new ErroRepresentation();
+        erro.setCodigo(HttpStatus.NO_CONTENT.value());
+        erro.setMensagem(e.getMessage());
 
         return erro;
     }

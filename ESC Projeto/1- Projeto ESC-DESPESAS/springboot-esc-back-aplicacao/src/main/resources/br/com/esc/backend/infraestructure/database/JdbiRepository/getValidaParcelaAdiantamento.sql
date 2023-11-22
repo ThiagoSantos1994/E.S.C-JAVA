@@ -4,6 +4,6 @@ FROM
     tbd_Parcelas
 WHERE
     id_DespesaParcelada = :idDespesaParcelada
-    AND id_Parcelas = :idParcela
+    AND (:idParcela IS NULL OR id_Parcelas = :idParcela)
     AND id_Funcionario = :idFuncionario
     AND tp_ParcelaAdiada = 'S'

@@ -2,6 +2,7 @@ package br.com.esc.backend.service;
 
 import br.com.esc.backend.domain.*;
 import br.com.esc.backend.repository.AplicacaoRepository;
+import br.com.esc.backend.utils.ObjectUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
@@ -15,7 +16,6 @@ import static br.com.esc.backend.utils.MotorCalculoUtils.convertDecimalToString;
 import static br.com.esc.backend.utils.ObjectUtils.isNotNull;
 import static br.com.esc.backend.utils.ObjectUtils.isNull;
 import static br.com.esc.backend.utils.VariaveisGlobais.*;
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
 @RequiredArgsConstructor
@@ -125,7 +125,7 @@ public class DetalheDespesasServices {
     }
 
     public void validaDespesaTipoDebitoCartao(DespesasMensaisDAO mensaisDAO, Boolean bExcluirDespesa) {
-        if (isEmpty(mensaisDAO) || mensaisDAO.getTpLinhaSeparacao().equalsIgnoreCase("S")) {
+        if (ObjectUtils.isEmpty(mensaisDAO) || mensaisDAO.getTpLinhaSeparacao().equalsIgnoreCase("S")) {
             return;
         }
 
@@ -149,7 +149,7 @@ public class DetalheDespesasServices {
                     .dsMes(referencia.getDsMes())
                     .dsAno(referencia.getDsAno())
                     .idFuncionario(referencia.getIdFuncionario())
-                    .idOrdem(isEmpty(despesaTipoDebtCart) ? 0 : despesaTipoDebtCart.getIdOrdem())
+                    .idOrdem(ObjectUtils.isEmpty(despesaTipoDebtCart) ? 0 : despesaTipoDebtCart.getIdOrdem())
                     .tpDespesaDebitoCartao("S")
                     .build();
 
@@ -292,7 +292,7 @@ public class DetalheDespesasServices {
 
     private DespesasMensaisDAO mensaisDAOMapper(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario) {
         var detalheDespesaMensal = this.obterDetalheDespesaMensal(idDespesa, idDetalheDespesa, idFuncionario, "default");
-        if (isEmpty(detalheDespesaMensal.getDespesaMensal())) {
+        if (ObjectUtils.isEmpty(detalheDespesaMensal.getDespesaMensal())) {
             return null;
         }
 
@@ -300,9 +300,9 @@ public class DetalheDespesasServices {
                 .idDespesa(idDespesa)
                 .idDetalheDespesa(idDetalheDespesa)
                 .idFuncionario(idFuncionario)
-                .tpLinhaSeparacao(isEmpty(detalheDespesaMensal.getDespesaMensal().getTpLinhaSeparacao()) ? null : detalheDespesaMensal.getDespesaMensal().getTpLinhaSeparacao())
+                .tpLinhaSeparacao(ObjectUtils.isEmpty(detalheDespesaMensal.getDespesaMensal().getTpLinhaSeparacao()) ? null : detalheDespesaMensal.getDespesaMensal().getTpLinhaSeparacao())
                 .tpDebitoCartao(detalheDespesaMensal.getDespesaMensal().getTpDebitoCartao())
-                .tpAnotacao(isEmpty(detalheDespesaMensal.getDespesaMensal().getTpAnotacao()) ? "N" : detalheDespesaMensal.getDespesaMensal().getTpAnotacao())
+                .tpAnotacao(ObjectUtils.isEmpty(detalheDespesaMensal.getDespesaMensal().getTpAnotacao()) ? "N" : detalheDespesaMensal.getDespesaMensal().getTpAnotacao())
                 .build();
 
         return mensaisDAO;
@@ -314,7 +314,7 @@ public class DetalheDespesasServices {
 
 
     private String parserOrdem(String ordem) {
-        if (isEmpty(ordem)) {
+        if (ObjectUtils.isEmpty(ordem)) {
             return "a.id_Ordem";
         }
 

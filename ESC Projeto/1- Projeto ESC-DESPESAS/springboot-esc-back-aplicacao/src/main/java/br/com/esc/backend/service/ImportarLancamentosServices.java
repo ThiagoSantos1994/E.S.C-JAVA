@@ -1,6 +1,7 @@
 package br.com.esc.backend.service;
 
 import br.com.esc.backend.domain.*;
+import br.com.esc.backend.exception.ErroNegocioException;
 import br.com.esc.backend.repository.AplicacaoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -138,7 +139,7 @@ public class ImportarLancamentosServices {
         }
 
         if (despesasFixasMensaisList.size() == 0) {
-            throw new Exception("Nao ha lancamentos mensais no mes anterior para processamento.");
+            throw new ErroNegocioException("Nao ha lancamentos mensais no mes anterior para processamento.");
         }
         return despesasFixasMensaisList;
     }

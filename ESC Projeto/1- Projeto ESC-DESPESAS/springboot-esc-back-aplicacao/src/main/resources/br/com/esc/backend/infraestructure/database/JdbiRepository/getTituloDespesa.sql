@@ -5,3 +5,4 @@ FROM
 WHERE
     tp_LinhaSeparacao IS NULL
     AND ds_NomeDespesa <> '*EMP'
+    AND id_Funcionario = :idFuncionario
