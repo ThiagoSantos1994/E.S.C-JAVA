@@ -19,7 +19,8 @@ INSERT INTO tbd_DetalheDespesasMensais
     tp_Relatorio,
     tp_LinhaSeparacao,
     tp_ParcelaAmortizada,
-    tp_Meta
+    tp_Meta,
+    tp_ParcelaAdiada
     )
 VALUES (
     :detalhe.idDespesa,
@@ -41,5 +42,6 @@ VALUES (
     :detalhe.tpRelatorio,
     :detalhe.tpLinhaSeparacao,
     :detalhe.tpParcelaAmortizada,
-    :detalhe.tpMeta
+    :detalhe.tpMeta,
+    :detalhe.tpParcelaAdiada
 )

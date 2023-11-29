@@ -16,7 +16,6 @@ public class ParcelasDAO {
     private Integer idParcela;
     private String nrParcela;
     private String vlParcela;
-    private String vlAmortizacao;
     private String vlDesconto;
     private Integer idDespesa;
     private Integer idDetalheDespesa;

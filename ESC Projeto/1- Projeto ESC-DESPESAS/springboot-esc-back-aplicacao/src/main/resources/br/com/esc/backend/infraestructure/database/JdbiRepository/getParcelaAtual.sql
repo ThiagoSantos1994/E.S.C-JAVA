@@ -7,4 +7,5 @@ WHERE
     AND tp_Baixado = 'N'
     AND tp_ParcelaAdiada = 'N'
     AND id_Funcionario = :idFuncionario
-
+ORDER BY
+    nr_Parcela

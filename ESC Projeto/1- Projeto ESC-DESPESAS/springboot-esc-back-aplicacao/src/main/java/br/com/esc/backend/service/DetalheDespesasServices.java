@@ -41,6 +41,8 @@ public class DetalheDespesasServices {
     }
 
     public void gravarDetalheDespesasMensais(DetalheDespesasMensaisDAO detalheDAO) throws Exception {
+        var bIsParcelaAdiada = false;
+
         if (detalheDAO.getTpRelatorio().equalsIgnoreCase("S")) {
             // Despesas do tipo relatorio nao permite a gravacao\atualizacao na base de dados
             return;
@@ -53,6 +55,7 @@ public class DetalheDespesasServices {
             ParcelasDAO parcela = repository.getParcelaPorDataVencimento(detalheDAO.getIdDespesaParcelada(), dataVencimento, detalheDAO.getIdFuncionario());
             detalheDAO.setVlTotal(parcela.getVlParcela());
             detalheDAO.setDsDescricao(DESCRICAO_DESPESA_PARCELADA);
+            bIsParcelaAdiada = parcela.getTpParcelaAdiada().equalsIgnoreCase("S") ? true : false;
         }
 
         if (detalheDAO.getTpStatus().equalsIgnoreCase(PENDENTE)) {
@@ -72,6 +75,12 @@ public class DetalheDespesasServices {
 
             log.info("Inserindo DetalheDespesaMensal: request = {}", detalheDAO);
             repository.insertDetalheDespesasMensais(detalheDAO);
+
+            /*if (bIsParcelaAdiada) {
+                var valorParcela = repository.getMaxValorParcela(detalheDAO.getIdDespesaParcelada(), detalheDAO.getIdFuncionario());
+                repository.updateDetalheDespesasMensaisParcelaAdiada(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdDespesa(), "Despesa parcelada adiantada no fluxo de parcelas.", "", valorParcela, detalheDAO.getIdFuncionario());
+            }
+             */
         }
     }
 

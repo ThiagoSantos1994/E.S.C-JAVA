@@ -1,6 +1,7 @@
 package br.com.esc.backend.repository;
 
 import br.com.esc.backend.domain.*;
+import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -83,6 +84,8 @@ public interface AplicacaoRepository {
 
     Integer getQuantidadeParcelasEmAberto(Integer idDespesaParcelada, Integer idFuncionario);
 
+    Integer getQuantidadeParcelas(Integer idDespesaParcelada, Integer idFuncionario);
+
     Integer getCodigoEmprestimo(String dsTituloEmprestimo, Integer idFuncionario);
 
     String getUsuarioLogado(Integer idFuncionario);
@@ -115,6 +118,10 @@ public interface AplicacaoRepository {
 
     List<String> getTituloDespesa(Integer idFuncionario);
 
+    List<String> getNomeDespesasParceladas(Integer idFuncionario);
+
+    List<String> getNomeDespesasParceladasParaImportacao(Integer idFuncionario);
+
     List<String> getTituloDespesaEmprestimoAReceber(Integer idFuncionario);
 
     String getTituloDespesaEmprestimoPorID(Integer idEmprestimo, Integer idFuncionario);
@@ -133,7 +140,11 @@ public interface AplicacaoRepository {
 
     String getMaxValorParcela(Integer idDespesaParcelada, Integer idFuncionario);
 
-    void insertNovaDespesaFixaTemp(Integer idDespesaTemp, Integer dsMesTemp, Integer dsAnoTemp, Integer idFuncionario);
+    String getNomeDespesaParceladaPorFiltro(Integer idDespesaParcelada, Integer idFuncionario);
+
+    Integer getValidaTituloDespesaParceladaExistente(String dsTituloDespesaParcelada, Integer idDespesaParcelada, Integer idFuncionario);
+
+    void insertDespesaFixaTemp(Integer idDespesaTemp, Integer dsMesTemp, Integer dsAnoTemp, Integer idFuncionario);
 
     void insertDespesasFixasMensais(DespesasFixasMensaisRequest request);
 
@@ -141,9 +152,19 @@ public interface AplicacaoRepository {
 
     void insertDetalheDespesasMensais(DetalheDespesasMensaisDAO detalheDAO);
 
-    void insertNovaParcela(ParcelasDAO parcelasDAO);
+    void insertParcela(ParcelasDAO parcelasDAO);
+
+    void insertDespesaParcelada(DespesaParceladaDAO despesaParceladaDAO);
+
+    void updateParcela(ParcelasDAO parcelasDAO);
+
+    void updateParcelasReprocessamento(String vlParcela, Integer idDespesaParcelada, Integer idFuncionario);
+
+    void updateDespesaParcelada(DespesaParceladaDAO despesaParceladaDAO);
 
     void updateValorDetalheDespesasMensais(DetalheDespesasMensaisDAO detalheDespesasMensais);
+
+    void updateValorTotalDetalheDespesasMensaisParcelas(String vlTotal, Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
 
     void updateDespesasFixasMensais(DespesasFixasMensaisRequest request);
 
@@ -165,7 +186,7 @@ public interface AplicacaoRepository {
 
     void updateParcelaStatusPendente(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
 
-    void updateParcelaStatusPendenteParcelaAdiada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, BigDecimal vlParcela, Integer idFuncionario);
+    void updateParcelaStatusPendenteParcelaAdiada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, String vlParcela, Integer idFuncionario);
 
     void updateQuantidadeParcelasAdiantadas(Integer idDespesaParcelada, Integer idFuncionario);
 
@@ -185,7 +206,7 @@ public interface AplicacaoRepository {
 
     void updateDetalheDespesasMensaisParcelaAdiada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, String dsObservacoes, String dsObservacoes2, String vlTotalParcelaAdiantada, Integer idFuncionario);
 
-    void updateDetalheDespesasMensaisDesfazerAdiantamento(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, BigDecimal vlTotal, Integer idFuncionario);
+    void updateDetalheDespesasMensaisDesfazerAdiantamento(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, String vlTotal, Integer idFuncionario);
 
     void updateChaveKeyUtilizada(Integer idChaveKey);
 

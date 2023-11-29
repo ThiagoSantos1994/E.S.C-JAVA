@@ -16,8 +16,6 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 
 @Service
 @RequiredArgsConstructor
@@ -283,9 +281,37 @@ public class LancamentosBusinessService {
     }
 
     @SneakyThrows
-    public List<ParcelasDAO> gerarFluxoParcelas(Integer idDespesaParcelada, String valorParcela, Integer qtdeParcelas, String dataReferencia, Integer idFuncionario) {
+    public ExplodirFluxoParcelasResponse gerarFluxoParcelas(Integer idDespesaParcelada, String valorParcela, Integer qtdeParcelas, String dataReferencia, Integer idFuncionario) {
         log.info("Gerando fluxo de parcelas >>> filtros: idDespesaParcelada: {} - valorParcela: {} - qtdeParcelas: {} - dataReferencia: {} - idFuncionario: {}", idDespesaParcelada, valorParcela, qtdeParcelas, dataReferencia, idFuncionario);
         return despesasParceladasServices.gerarFluxoParcelas(idDespesaParcelada, valorParcela, qtdeParcelas, dataReferencia, idFuncionario);
+    }
+
+    public StringResponse consultarNomeDespesaParceladaPorFiltro(Integer idDespesaParcelada, Integer idFuncionario) {
+        log.info("Obtendo Nome Despesa Parcelada Por Filtros >>> idDespesaParcelada: {} - idFuncionario: {}", idDespesaParcelada, idFuncionario);
+        return despesasParceladasServices.getNomeDespesaParceladaPorFiltro(idDespesaParcelada, idFuncionario);
+    }
+
+    public TituloDespesaResponse consultarDespesasParceladasParaImportacao(Integer idFuncionario, String tipo) {
+        log.info("Obtendo Lista de Nomes Despesas Parceladas para Importacao - Filtros >>> idFuncionario: {} - tipo: {}", idFuncionario, tipo);
+        return despesasParceladasServices.getNomeDespesasParceladasParaImportacao(idFuncionario, tipo);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
+    public void gravarDespesaParcelada(DespesaParceladaDAO despesa) {
+        despesasParceladasServices.gravarDespesaParcelada(despesa);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
+    public void gravarParcela(ParcelasDAO parcela) {
+        despesasParceladasServices.gravarParcela(parcela);
+    }
+
+    @SneakyThrows
+    public StringResponse validarTituloDespesaParceladaExistente(String dsTituloDespesaParcelada, Integer idDespesaParcelada, Integer idFuncionario) {
+        log.info("Validando se o titulo da despesa parcelada ja existe na base de dados - Filtros >>> dsTituloDespesaParcelada: {}", dsTituloDespesaParcelada);
+        return despesasParceladasServices.validarTituloDespesaParceladaExistente(dsTituloDespesaParcelada, idDespesaParcelada, idFuncionario);
     }
 
     @Transactional(rollbackFor = Exception.class)

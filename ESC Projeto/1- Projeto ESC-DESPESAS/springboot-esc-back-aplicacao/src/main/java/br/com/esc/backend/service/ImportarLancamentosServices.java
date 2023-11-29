@@ -14,8 +14,7 @@ import java.util.List;
 import static br.com.esc.backend.utils.DataUtils.DataHoraAtual;
 import static br.com.esc.backend.utils.GlobalUtils.parserMesToString;
 import static br.com.esc.backend.utils.GlobalUtils.retornaMesAnterior;
-import static br.com.esc.backend.utils.ObjectUtils.isNotNull;
-import static br.com.esc.backend.utils.ObjectUtils.isNull;
+import static br.com.esc.backend.utils.ObjectUtils.*;
 import static br.com.esc.backend.utils.VariaveisGlobais.*;
 import static java.lang.Integer.parseInt;
 
@@ -100,7 +99,7 @@ public class ImportarLancamentosServices {
         idDespesaReferencia++;
 
         log.info("Gravando Despesa Fixa Temporaria >>> idDespesaTemp: {} - mesRef: {} - anoRef: {}", idDespesaReferencia, iMesReferencia, iAnoReferencia);
-        repository.insertNovaDespesaFixaTemp(idDespesaReferencia, iMesReferencia, iAnoReferencia, idFuncionario);
+        repository.insertDespesaFixaTemp(idDespesaReferencia, iMesReferencia, iAnoReferencia, idFuncionario);
 
         bProcessamentoTemporario = true;
         this.processarImportacaoDespesasMensais(idDespesaReferencia, idFuncionario, parserMesToString(iMesReferencia), iAnoReferencia.toString());
@@ -187,19 +186,17 @@ public class ImportarLancamentosServices {
                     }
                 }
 
-                if (dao.getTpParcelaAdiada().equalsIgnoreCase("S")) {
-                    //Se a parcela anterior foi adiantada, retira a flag anotacao
-                    dao.setTpAnotacao("N");
-                }
-
                 dao.setDsTituloDespesa(DESCRICAO_DESPESA_PARCELADA);
                 dao.setIdDespesaParcelada(parcela.getIdDespesaParcelada());
                 dao.setIdParcela(parcela.getIdParcela());
                 dao.setVlTotal(parcela.getVlParcela().trim());
+                dao.setTpAnotacao(dao.getTpParcelaAdiada().equalsIgnoreCase("S") ? "N" : dao.getTpParcelaAdiada());
+                dao.setTpParcelaAdiada(isEmpty(dao.getTpParcelaAdiada()) ? "N" : dao.getTpParcelaAdiada());
             } else {
                 dao.setIdDespesaParcelada(0);
                 dao.setIdParcela(0);
                 dao.setTpAnotacao("N");
+                dao.setTpParcelaAdiada("N");
 
                 if (bReprocessarTodosValores) {
                     dao.setVlTotal(dao.getVlTotal().trim());

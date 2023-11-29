@@ -14,9 +14,10 @@ public class DespesaParceladaDAO {
     private String dsTituloDespesaParcelada;
     private String dsMesVigIni;
     private String dsAnoVigIni;
-    private Integer nrTotalParcelas;
     private String dsVigenciaFin;
+    private Integer nrTotalParcelas;
     private String vlFatura;
+    private String vlParcela;
     private Integer idFuncionario;
     private Integer nrParcelasAdiantadas;
     private String tpBaixado;

@@ -7,7 +7,8 @@ SET
     ds_Observacao = '',
     ds_Observacao2 = '',
     vl_Total = :vlTotal,
-    vl_TotalParcelaAdiantada = '0,00'
+    vl_TotalPago = '0,00',
+    vl_TotalParcelaAdiantada = null
 WHERE
     id_Despesa = :idDespesa
     AND id_DetalheDespesa = :idDetalheDespesa

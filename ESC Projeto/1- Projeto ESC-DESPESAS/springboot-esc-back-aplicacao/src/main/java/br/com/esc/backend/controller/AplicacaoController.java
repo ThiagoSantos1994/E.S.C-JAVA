@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -88,9 +87,39 @@ public class AplicacaoController {
     }
 
     @GetMapping(path = "/despesasParceladas/gerarFluxoParcelas/{idDespesaParcelada}/{valorParcela}/{qtdeParcelas}/{dataReferencia}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ParcelasDAO>> obterDespesaParceladaPorNome(@PathVariable("idDespesaParcelada") Integer idDespesaParcelada, @PathVariable("valorParcela") String valorParcela, @PathVariable("qtdeParcelas") Integer qtdeParcelas, @PathVariable("dataReferencia") String dataReferencia, @PathVariable("idFuncionario") Integer idFuncionario) {
+    public ResponseEntity<ExplodirFluxoParcelasResponse> gerarFluxoParcelas(@PathVariable("idDespesaParcelada") Integer idDespesaParcelada, @PathVariable("valorParcela") String valorParcela, @PathVariable("qtdeParcelas") Integer qtdeParcelas, @PathVariable("dataReferencia") String dataReferencia, @PathVariable("idFuncionario") Integer idFuncionario) {
         var response = service.gerarFluxoParcelas(idDespesaParcelada, valorParcela, qtdeParcelas, dataReferencia, idFuncionario);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(path = "/despesasParceladas/consultarNomeDespesa/{idDespesaParcelada}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StringResponse> consultarNomeDespesaParceladaPorFiltro(@PathVariable("idDespesaParcelada") Integer idDespesaParcelada, @PathVariable("idFuncionario") Integer idFuncionario) {
+        var response = service.consultarNomeDespesaParceladaPorFiltro(idDespesaParcelada, idFuncionario);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(path = "/despesasParceladas/importacao/consultarDespesasParceladas/{idFuncionario}/{tipo}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TituloDespesaResponse> consultarDespesasParceladasParaImportacao(@PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("tipo") String tipo) {
+        var response = service.consultarDespesasParceladasParaImportacao(idFuncionario, tipo);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(path = "/despesasParceladas/validarTituloDespesaParceladaExistente/{dsTituloDespesaParcelada}/{idDespesaParcelada}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StringResponse> validarTituloDespesaParceladaExistente(@PathVariable("dsTituloDespesaParcelada") String dsTituloDespesaParcelada, @PathVariable("idDespesaParcelada") Integer idDespesaParcelada, @PathVariable("idFuncionario") Integer idFuncionario) {
+        var response = service.validarTituloDespesaParceladaExistente(dsTituloDespesaParcelada, idDespesaParcelada, idFuncionario);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(path = "/despesasParceladas/gravar", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> gravarDespesasParceladas(@RequestBody DespesaParceladaDAO request) {
+        service.gravarDespesaParcelada(request);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping(path = "/despesasParceladas/parcelas/gravar", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> gravarParcela(@RequestBody ParcelasDAO request) {
+        service.gravarParcela(request);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping(path = "/despesasParceladas/parcelas/excluir/{idDespesaParcelada}/{idParcela}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)

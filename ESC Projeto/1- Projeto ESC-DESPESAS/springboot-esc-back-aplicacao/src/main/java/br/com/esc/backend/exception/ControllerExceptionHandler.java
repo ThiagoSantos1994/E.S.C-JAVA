@@ -44,7 +44,7 @@ public class ControllerExceptionHandler {
     }
 
     private static ErroRepresentation getErroNegocioRepresentation(Exception e) {
-        log.error("ExceptionHandler | Erro de negocio tratado: {}", e.getMessage());
+        log.error("ExceptionHandler | Erro de negocio: {}", e.getMessage());
 
         var erro = new ErroRepresentation();
         erro.setCodigo(HttpStatus.NO_CONTENT.value());

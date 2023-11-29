@@ -151,6 +151,10 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlQuery
+    Integer getQuantidadeParcelas(Integer idDespesaParcelada, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
     String getValidaDetalheDespesaComParcelaAmortizada(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 
     @Override
@@ -269,6 +273,14 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlQuery
+    List<String> getNomeDespesasParceladas(Integer idFuncionario);
+
+    @Override
+    @SqlQuery
+    List<String> getNomeDespesasParceladasParaImportacao(Integer idFuncionario);
+
+    @Override
+    @SqlQuery
     List<String> getTituloDespesaEmprestimoAReceber(Integer idFuncionario);
 
     @Override
@@ -284,8 +296,16 @@ public interface JdbiRepository extends AplicacaoRepository {
     String getMaxValorParcela(Integer idDespesaParcelada, Integer idFuncionario);
 
     @Override
+    @SqlQuery
+    String getNomeDespesaParceladaPorFiltro(Integer idDespesaParcelada, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
+    Integer getValidaTituloDespesaParceladaExistente(String dsTituloDespesaParcelada, Integer idDespesaParcelada, Integer idFuncionario);
+
+    @Override
     @SqlUpdate
-    void insertNovaDespesaFixaTemp(Integer idDespesaTemp, Integer dsMesTemp, Integer dsAnoTemp, Integer idFuncionario);
+    void insertDespesaFixaTemp(Integer idDespesaTemp, Integer dsMesTemp, Integer dsAnoTemp, Integer idFuncionario);
 
     @Override
     @SqlUpdate
@@ -301,11 +321,31 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlUpdate
-    void insertNovaParcela(@BindBean("parcela") ParcelasDAO parcelasDAO);
+    void insertParcela(@BindBean("parcela") ParcelasDAO parcelasDAO);
+
+    @Override
+    @SqlUpdate
+    void insertDespesaParcelada(@BindBean("despesa") DespesaParceladaDAO despesaParceladaDAO);
+
+    @Override
+    @SqlUpdate
+    void updateDespesaParcelada(@BindBean("despesa") DespesaParceladaDAO despesaParceladaDAO);
+
+    @Override
+    @SqlUpdate
+    void updateParcela(@BindBean("parcela") ParcelasDAO parcelasDAO);
+
+    @Override
+    @SqlUpdate
+    void updateParcelasReprocessamento(String vlParcela, Integer idDespesaParcelada, Integer idFuncionario);
 
     @Override
     @SqlUpdate
     void updateValorDetalheDespesasMensais(@BindBean("detalhe") DetalheDespesasMensaisDAO detalheDespesasMensais);
+
+    @Override
+    @SqlUpdate
+    void updateValorTotalDetalheDespesasMensaisParcelas(String vlTotal, Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
 
     @Override
     @SqlUpdate
@@ -349,7 +389,7 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlUpdate
-    void updateParcelaStatusPendenteParcelaAdiada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, BigDecimal vlParcela, Integer idFuncionario);
+    void updateParcelaStatusPendenteParcelaAdiada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, String vlParcela, Integer idFuncionario);
 
     @Override
     @SqlUpdate
@@ -389,7 +429,7 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlUpdate
-    void updateDetalheDespesasMensaisDesfazerAdiantamento(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, BigDecimal vlTotal, Integer idFuncionario);
+    void updateDetalheDespesasMensaisDesfazerAdiantamento(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, String vlTotal, Integer idFuncionario);
 
     @Override
     @SqlUpdate

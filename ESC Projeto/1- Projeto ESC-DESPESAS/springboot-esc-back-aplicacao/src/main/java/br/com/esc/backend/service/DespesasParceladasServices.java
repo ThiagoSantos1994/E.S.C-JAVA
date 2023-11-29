@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -17,8 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static br.com.esc.backend.utils.DataUtils.*;
-import static br.com.esc.backend.utils.MotorCalculoUtils.convertDecimalToString;
-import static br.com.esc.backend.utils.MotorCalculoUtils.convertStringToDecimal;
 import static br.com.esc.backend.utils.VariaveisGlobais.*;
 import static java.lang.Integer.parseInt;
 
@@ -37,19 +34,22 @@ public class DespesasParceladasServices {
         var idDespesaParcelada = despesa.getIdDespesaParcelada();
         var valorDespesa = repository.getValorTotalDespesaParcelada(idDespesaParcelada, idFuncionario);
         var qtdeParcelas = parcelas.size();
+        var nomeDespesaVinculada = (ObjectUtils.isEmpty(repository.getDespesaParceladaVinculada(idDespesaParcelada, idFuncionario)) ? "" :
+                DESPESA_VINCULADA_A.concat(repository.getDespesaParceladaVinculada(idDespesaParcelada, idFuncionario)));
+        var parcelaAtual = repository.getParcelaAtual(idDespesaParcelada, idFuncionario);
 
         return DetalheDespesasParceladasResponse.builder()
-                .idDespesaParcelada(despesa.getIdDespesaParcelada())
+                .idDespesaParcelada(idDespesaParcelada)
                 .qtdeParcelas(qtdeParcelas)
                 .qtdeParcelasPagas(repository.getQuantidadeParcelasPagas(idDespesaParcelada, idFuncionario))
-                .parcelaAtual(repository.getParcelaAtual(idDespesaParcelada, idFuncionario).concat("/") + qtdeParcelas)
+                .parcelaAtual(ObjectUtils.isEmpty(parcelaAtual) ? "000/" + qtdeParcelas : parcelaAtual.concat("/") + qtdeParcelas)
                 .valorParcelaAtual(this.obterValorDespesa(idDespesaParcelada, 0, MesAnoAtual(), idFuncionario).getVlDespesaParcelada())
                 .valorTotalDespesa(valorDespesa)
                 .valorTotalDespesaPaga(repository.getValorTotalDespesaParceladaPaga(idDespesaParcelada, idFuncionario))
                 .valorTotalDespesaPendente(repository.getValorTotalDespesaParceladaPendente(idDespesaParcelada, idFuncionario))
                 .isDespesaComParcelaAmortizada(repository.getValidaDespesaParceladaAmortizacao(idDespesaParcelada, idFuncionario))
                 .isDespesaComParcelaAdiantada(repository.getValidaParcelaAdiantamento(idDespesaParcelada, null, idFuncionario))
-                .despesaVinculada(DESPESA_VINCULADA_A.concat(repository.getDespesaParceladaVinculada(parcelas.get(0).getIdDespesaParcelada(), idFuncionario)))
+                .despesaVinculada(nomeDespesaVinculada)
                 .despesas(despesa)
                 .parcelas(parcelas)
                 .build();
@@ -112,15 +112,22 @@ public class DespesasParceladasServices {
         validarBaixaCadastroDespesaParcelada(idDespesaParcelada, idFuncionario);
     }
 
-    public List<ParcelasDAO> gerarFluxoParcelas(Integer idDespesaParcelada, String valorParcela, Integer qtdeParcelas, String dataReferencia, Integer idFuncionario) throws ParseException {
+    public ExplodirFluxoParcelasResponse gerarFluxoParcelas(Integer idDespesaParcelada, String valorParcela, Integer qtdeParcelas, String dataReferencia, Integer idFuncionario) throws ParseException {
+        Boolean bNovoProcessamento = true;
         List<ParcelasDAO> listParcelas = new ArrayList<>();
-        var valor = valorParcela;
-        BigDecimal valorAmortizacao = convertStringToDecimal(valor).multiply(new BigDecimal(qtdeParcelas));
 
-        for (int i = 1; i <= qtdeParcelas; i++) {
-            var dataVencimento = tratarDataPrimeiroVencimento(dataReferencia);
-            valorAmortizacao = valorAmortizacao.subtract(convertStringToDecimal(valorParcela));
+        //Valida se existe parcelas gravadas, caso sim, trata a logica como reprocessamento
+        Integer iParcelasAtual = repository.getQuantidadeParcelas(idDespesaParcelada, idFuncionario);
+        if (iParcelasAtual.compareTo(0) == 1) {
+            bNovoProcessamento = false;
+            if (qtdeParcelas.compareTo(iParcelasAtual) <= 0) {
+                throw new ErroNegocioException("Não é permitido uma quantidade de parcelas inferior ou igual a " + iParcelasAtual + " Parcela(s).");
+            }
+        }
 
+        var dataVencimento = tratarDataPrimeiroVencimento(dataReferencia);
+        var iParcelas = (bNovoProcessamento ? 1 : (iParcelasAtual + 1));
+        for (int i = iParcelas; i <= qtdeParcelas; i++) {
             var parcela = ParcelasDAO.builder()
                     .idDespesaParcelada(idDespesaParcelada)
                     .idDespesa(0)
@@ -129,7 +136,6 @@ public class DespesasParceladasServices {
                     .idFuncionario(idFuncionario)
                     .nrParcela(formatter.format(i))
                     .vlParcela(valorParcela)
-                    .vlAmortizacao(convertDecimalToString(valorAmortizacao))
                     .vlDesconto(VALOR_ZERO)
                     .dsDataVencimento(this.mesAnoParcela(dataVencimento, i))
                     .dsObservacoes("")
@@ -143,19 +149,26 @@ public class DespesasParceladasServices {
             listParcelas.add(parcela);
         }
 
-        return listParcelas;
+        return ExplodirFluxoParcelasResponse.builder()
+                .parcelas(listParcelas)
+                .build();
     }
 
     public void adiantarFluxoParcelas(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario) throws Exception {
         var isValidaAdiantamentoMes = repository.getValidaDetalheDespesaParceladaAdiantada(idDespesa, idDetalheDespesa, idDespesaParcelada, idFuncionario);
 
         if (isValidaAdiantamentoMes.equalsIgnoreCase("N")) {
+            var parcelaAtual = repository.getParcelasPorFiltro(idDespesaParcelada, idParcela, null, idFuncionario);
+            if (parcelaAtual.get(0).getTpBaixado().equalsIgnoreCase("S")) {
+                throw new ErroNegocioException("Não é possivel adiantar uma parcela que ja foi paga.");
+            }
+
             var parcela = repository.getUltimaParcelaDespesaParcelada(idDespesaParcelada, idFuncionario);
             var novaParcelaRequest = this.parserToNovaParcelaAmortizacao(parcela);
 
             /*Grava a nova parcela adiantada*/
             log.info("Gravando nova parcela adiantamento >>> " + novaParcelaRequest);
-            repository.insertNovaParcela(novaParcelaRequest);
+            repository.insertParcela(novaParcelaRequest);
 
             /*Baixa a parcela atual e altera o stts para adiantada*/
             var observacoesBaixa = PARCELA_ADIANTADA_DESTE_MES_PARA.concat(novaParcelaRequest.getDsDataVencimento());
@@ -169,7 +182,7 @@ public class DespesasParceladasServices {
             repository.updateQuantidadeParcelasAdiantadas(idDespesaParcelada, idFuncionario);
         } else {
             var descricaoDespesa = repository.getDespesaParcelada(idDespesaParcelada, null, idFuncionario).getDsTituloDespesaParcelada();
-            throw new Exception("A parcela da despesa " + descricaoDespesa + " ja foi adiantada neste mês. Não é permitido adiantar a mesma parcela 2X no mesmo mês.");
+            throw new ErroNegocioException("A parcela da despesa " + descricaoDespesa + " ja foi adiantada neste mês. Não é permitido adiantar a mesma parcela 2X no mesmo mês.");
         }
     }
 
@@ -178,7 +191,7 @@ public class DespesasParceladasServices {
 
         if (isParcelaAdiantada.equalsIgnoreCase("S")) {
             var parcela = repository.getUltimaParcelaDespesaParcelada(idDespesaParcelada, idFuncionario);
-            BigDecimal valorParcelaAdiantada = convertStringToDecimal(repository.getParcelaPorDataVencimento(parcela.getIdDespesaParcelada(), parcela.getDsDataVencimento(), parcela.getIdFuncionario()).getVlParcela());
+            var valorParcelaAdiantada = repository.getParcelaPorDataVencimento(parcela.getIdDespesaParcelada(), parcela.getDsDataVencimento(), parcela.getIdFuncionario()).getVlParcela();
 
             /*Exclui a parcela adicionada no final do fluxo*/
             log.info("Excluindo ultima parcela adiantamento >>> " + parcela);
@@ -207,6 +220,38 @@ public class DespesasParceladasServices {
         return DespesasParceladasResponse.builder()
                 .despesas(listDespesasDAO)
                 .sizeDespesasParceladasVB(listDespesasDAO.size())
+                .build();
+    }
+
+    public StringResponse getNomeDespesaParceladaPorFiltro(Integer idDespesaParcelada, Integer idFuncionario) {
+        var nomeDespesa = repository.getNomeDespesaParceladaPorFiltro(idDespesaParcelada, idFuncionario);
+
+        log.info("NomeDespesaResponse: {}", nomeDespesa);
+        return StringResponse.builder()
+                .nomeDespesaParcelada(nomeDespesa)
+                .build();
+    }
+
+    public TituloDespesaResponse getNomeDespesasParceladasParaImportacao(Integer idFuncionario, String tipo) {
+        List<String> listaDespesas;
+
+        if (tipo.equalsIgnoreCase("ativas")) {
+            listaDespesas = repository.getNomeDespesasParceladasParaImportacao(idFuncionario);
+        } else {
+            listaDespesas = repository.getNomeDespesasParceladas(idFuncionario);
+        }
+
+        log.info("ListaNomesDespesasParceladas: {}", listaDespesas);
+        return TituloDespesaResponse.builder()
+                .tituloDespesa(listaDespesas)
+                .sizeTituloDespesaVB(listaDespesas.size())
+                .build();
+    }
+
+    public StringResponse validarTituloDespesaParceladaExistente(String dsTituloDespesaParcelada, Integer idDespesaParcelada, Integer idFuncionario) {
+        var response = repository.getValidaTituloDespesaParceladaExistente(dsTituloDespesaParcelada, idDespesaParcelada, idFuncionario).compareTo(0) == 0 ? false : true;
+        return StringResponse.builder()
+                .isTituloJaExistente(response)
                 .build();
     }
 
@@ -249,6 +294,38 @@ public class DespesasParceladasServices {
         repository.deleteDespesasParceladas(idDespesaParcelada, idFuncionario);
         repository.deleteTodasParcelas(idDespesaParcelada, idFuncionario);
         repository.deleteTodosDetalheDespesaParcelada(idDespesaParcelada, idFuncionario);
+    }
+
+    public void gravarDespesaParcelada(DespesaParceladaDAO despesa) {
+        var idDespesaExistente = repository.getDespesaParcelada(despesa.getIdDespesaParcelada(), null, despesa.getIdFuncionario());
+
+        if (ObjectUtils.isEmpty(idDespesaExistente)) {
+            log.info("Gravando Nova Despesa Parcelada >> Request: {}", despesa);
+            repository.insertDespesaParcelada(despesa);
+        } else {
+            log.info("Atualizando Despesa Parcelada >> Request: {}", despesa);
+            repository.updateDespesaParcelada(despesa);
+        }
+
+        Integer iQtdeParcelasAtual = repository.getQuantidadeParcelas(despesa.getIdDespesaParcelada(), despesa.getIdFuncionario());
+        if (iQtdeParcelasAtual > 0 && despesa.getNrTotalParcelas().compareTo(iQtdeParcelasAtual) == 1) {
+            //Atualiza o valor das parcelas existentes antes de gravar a(s) nova(s) parcela(s) reprocessada(s)
+            log.info(">>Reprocessamento de Parcelas - atualizando Valor das Parcelas existentes.");
+            repository.updateParcelasReprocessamento(despesa.getVlParcela(), despesa.getIdDespesaParcelada(), despesa.getIdFuncionario());
+        }
+    }
+
+    public void gravarParcela(ParcelasDAO parcela) {
+        var idParcelaExistente = repository.getParcelasPorFiltro(parcela.getIdDespesaParcelada(), parcela.getIdParcela(), null, parcela.getIdFuncionario());
+
+        if (ObjectUtils.isEmpty(idParcelaExistente)) {
+            log.info("Gravando Nova Parcela >> Request: {}", parcela);
+            repository.insertParcela(parcela);
+        } else {
+            log.info("Atualizando Parcela >> Request: {}", parcela);
+            repository.updateParcela(parcela);
+            repository.updateValorTotalDetalheDespesasMensaisParcelas(parcela.getVlParcela(), parcela.getIdDespesaParcelada(), parcela.getIdParcela(), parcela.getIdFuncionario());
+        }
     }
 
     private ParcelasDAO parserToNovaParcelaAmortizacao(ParcelasDAO parcela) throws ParseException {
