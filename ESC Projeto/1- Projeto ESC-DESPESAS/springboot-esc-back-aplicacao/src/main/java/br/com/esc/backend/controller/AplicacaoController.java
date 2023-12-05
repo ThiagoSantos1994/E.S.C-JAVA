@@ -116,6 +116,12 @@ public class AplicacaoController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping(path = "/despesasParceladas/obterCalculoValorTotalPendente/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StringResponse> obterCalculoValorTotalDespesaParceladaPendente(@PathVariable("idFuncionario") Integer idFuncionario) {
+        var response = service.obterCalculoValorTotalDespesaParceladaPendente(idFuncionario);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping(path = "/despesasParceladas/gravar", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> gravarDespesasParceladas(@RequestBody DespesaParceladaDAO request) {
         service.gravarDespesaParcelada(request);

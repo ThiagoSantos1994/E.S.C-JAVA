@@ -3,6 +3,6 @@ SELECT
 FROM
 	tbd_Parcelas
 WHERE
-    id_DespesaParcelada = :idDespesaParcelada
+    (:idDespesaParcelada IS NULL OR id_DespesaParcelada = :idDespesaParcelada)
     AND tp_Baixado = 'N'
     AND id_Funcionario = :idFuncionario

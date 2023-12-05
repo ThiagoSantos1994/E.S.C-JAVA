@@ -322,6 +322,17 @@ public class LancamentosBusinessService {
     }
 
     @SneakyThrows
+    public StringResponse obterCalculoValorTotalDespesaParceladaPendente(Integer idFuncionario) {
+        var result = repository.getValorTotalDespesaParceladaPendente(null, idFuncionario);
+
+        log.info("Obtendo calculo valor total despesa parcelada em aberto - valor: {}", result);
+
+        return StringResponse.builder()
+                .vlCalculo(result)
+                .build();
+    }
+
+    @SneakyThrows
     public StringResponse validaDespesaParceladaExistente(String dsTituloDespesaParcelada, Integer idFuncionario) {
         log.info("Validando se a despesa parcelada existe na base - dsTituloDespesaParcelada: {} - idFuncionario: {}", dsTituloDespesaParcelada, idFuncionario);
         var response = repository.getDespesaParcelada(null, dsTituloDespesaParcelada, idFuncionario);
