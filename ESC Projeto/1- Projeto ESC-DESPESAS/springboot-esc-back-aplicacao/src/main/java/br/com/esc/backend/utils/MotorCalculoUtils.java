@@ -8,12 +8,13 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 import static br.com.esc.backend.utils.ObjectUtils.isNull;
+import static br.com.esc.backend.utils.VariaveisGlobais.VALOR_ZERO;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Slf4j
 public class MotorCalculoUtils {
 
-    private static DecimalFormat format = new DecimalFormat("0.00");
+    private static DecimalFormat decimalFormat = new DecimalFormat("0.00");
 
     public static BigDecimal calcularReceitaPositivaMes(List<BigDecimal> listReceitas) {
         try {
@@ -49,12 +50,12 @@ public class MotorCalculoUtils {
 
     public static BigDecimal convertStringToDecimal(String valor) {
         if (valor.trim().equalsIgnoreCase("-") || isEmpty(valor)) {
-            return new BigDecimal(0);
+            return BigDecimal.ZERO;
         }
 
         var dValor = Double.parseDouble(valor.trim().replace("- ", "-").replace(",", "."));
         if (dValor <= 0 || isNull(dValor)) {
-            return new BigDecimal(0);
+            return BigDecimal.ZERO;
         }
 
         return BigDecimal.valueOf(dValor);
@@ -62,9 +63,9 @@ public class MotorCalculoUtils {
 
     public static String convertDecimalToString(BigDecimal valor) {
         if (isEmpty(valor)) {
-            return "0,00";
+            return VALOR_ZERO;
         }
 
-        return valor.toString().replace(".",",");
+        return decimalFormat.format(valor);
     }
 }

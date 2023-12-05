@@ -19,4 +19,5 @@ public class StringResponse {
     private String vlSubTotalDespesa;
     private String vlDespesaParcelada;
     private Boolean isTituloJaExistente;
+    private Boolean isDespesaExistente;
 }

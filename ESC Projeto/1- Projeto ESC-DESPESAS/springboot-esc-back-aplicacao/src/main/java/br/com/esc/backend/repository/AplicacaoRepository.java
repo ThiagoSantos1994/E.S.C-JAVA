@@ -1,7 +1,6 @@
 package br.com.esc.backend.repository;
 
 import br.com.esc.backend.domain.*;
-import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -164,7 +163,7 @@ public interface AplicacaoRepository {
 
     void updateValorDetalheDespesasMensais(DetalheDespesasMensaisDAO detalheDespesasMensais);
 
-    void updateValorTotalDetalheDespesasMensaisParcelas(String vlTotal, Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
+    void updateValorTotalDetalheDespesasMensaisParcelas(String vlTotal, Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario, String status);
 
     void updateDespesasFixasMensais(DespesasFixasMensaisRequest request);
 
@@ -181,6 +180,8 @@ public interface AplicacaoRepository {
     void updateDespesasFixasMensaisOrdenacao(Integer idDespesa, Integer idOrdem, Integer idNovaOrdem, Integer idFuncionario);
 
     void updateParcelaStatusPago(String dsObservacoes, Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
+
+    void updateParcelaStatusQuitado(String dsObservacoes, Integer idDespesaParcelada, Integer idParcela, String valorQuitacao, Integer idFuncionario);
 
     void updateParcelaStatusPendenteDespesasExcluidas(Integer idDespesa, Integer idFuncionario);
 

@@ -110,6 +110,12 @@ public class AplicacaoController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping(path = "/despesasParceladas/validaDespesaExistente/{dsTituloDespesaParcelada}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StringResponse> validaDespesaParceladaExistente(@PathVariable("dsTituloDespesaParcelada") String dsTituloDespesaParcelada, @PathVariable("idFuncionario") Integer idFuncionario) {
+        var response = service.validaDespesaParceladaExistente(dsTituloDespesaParcelada, idFuncionario);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping(path = "/despesasParceladas/gravar", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> gravarDespesasParceladas(@RequestBody DespesaParceladaDAO request) {
         service.gravarDespesaParcelada(request);
@@ -131,6 +137,12 @@ public class AplicacaoController {
     @PostMapping(path = "/despesasParceladas/excluir/{idDespesaParcelada}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> excluirParcela(@PathVariable("idDespesaParcelada") Integer idDespesaParcelada, @PathVariable("idFuncionario") Integer idFuncionario) {
         service.deleteDespesaParcelada(idDespesaParcelada, idFuncionario);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping(path = "/despesasParceladas/quitar/{idDespesaParcelada}/{idFuncionario}/{valorQuitacao}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> quitarDespesaParcelada(@PathVariable("idDespesaParcelada") Integer idDespesaParcelada, @PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("valorQuitacao") String valorQuitacao) {
+        service.quitarDespesaParcelada(idDespesaParcelada, idFuncionario, valorQuitacao);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

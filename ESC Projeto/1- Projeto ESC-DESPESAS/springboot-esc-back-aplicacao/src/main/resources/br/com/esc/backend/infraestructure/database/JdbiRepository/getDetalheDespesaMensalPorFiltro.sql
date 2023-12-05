@@ -24,8 +24,8 @@ SELECT
 FROM
     tbd_DetalheDespesasMensais a
 WHERE
-    a.id_Despesa = :detalhe.idDespesa
-    AND a.id_DetalheDespesa = :detalhe.idDetalheDespesa
+    (:detalhe.idDespesa IS NULL OR a.id_Despesa = :detalhe.idDespesa)
+    AND (:detalhe.idDetalheDespesa IS NULL OR a.id_DetalheDespesa = :detalhe.idDetalheDespesa)
     AND (:detalhe.idDespesaParcelada IS NULL OR a.id_DespesaParcelada = :detalhe.idDespesaParcelada)
     AND (:detalhe.dsDescricao IS NULL OR a.ds_Descricao = :detalhe.dsDescricao)
     AND (:detalhe.idFuncionario IS NULL OR a.id_Funcionario = :detalhe.idFuncionario)

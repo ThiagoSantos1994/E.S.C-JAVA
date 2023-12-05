@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -16,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static br.com.esc.backend.utils.DataUtils.*;
+import static br.com.esc.backend.utils.MotorCalculoUtils.convertDecimalToString;
+import static br.com.esc.backend.utils.MotorCalculoUtils.convertStringToDecimal;
 import static br.com.esc.backend.utils.VariaveisGlobais.*;
 import static java.lang.Integer.parseInt;
 
@@ -255,6 +258,42 @@ public class DespesasParceladasServices {
                 .build();
     }
 
+    public void quitarDespesaParcelada(Integer idDespesaParcelada, Integer idFuncionario, String valorQuitacao) {
+        var bDespesaPagaComOuSemDesconto = true;
+        BigDecimal valorTotalDespesa = convertStringToDecimal(repository.getValorTotalDespesaParceladaPendente(idDespesaParcelada, idFuncionario));
+        BigDecimal valorDesconto = valorTotalDespesa.subtract(convertStringToDecimal(valorQuitacao));
+
+        var observacoes = "Baixa realizada # Pago: " + valorQuitacao + " - Desc: " + convertDecimalToString(valorDesconto) + " #- Quitação TOTAL :)";
+
+        for (ParcelasDAO parcela : repository.getParcelasPorFiltro(idDespesaParcelada, null, "N", idFuncionario)) {
+            var idParcela = parcela.getIdParcela();
+
+            if (bDespesaPagaComOuSemDesconto) {
+                log.info("Quitacao parcelas >> {}", observacoes);
+                repository.updateParcelaStatusQuitado(observacoes, idDespesaParcelada, idParcela, valorQuitacao, idFuncionario);
+
+                log.info("Buscando parcela importada e realizando a baixa do pagamento...");
+                DetalheDespesasMensaisDAO filtro = DetalheDespesasMensaisDAO.builder()
+                        .idDespesaParcelada(idDespesaParcelada)
+                        .idParcela(idParcela)
+                        .idFuncionario(idFuncionario)
+                        .build();
+
+                var detalheDespesaMensalParcela = repository.getDetalheDespesaMensalPorFiltro(filtro);
+                repository.updateStatusPagamentoDetalheDespesa(valorQuitacao, valorQuitacao, PAGO, observacoes, "Baixa Automatica - Quitacao TOTAL", detalheDespesaMensalParcela.getIdDespesa(), detalheDespesaMensalParcela.getIdDetalheDespesa(), detalheDespesaMensalParcela.getIdOrdem(), idFuncionario);
+
+                bDespesaPagaComOuSemDesconto = false;
+                continue;
+            }
+
+            observacoes = STATUS_BAIXA_REALIZADA_PELO_SISTEMA.concat(" #" + idParcela + "#");
+            log.info("Quitacao parcelas >> {}", observacoes);
+            repository.updateParcelaStatusQuitado(observacoes, idDespesaParcelada, idParcela, VALOR_ZERO, idFuncionario);
+        }
+
+        validarBaixaCadastroDespesaParcelada(idDespesaParcelada, idFuncionario);
+    }
+
     public StringResponse obterValorDespesa(Integer idDespesaParcelada, Integer idParcela, String mesAnoReferencia, Integer idFuncionario) {
         var valorDespesa = VALOR_ZERO;
 
@@ -316,15 +355,21 @@ public class DespesasParceladasServices {
     }
 
     public void gravarParcela(ParcelasDAO parcela) {
-        var idParcelaExistente = repository.getParcelasPorFiltro(parcela.getIdDespesaParcelada(), parcela.getIdParcela(), null, parcela.getIdFuncionario());
+        var listParcelas = repository.getParcelasPorFiltro(parcela.getIdDespesaParcelada(), parcela.getIdParcela(), null, parcela.getIdFuncionario());
 
-        if (ObjectUtils.isEmpty(idParcelaExistente)) {
+        if (ObjectUtils.isEmpty(listParcelas)) {
             log.info("Gravando Nova Parcela >> Request: {}", parcela);
             repository.insertParcela(parcela);
         } else {
             log.info("Atualizando Parcela >> Request: {}", parcela);
             repository.updateParcela(parcela);
-            repository.updateValorTotalDetalheDespesasMensaisParcelas(parcela.getVlParcela(), parcela.getIdDespesaParcelada(), parcela.getIdParcela(), parcela.getIdFuncionario());
+
+            if (listParcelas.get(0).getVlParcela().equalsIgnoreCase(parcela.getVlParcela())) {
+                /*Se nao houver alteracao no valor da parcela, atualiza o valor independente do status do pagamento.*/
+                repository.updateValorTotalDetalheDespesasMensaisParcelas(parcela.getVlParcela(), parcela.getIdDespesaParcelada(), parcela.getIdParcela(), parcela.getIdFuncionario(), null);
+            } else {
+                repository.updateValorTotalDetalheDespesasMensaisParcelas(parcela.getVlParcela(), parcela.getIdDespesaParcelada(), parcela.getIdParcela(), parcela.getIdFuncionario(), PENDENTE);
+            }
         }
     }
 

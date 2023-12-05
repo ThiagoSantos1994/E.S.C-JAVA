@@ -7,3 +7,4 @@ WHERE
     AND id_Parcela = :idParcela
     AND id_Funcionario = :idFuncionario
     AND tp_ParcelaAdiada = 'N'
+    AND (:status IS NULL OR tp_Status = :status)

@@ -316,6 +316,29 @@ public class LancamentosBusinessService {
 
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
+    public void quitarDespesaParcelada(Integer idDespesaParcelada, Integer idFuncionario, String valorQuitacao) {
+        log.info("Realizando a baixa total da despesa parcelada - idDespesaParcelada: {} - valorQuitacao: {}", idDespesaParcelada, valorQuitacao);
+        despesasParceladasServices.quitarDespesaParcelada(idDespesaParcelada, idFuncionario, valorQuitacao);
+    }
+
+    @SneakyThrows
+    public StringResponse validaDespesaParceladaExistente(String dsTituloDespesaParcelada, Integer idFuncionario) {
+        log.info("Validando se a despesa parcelada existe na base - dsTituloDespesaParcelada: {} - idFuncionario: {}", dsTituloDespesaParcelada, idFuncionario);
+        var response = repository.getDespesaParcelada(null, dsTituloDespesaParcelada, idFuncionario);
+
+        Boolean result = true;
+        if (ObjectUtils.isEmpty(response)) {
+            result = false;
+        }
+
+        log.info("Response: Despesa Existente ?? - {}", result);
+        return StringResponse.builder()
+                .isDespesaExistente(result)
+                .build();
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
     public ChaveKeyDAO retornaNovaChaveKey(String tipoChave) {
         log.info("========= Gerando nova chaveKey, tipoChave: {} =========", tipoChave);
 
