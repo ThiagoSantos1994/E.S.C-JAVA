@@ -13,8 +13,7 @@ import java.math.BigDecimal;
 import static br.com.esc.backend.utils.GlobalUtils.getAnoAtual;
 import static br.com.esc.backend.utils.GlobalUtils.getMesAtual;
 import static br.com.esc.backend.utils.MotorCalculoUtils.convertDecimalToString;
-import static br.com.esc.backend.utils.ObjectUtils.isNotNull;
-import static br.com.esc.backend.utils.ObjectUtils.isNull;
+import static br.com.esc.backend.utils.ObjectUtils.*;
 import static br.com.esc.backend.utils.VariaveisGlobais.*;
 
 @Service
@@ -56,10 +55,14 @@ public class DetalheDespesasServices {
             detalheDAO.setVlTotal(parcela.getVlParcela());
             detalheDAO.setDsDescricao(DESCRICAO_DESPESA_PARCELADA);
             bIsParcelaAdiada = parcela.getTpParcelaAdiada().equalsIgnoreCase("S") ? true : false;
+            detalheDAO.setTpParcelaAdiada(bIsParcelaAdiada ? "S" : detalheDAO.getTpParcelaAdiada());
         }
 
         if (detalheDAO.getTpStatus().equalsIgnoreCase(PENDENTE)) {
             detalheDAO.setVlTotalPago(VALOR_ZERO);
+            detalheDAO.setTpMeta(isEmpty(detalheDAO.getTpMeta()) ? "N" : detalheDAO.getTpMeta());
+            detalheDAO.setTpParcelaAmortizada(isEmpty(detalheDAO.getTpParcelaAmortizada()) ? "N" : detalheDAO.getTpParcelaAmortizada());
+            detalheDAO.setTpParcelaAdiada(isEmpty(detalheDAO.getTpParcelaAdiada()) ? "N" : detalheDAO.getTpParcelaAdiada());
         }
 
         if (isNotNull(detalheDAO.getIdOrdem()) && this.isDetalheDespesaExistente(detalheDAO)) {
@@ -76,11 +79,12 @@ public class DetalheDespesasServices {
             log.info("Inserindo DetalheDespesaMensal: request = {}", detalheDAO);
             repository.insertDetalheDespesasMensais(detalheDAO);
 
-            /*if (bIsParcelaAdiada) {
-                var valorParcela = repository.getMaxValorParcela(detalheDAO.getIdDespesaParcelada(), detalheDAO.getIdFuncionario());
-                repository.updateDetalheDespesasMensaisParcelaAdiada(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdDespesa(), "Despesa parcelada adiantada no fluxo de parcelas.", "", valorParcela, detalheDAO.getIdFuncionario());
+            if (bIsParcelaAdiada) {
+                var valorParcelaAdiantada = repository.getMaxValorParcela(detalheDAO.getIdDespesaParcelada(), detalheDAO.getIdFuncionario());
+                repository.updateDetalheDespesasMensaisParcelaAdiada(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdDespesaParcelada(), "Despesa parcelada adiantada no fluxo de parcelas.", "", valorParcelaAdiantada, detalheDAO.getIdFuncionario());
             }
-             */
+
+            this.ordenarListaDetalheDespesasMensais(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdFuncionario(), "prazo");
         }
     }
 
@@ -227,47 +231,47 @@ public class DetalheDespesasServices {
         Boolean isExtratoMesAtual = false;
         var extrato = new ExtratoDespesasDAO();
 
-
-        var despesasFixas = repository.getDespesasFixasMensaisPorID(idDespesa, idFuncionario);
-        if (despesasFixas.size() == 0) {
-            extrato.setMensagem(VISUALIZACAO_TEMPORARIA_DE_LANCAMENTOS);
-            return extrato;
-        }
-
-        /*Regra para validar se o mes de pesquisa é o mes atual e tratar a mensagem*/
-        if (despesasFixas.get(0).getDsMes().equalsIgnoreCase(getMesAtual()) && despesasFixas.get(0).getDsAno().equalsIgnoreCase(getAnoAtual())) {
-            isExtratoMesAtual = true;
-        }
-
         if (tipo.equalsIgnoreCase("cadastroParcelas")) {
             extrato = repository.getExtratoDespesasParceladasMes(getMesAtual(), getAnoAtual(), idFuncionario);
 
             mensagemBuffer.append(NESTE_MES_SERA_QUITADO);
             mensagemBuffer.append(extrato.getVlDespesas() + "R$");
+        } else {
+            var despesasFixas = repository.getDespesasFixasMensaisPorID(idDespesa, idFuncionario);
+            if (despesasFixas.size() == 0) {
+                extrato.setMensagem(VISUALIZACAO_TEMPORARIA_DE_LANCAMENTOS);
+                return extrato;
+            }
 
-        } else if (tipo.equalsIgnoreCase("lancamentosMensais")) {
-            var qtdeDespesasParceladasMes = repository.getQuantidadeDespesasParceladasMes(idDespesa, idFuncionario);
-            var qtdeDespesasQuitacaoMes = repository.getQuantidadeDespesasParceladasQuitacaoMes(idDespesa, idFuncionario);
+            /*Regra para validar se o mes de pesquisa é o mes atual e tratar a mensagem*/
+            if (despesasFixas.get(0).getDsMes().equalsIgnoreCase(getMesAtual()) && despesasFixas.get(0).getDsAno().equalsIgnoreCase(getAnoAtual())) {
+                isExtratoMesAtual = true;
+            }
 
-            extrato.setQtDespesas(qtdeDespesasQuitacaoMes.getQtdeParcelas());
-            extrato.setVlDespesas(convertDecimalToString(qtdeDespesasQuitacaoMes.getVlParcelas()));
+            if (tipo.equalsIgnoreCase("lancamentosMensais")) {
+                var qtdeDespesasParceladasMes = repository.getQuantidadeDespesasParceladasMes(idDespesa, idFuncionario);
+                var qtdeDespesasQuitacaoMes = repository.getQuantidadeDespesasParceladasQuitacaoMes(idDespesa, idFuncionario);
 
-            mensagemBuffer.append(isExtratoMesAtual ? NESTE_MES_SERA_QUITADO : NESTE_MES_FOI_QUITADO);
-            mensagemBuffer.append(qtdeDespesasQuitacaoMes.getQtdeParcelas() + "/" + qtdeDespesasParceladasMes);
-            mensagemBuffer.append(" Despesas Parceladas, Totalizando: " + qtdeDespesasQuitacaoMes.getVlParcelas() + "R$");
-            mensagemBuffer.append("                                   ");
-            mensagemBuffer.append("[ Despesa (2022): ").append(convertDecimalToString(repository.getCalculoReceitaNegativaMES((idDespesa - 12), idFuncionario))).append("R$ ]");
+                extrato.setQtDespesas(qtdeDespesasQuitacaoMes.getQtdeParcelas());
+                extrato.setVlDespesas(convertDecimalToString(qtdeDespesasQuitacaoMes.getVlParcelas()));
 
-            extrato.setMensagem(mensagemBuffer.toString());
+                mensagemBuffer.append(isExtratoMesAtual ? NESTE_MES_SERA_QUITADO : NESTE_MES_FOI_QUITADO);
+                mensagemBuffer.append(qtdeDespesasQuitacaoMes.getQtdeParcelas() + "/" + qtdeDespesasParceladasMes);
+                mensagemBuffer.append(" Despesas Parceladas, Totalizando: " + qtdeDespesasQuitacaoMes.getVlParcelas() + "R$");
+                mensagemBuffer.append("                                   ");
+                mensagemBuffer.append("[ Despesa (2022): ").append(convertDecimalToString(repository.getCalculoReceitaNegativaMES((idDespesa - 12), idFuncionario))).append("R$ ]");
 
-        } else if (tipo.equalsIgnoreCase("detalheDespesas")) {
-            extrato = repository.getExtratoDespesasMes(idDespesa, idDetalheDespesa, idFuncionario);
+                extrato.setMensagem(mensagemBuffer.toString());
 
-            var qtdeTotalDespParceladasMes = repository.getQuantidadeDetalheDespesasParceladasMes(idDespesa, idDetalheDespesa, idFuncionario);
+            } else if (tipo.equalsIgnoreCase("detalheDespesas")) {
+                extrato = repository.getExtratoDespesasMes(idDespesa, idDetalheDespesa, idFuncionario);
 
-            mensagemBuffer.append(isExtratoMesAtual ? NESTE_MES_SERA_QUITADO : NESTE_MES_FOI_QUITADO);
-            mensagemBuffer.append(extrato.getQtDespesas() + "/" + qtdeTotalDespParceladasMes);
-            mensagemBuffer.append(" Despesas Parceladas, Totalizando: " + extrato.getVlDespesas() + "R$");
+                var qtdeTotalDespParceladasMes = repository.getQuantidadeDetalheDespesasParceladasMes(idDespesa, idDetalheDespesa, idFuncionario);
+
+                mensagemBuffer.append(isExtratoMesAtual ? NESTE_MES_SERA_QUITADO : NESTE_MES_FOI_QUITADO);
+                mensagemBuffer.append(extrato.getQtDespesas() + "/" + qtdeTotalDespParceladasMes);
+                mensagemBuffer.append(" Despesas Parceladas, Totalizando: " + extrato.getVlDespesas() + "R$");
+            }
         }
 
         extrato.setMensagem(mensagemBuffer.toString());

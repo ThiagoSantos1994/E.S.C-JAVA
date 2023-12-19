@@ -304,6 +304,11 @@ public interface JdbiRepository extends AplicacaoRepository {
     Integer getValidaTituloDespesaParceladaExistente(String dsTituloDespesaParcelada, Integer idDespesaParcelada, Integer idFuncionario);
 
     @Override
+    @SqlQuery
+    @UseRowMapper(RelatorioDespesasParceladasQuitacaoRowMapper.class)
+    List<RelatorioDespesasParceladasQuitacaoDAO> getRelatorioDespesasParceladasQuitacao(Integer idDespesa, Integer idFuncionario);
+
+    @Override
     @SqlUpdate
     void insertDespesaFixaTemp(Integer idDespesaTemp, Integer dsMesTemp, Integer dsAnoTemp, Integer idFuncionario);
 

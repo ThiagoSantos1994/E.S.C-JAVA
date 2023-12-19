@@ -193,19 +193,23 @@ public class LancamentosBusinessService {
         return importacaoServices.gerarTemporariamenteDespesasMensais(sMes, sAno, idFuncionario);
     }
 
+    @SneakyThrows
     public StringResponse obterSubTotalDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem) {
         log.info("Consultando subtotal despesa >> idDespesa: {}", idDespesa);
         return detalheDespesasServices.obterSubTotalDespesa(idDespesa, idDetalheDespesa, idFuncionario, ordem);
     }
 
+    @SneakyThrows
     public StringResponse obterMesAnoPorID(Integer idDespesa, Integer idFuncionario) {
         return lancamentosServices.obterMesAnoPorID(idDespesa, idFuncionario);
     }
 
+    @SneakyThrows
     public ExtratoDespesasDAO obterExtratoDespesasMes(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String tipo) {
         return detalheDespesasServices.obterExtratoDespesasMes(idDespesa, idDetalheDespesa, idFuncionario, tipo);
     }
 
+    @SneakyThrows
     public StringResponse validaDespesaExistenteDebitoCartao(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario) {
         var response = lancamentosServices.validaDespesaExistenteDebitoCartao(idDespesa, idDetalheDespesa, idFuncionario);
 
@@ -232,6 +236,7 @@ public class LancamentosBusinessService {
         lancamentosServices.alterarTituloDespesa(idDetalheDespesa, idFuncionario, dsNomeDespesa);
     }
 
+    @SneakyThrows
     public StringResponse validaTituloDespesaDuplicado(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String dsTituloDespesa) {
         var response = lancamentosServices.validaTituloDespesaDuplicado(idDespesa, idDetalheDespesa, idFuncionario, dsTituloDespesa);
 
@@ -346,6 +351,12 @@ public class LancamentosBusinessService {
         return StringResponse.builder()
                 .isDespesaExistente(result)
                 .build();
+    }
+
+    @SneakyThrows
+    public StringResponse obterRelatorioDespesasParceladasQuitacao(Integer idDespesa, Integer idFuncionario) {
+        log.info("Obtendo relatorio despesas parceladas que serão quitadas - idDespesa: {} - idFuncionario: {}", idDespesa, idFuncionario);
+        return despesasParceladasServices.obterRelatorioDespesasParceladasQuitacao(idDespesa, idFuncionario);
     }
 
     @Transactional(rollbackFor = Exception.class)

@@ -143,6 +143,8 @@ public interface AplicacaoRepository {
 
     Integer getValidaTituloDespesaParceladaExistente(String dsTituloDespesaParcelada, Integer idDespesaParcelada, Integer idFuncionario);
 
+    List<RelatorioDespesasParceladasQuitacaoDAO> getRelatorioDespesasParceladasQuitacao(Integer idDespesa, Integer idFuncionario);
+
     void insertDespesaFixaTemp(Integer idDespesaTemp, Integer dsMesTemp, Integer dsAnoTemp, Integer idFuncionario);
 
     void insertDespesasFixasMensais(DespesasFixasMensaisRequest request);

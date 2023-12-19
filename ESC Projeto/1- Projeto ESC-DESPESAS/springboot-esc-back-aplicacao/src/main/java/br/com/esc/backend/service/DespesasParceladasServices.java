@@ -373,6 +373,23 @@ public class DespesasParceladasServices {
         }
     }
 
+    public StringResponse obterRelatorioDespesasParceladasQuitacao(Integer idDespesa, Integer idFuncionario) {
+        var relatorioDAO = repository.getRelatorioDespesasParceladasQuitacao(idDespesa, idFuncionario);
+        StringBuffer buffer = new StringBuffer();
+
+        for (RelatorioDespesasParceladasQuitacaoDAO dao : relatorioDAO) {
+            StringBuilder builder = new StringBuilder();
+            builder.append(dao.getValorDespesa()).append("  -  ").append(dao.getDsTituloDespesaParcelada());
+            builder.append(System.lineSeparator());
+
+            buffer.append(builder);
+        }
+
+        return StringResponse.builder()
+                .relatorioDespesas(buffer.toString())
+                .build();
+    }
+
     private ParcelasDAO parserToNovaParcelaAmortizacao(ParcelasDAO parcela) throws ParseException {
         NumberFormat formatter = new DecimalFormat("000");
 
