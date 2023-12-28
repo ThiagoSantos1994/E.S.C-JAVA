@@ -289,4 +289,10 @@ public class AplicacaoController {
         var response = service.gerarTemporariamenteDespesasMensais(dsMes, dsAno, idFuncionario);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping(path = "/backup/processar", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StringResponse> processarBackup() {
+        var response = service.processarBackupBaseDados();
+        return ResponseEntity.ok(response);
+    }
 }

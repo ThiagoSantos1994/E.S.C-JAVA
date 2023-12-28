@@ -1,11 +1,9 @@
 package br.com.esc.backend.config;
 
-import br.com.esc.backend.service.DespesasParceladasServices;
-import br.com.esc.backend.service.DetalheDespesasServices;
-import br.com.esc.backend.service.ImportarLancamentosServices;
-import br.com.esc.backend.service.LancamentosFinanceirosServices;
-import br.com.esc.backend.repository.AplicacaoRepository;
 import br.com.esc.backend.business.LancamentosBusinessService;
+import br.com.esc.backend.repository.AplicacaoRepository;
+import br.com.esc.backend.repository.BackupRepository;
+import br.com.esc.backend.service.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -15,8 +13,8 @@ public class AplicacaoConfiguration {
 
     @Bean
     @Primary
-    LancamentosBusinessService lancamentosFinanceirosService(AplicacaoRepository repository, ImportarLancamentosServices importacaoBusiness, LancamentosFinanceirosServices lancamentosBusiness, DetalheDespesasServices detalheDespesasServices, DespesasParceladasServices despesasParceladasServices) {
-        return new LancamentosBusinessService(repository, importacaoBusiness, lancamentosBusiness, detalheDespesasServices, despesasParceladasServices);
+    LancamentosBusinessService lancamentosFinanceirosService(AplicacaoRepository repository, ImportarLancamentosServices importacaoBusiness, LancamentosFinanceirosServices lancamentosBusiness, DetalheDespesasServices detalheDespesasServices, DespesasParceladasServices despesasParceladasServices, BackupServices backupServices) {
+        return new LancamentosBusinessService(repository, importacaoBusiness, lancamentosBusiness, detalheDespesasServices, despesasParceladasServices, backupServices);
     }
 
     @Bean
@@ -41,5 +39,11 @@ public class AplicacaoConfiguration {
     @Primary
     DespesasParceladasServices despesasParceladasServices(AplicacaoRepository repository) {
         return new DespesasParceladasServices(repository);
+    }
+
+    @Bean
+    @Primary
+    BackupServices backupServices(BackupRepository repository) {
+        return new BackupServices(repository);
     }
 }

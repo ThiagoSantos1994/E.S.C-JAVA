@@ -3,10 +3,7 @@ package br.com.esc.backend.business;
 import br.com.esc.backend.domain.*;
 import br.com.esc.backend.exception.CamposObrigatoriosException;
 import br.com.esc.backend.repository.AplicacaoRepository;
-import br.com.esc.backend.service.DespesasParceladasServices;
-import br.com.esc.backend.service.DetalheDespesasServices;
-import br.com.esc.backend.service.ImportarLancamentosServices;
-import br.com.esc.backend.service.LancamentosFinanceirosServices;
+import br.com.esc.backend.service.*;
 import br.com.esc.backend.utils.ObjectUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -27,6 +24,7 @@ public class LancamentosBusinessService {
     private final LancamentosFinanceirosServices lancamentosServices;
     private final DetalheDespesasServices detalheDespesasServices;
     private final DespesasParceladasServices despesasParceladasServices;
+    private final BackupServices backupServices;
 
     @SneakyThrows
     public LancamentosFinanceirosDTO obterLancamentosFinanceiros(String dsMes, String dsAno, Integer idFuncionario) {
@@ -357,6 +355,11 @@ public class LancamentosBusinessService {
     public StringResponse obterRelatorioDespesasParceladasQuitacao(Integer idDespesa, Integer idFuncionario) {
         log.info("Obtendo relatorio despesas parceladas que serão quitadas - idDespesa: {} - idFuncionario: {}", idDespesa, idFuncionario);
         return despesasParceladasServices.obterRelatorioDespesasParceladasQuitacao(idDespesa, idFuncionario);
+    }
+
+    public StringResponse processarBackupBaseDados() {
+        log.info("========== Realizando o backup da base de dados ==========");
+        return backupServices.processarBackup();
     }
 
     @Transactional(rollbackFor = Exception.class)
