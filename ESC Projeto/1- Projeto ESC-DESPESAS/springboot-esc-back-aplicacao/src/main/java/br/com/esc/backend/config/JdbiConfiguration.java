@@ -1,8 +1,10 @@
 package br.com.esc.backend.config;
 
+import br.com.esc.backend.infraestructure.database.JdbiAutenticacaoRepository;
 import br.com.esc.backend.infraestructure.database.JdbiRepository;
 import br.com.esc.backend.infraestructure.database.JdbiBackupRepository;
 import br.com.esc.backend.repository.AplicacaoRepository;
+import br.com.esc.backend.repository.AutenticacaoRepository;
 import br.com.esc.backend.repository.BackupRepository;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -42,5 +44,10 @@ public class JdbiConfiguration {
     @Bean
     public BackupRepository jdbiBackupRepository(Jdbi jdbi) {
         return jdbi.onDemand(JdbiBackupRepository.class);
+    }
+
+    @Bean
+    public AutenticacaoRepository jdbiAutenticacaoRepository(Jdbi jdbi) {
+        return jdbi.onDemand(JdbiAutenticacaoRepository.class);
     }
 }

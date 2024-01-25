@@ -14,3 +14,4 @@ WHERE
     AND b.tp_Poupanca = 'N'
     AND b.tp_PoupancaNegativa = 'N'
     AND a.tp_Status = 'Pendente'
+    AND b.tp_Relatorio = 'N'

@@ -3,7 +3,6 @@ package br.com.esc.backend.service;
 import br.com.esc.backend.domain.StringResponse;
 import br.com.esc.backend.repository.BackupRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.springframework.stereotype.Service;

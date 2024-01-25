@@ -2,6 +2,7 @@ package br.com.esc.backend.config;
 
 import br.com.esc.backend.business.LancamentosBusinessService;
 import br.com.esc.backend.repository.AplicacaoRepository;
+import br.com.esc.backend.repository.AutenticacaoRepository;
 import br.com.esc.backend.repository.BackupRepository;
 import br.com.esc.backend.service.*;
 import org.springframework.context.annotation.Bean;
@@ -13,8 +14,8 @@ public class AplicacaoConfiguration {
 
     @Bean
     @Primary
-    LancamentosBusinessService lancamentosFinanceirosService(AplicacaoRepository repository, ImportarLancamentosServices importacaoBusiness, LancamentosFinanceirosServices lancamentosBusiness, DetalheDespesasServices detalheDespesasServices, DespesasParceladasServices despesasParceladasServices, BackupServices backupServices) {
-        return new LancamentosBusinessService(repository, importacaoBusiness, lancamentosBusiness, detalheDespesasServices, despesasParceladasServices, backupServices);
+    LancamentosBusinessService lancamentosFinanceirosService(AplicacaoRepository repository, ImportarLancamentosServices importacaoBusiness, LancamentosFinanceirosServices lancamentosBusiness, DetalheDespesasServices detalheDespesasServices, DespesasParceladasServices despesasParceladasServices, BackupServices backupServices, AutenticacaoServices autenticacaoServices) {
+        return new LancamentosBusinessService(repository, importacaoBusiness, lancamentosBusiness, detalheDespesasServices, despesasParceladasServices, backupServices, autenticacaoServices);
     }
 
     @Bean
@@ -45,5 +46,11 @@ public class AplicacaoConfiguration {
     @Primary
     BackupServices backupServices(BackupRepository repository) {
         return new BackupServices(repository);
+    }
+
+    @Bean
+    @Primary
+    AutenticacaoServices autenticacaoServices(AutenticacaoRepository repository) {
+        return new AutenticacaoServices(repository);
     }
 }

@@ -5,7 +5,9 @@ import lombok.var;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 import static br.com.esc.backend.utils.ObjectUtils.isNull;
 import static br.com.esc.backend.utils.VariaveisGlobais.VALOR_ZERO;
@@ -13,7 +15,6 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Slf4j
 public class MotorCalculoUtils {
-
     private static DecimalFormat decimalFormat = new DecimalFormat("0.00");
 
     public static BigDecimal calcularReceitaPositivaMes(List<BigDecimal> listReceitas) {
@@ -67,5 +68,12 @@ public class MotorCalculoUtils {
         }
 
         return decimalFormat.format(valor);
+    }
+
+    public static String convertToMoedaBR(BigDecimal valor) {
+        Locale localeBR = new Locale("pt", "BR");
+        NumberFormat dinheiro = NumberFormat.getCurrencyInstance(localeBR);
+
+        return dinheiro.format(valor).replace("R$", "");
     }
 }

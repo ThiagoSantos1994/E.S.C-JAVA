@@ -35,16 +35,23 @@ public class LancamentosFinanceirosServices {
         var idDespesa = despesasFixasMensais.get(0).getIdDespesa();
         var idDespesaAnterior = (idDespesa - 1);
 
+        var saldoInicialMes = repository.getCalculoSaldoInicialMES(idDespesa, idFuncionario);
+        var receita = calcularReceitaPositivaMes(repository.getCalculoReceitaPositivaMES(idDespesa, idFuncionario));
+        var despesa = repository.getCalculoReceitaNegativaMES(idDespesa, idFuncionario);
+        var pendente = repository.getCalculoReceitaPendentePgtoMES(idDespesa, idFuncionario);
+        var saldoDisponivelMes = receita.subtract(despesa);
+
         dto.setIdDespesa(idDespesa);
         dto.setDsMesReferencia(dsMes);
         dto.setDsAnoReferencia(dsAno);
-        dto.setVlSaldoPositivo(calcularReceitaPositivaMes(repository.getCalculoReceitaPositivaMES(idDespesa, idFuncionario)));
-        dto.setVlTotalDespesas(repository.getCalculoReceitaNegativaMES(idDespesa, idFuncionario));
-        dto.setVlTotalPendentePagamento(repository.getCalculoReceitaPendentePgtoMES(idDespesa, idFuncionario));
-        dto.setVlSaldoInicialMes(repository.getCalculoSaldoInicialMES(idDespesa, idFuncionario));
-        dto.setPcUtilizacaoDespesasMes(new DecimalFormat("00").format(this.obterPercentualUtilizacaoDespesaMes(dto)).concat("%"));
-        dto.setVlSaldoDisponivelMes(dto.getVlSaldoPositivo().subtract(dto.getVlTotalDespesas()));
+        dto.setVlSaldoPositivo(convertToMoedaBR(receita));
+        dto.setVlTotalDespesas(convertToMoedaBR(despesa));
+        dto.setVlTotalPendentePagamento(convertToMoedaBR(pendente));
+        dto.setVlSaldoInicialMes(convertToMoedaBR(saldoInicialMes));
+        dto.setPcUtilizacaoDespesasMes(new DecimalFormat("00").format(this.obterPercentualUtilizacaoDespesaMes(saldoInicialMes, receita, despesa)).concat("%"));
+        dto.setVlSaldoDisponivelMes(convertToMoedaBR(saldoDisponivelMes));
         dto.setDespesasFixasMensais(despesasFixasMensais);
+        dto.setStatusSaldoMes(saldoDisponivelMes.toString().contains("-") ? "Negativo" : "Positivo");
         dto.setLancamentosMensais(this.obterLancamentosMensais(idDespesa, idDespesaAnterior, idFuncionario));
 
         /*Especifico para aplicação VB6*/
@@ -59,6 +66,7 @@ public class LancamentosFinanceirosServices {
 
         for (LancamentosMensaisDAO detalhes : repository.getLancamentosMensais(idDespesa, idFuncionario)) {
             var idDetalheDespesa = detalhes.getIdDetalheDespesa();
+            detalhes.setIdDespesa(idDespesa);
 
             var bLinhaSeparacao = detalhes.getTpLinhaSeparacao();
             if (bLinhaSeparacao.equalsIgnoreCase("S")) {
@@ -79,15 +87,21 @@ public class LancamentosFinanceirosServices {
 
             detalhes.setVlTotalDespesaPendente(repository.getCalculoTotalDespesaPendente(idDespesa, idDetalheDespesa, idFuncionario));
             detalhes.setVlTotalDespesaPaga(repository.getCalculoTotalDespesaPaga(idDespesa, idDetalheDespesa, idFuncionario));
+            detalhes.setStatusPagamento(detalhes.getVlTotalDespesaPendente().compareTo(new BigDecimal(0)) == 0 ? "Pago" : "Pendente");
 
             if (detalhes.getTpEmprestimo().equalsIgnoreCase("N")) {
                 var percentual = calculaPorcentagem(convertStringToDecimal(detalhes.getVlLimite()), detalhes.getVlTotalDespesa());
-                detalhes.setPercentualUtilizacao(new DecimalFormat("0.00").format(percentual).concat("%"));
+                detalhes.setPercentualUtilizacao(new DecimalFormat("0.0").format(percentual).concat("%"));
+                detalhes.setStatusPercentual(this.validarPercentualUtilizacao(percentual));
             }
 
             if (detalhes.getDsNomeDespesa().equalsIgnoreCase(DESCRICAO_DESPESA_EMPRESTIMO)) {
                 detalhes.setDsNomeDespesa(repository.getTituloDespesaEmprestimoPorID(detalhes.getIdEmprestimo(), idFuncionario));
             }
+
+            detalhes.setSVlTotalDespesa(convertToMoedaBR(detalhes.getVlTotalDespesa()));
+            detalhes.setSVlTotalDespesaPaga(convertToMoedaBR(detalhes.getVlTotalDespesaPaga()));
+            detalhes.setSVlTotalDespesaPendente(convertToMoedaBR(detalhes.getVlTotalDespesaPendente()));
 
             lancamentosMensaisList.add(detalhes);
         }
@@ -253,9 +267,9 @@ public class LancamentosFinanceirosServices {
         return tituloDespesaResponse;
     }
 
-    private BigDecimal obterPercentualUtilizacaoDespesaMes(LancamentosFinanceirosDTO dto) {
-        var iPercentualUtilizadoBase = calculaPorcentagem(dto.getVlSaldoPositivo(), (dto.getVlSaldoInicialMes().subtract(dto.getVlSaldoPositivo())), 2);
-        var iPercentualDespesaMesCalculado = calculaPorcentagem(dto.getVlSaldoInicialMes(), (dto.getVlTotalDespesas().subtract(dto.getVlSaldoInicialMes())), 2).add(iPercentualUtilizadoBase);
+    private BigDecimal obterPercentualUtilizacaoDespesaMes(BigDecimal saldoInicialMes, BigDecimal receita, BigDecimal despesa) {
+        var iPercentualUtilizadoBase = calculaPorcentagem(receita, (saldoInicialMes.subtract(receita)), 2);
+        var iPercentualDespesaMesCalculado = calculaPorcentagem(saldoInicialMes, (despesa.subtract(saldoInicialMes)), 2).add(iPercentualUtilizadoBase);
 
         return iPercentualDespesaMesCalculado;
     }
@@ -276,5 +290,21 @@ public class LancamentosFinanceirosServices {
         }
 
         return "OK";
+    }
+
+    private String validarPercentualUtilizacao(BigDecimal porcentagem) {
+        var percentual = Integer.parseInt(new DecimalFormat("0").format(porcentagem));
+
+        if (percentual >= 0 && percentual <= 25) {
+            return "Baixo";
+        } else if (percentual >= 26 && percentual <= 50) {
+            return "Medio";
+        } else if (percentual >= 51 && percentual <= 80) {
+            return "Alto";
+        } else if (percentual >= 81) {
+            return "Altissimo";
+        }
+
+        return "erro";
     }
 }

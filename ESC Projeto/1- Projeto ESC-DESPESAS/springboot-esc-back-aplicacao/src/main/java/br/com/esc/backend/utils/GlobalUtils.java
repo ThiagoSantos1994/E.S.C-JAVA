@@ -7,7 +7,6 @@ import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.ini4j.Ini;
 
 import java.io.*;
-import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Properties;
 
@@ -111,7 +110,8 @@ public class GlobalUtils {
 
     public static String getMesAtual() {
         Calendar cal = Calendar.getInstance();
-        var mes = cal.get(Calendar.MONTH) + 1;
+        var mes = ((cal.get(Calendar.MONTH) + 1) <= 9) ?
+                "0" + (cal.get(Calendar.MONTH) + 1) : cal.get(Calendar.MONTH) + 1;
         return String.valueOf(mes);
     }
 

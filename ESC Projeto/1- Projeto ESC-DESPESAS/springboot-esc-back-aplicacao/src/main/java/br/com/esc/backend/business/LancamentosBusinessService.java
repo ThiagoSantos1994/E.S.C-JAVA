@@ -25,6 +25,7 @@ public class LancamentosBusinessService {
     private final DetalheDespesasServices detalheDespesasServices;
     private final DespesasParceladasServices despesasParceladasServices;
     private final BackupServices backupServices;
+    private final AutenticacaoServices autenticacaoServices;
 
     @SneakyThrows
     public LancamentosFinanceirosDTO obterLancamentosFinanceiros(String dsMes, String dsAno, Integer idFuncionario) {
@@ -65,6 +66,7 @@ public class LancamentosBusinessService {
     public void deleteDespesaFixaMensal(Integer idDespesa, Integer idOrdem, Integer idFuncionario) {
         log.info("Excluindo despesa fixa mensal - request: idDespesa= {} - idOrdem= {} - idFuncionario= {}", idDespesa, idOrdem, idFuncionario);
         repository.deleteDespesasFixasMensaisPorFiltro(idDespesa, idOrdem, idFuncionario);
+        this.ordenarListaDespesasMensais(idDespesa, idFuncionario);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -360,6 +362,10 @@ public class LancamentosBusinessService {
     public StringResponse processarBackupBaseDados() {
         log.info("========== Realizando o backup da base de dados ==========");
         return backupServices.processarBackup();
+    }
+
+    public AutenticacaoResponse autenticarUsuario(LoginRequest request) {
+        return autenticacaoServices.autenticarUsuario(request);
     }
 
     @Transactional(rollbackFor = Exception.class)

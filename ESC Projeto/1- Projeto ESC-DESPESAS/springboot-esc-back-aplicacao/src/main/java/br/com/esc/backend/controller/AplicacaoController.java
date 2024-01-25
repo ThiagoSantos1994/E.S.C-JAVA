@@ -295,4 +295,13 @@ public class AplicacaoController {
         var response = service.processarBackupBaseDados();
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping(path = "/login/autenticar", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<AutenticacaoResponse> autenticarLogin(@RequestBody LoginRequest request) {
+        var response = service.autenticarUsuario(request);
+        if (response.getIdLogin().equals(-1)) {
+            return new ResponseEntity(response, HttpStatus.UNAUTHORIZED);
+        }
+        return ResponseEntity.ok(response);
+    }
 }

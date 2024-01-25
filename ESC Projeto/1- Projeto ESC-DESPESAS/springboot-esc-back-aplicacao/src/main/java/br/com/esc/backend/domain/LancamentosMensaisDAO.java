@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LancamentosMensaisDAO {
+    private Integer idDespesa;
     private Integer idDetalheDespesa;
     private Integer idOrdemExibicao;
     private Integer idEmprestimo;
@@ -21,7 +22,12 @@ public class LancamentosMensaisDAO {
     private BigDecimal vlTotalDespesa;
     private BigDecimal vlTotalDespesaPendente;
     private BigDecimal vlTotalDespesaPaga;
+    private String sVlTotalDespesa;
+    private String sVlTotalDespesaPendente;
+    private String sVlTotalDespesaPaga;
+    private String statusPagamento;
     private String percentualUtilizacao;
+    private String statusPercentual;
     private String tpEmprestimo;
     private String tpPoupanca;
     private String tpAnotacao;

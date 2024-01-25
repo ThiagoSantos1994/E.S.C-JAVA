@@ -22,7 +22,7 @@ public class LoginBusiness {
     @Autowired
     ObterTokenService tokenOAuth;
 
-    private boolean obterTokenAutentication = true;
+    private boolean obterTokenAutentication = false;
 
     private static final Logger log = LoggerFactory.getLogger(LoginBusiness.class);
 

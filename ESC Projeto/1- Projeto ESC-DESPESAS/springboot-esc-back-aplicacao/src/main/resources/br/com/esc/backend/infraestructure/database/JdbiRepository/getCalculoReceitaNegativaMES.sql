@@ -13,3 +13,4 @@ WHERE
     AND b.tp_Anotacao = 'N'
     AND b.tp_Poupanca = 'N'
     AND b.tp_PoupancaNegativa = 'N'
+    AND b.tp_Relatorio = 'N'
