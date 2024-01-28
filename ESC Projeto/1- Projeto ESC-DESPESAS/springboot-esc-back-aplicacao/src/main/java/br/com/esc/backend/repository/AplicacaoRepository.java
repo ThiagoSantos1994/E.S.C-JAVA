@@ -145,6 +145,8 @@ public interface AplicacaoRepository {
 
     List<RelatorioDespesasParceladasQuitacaoDAO> getRelatorioDespesasParceladasQuitacao(Integer idDespesa, Integer idFuncionario);
 
+    ConfiguracaoLancamentosResponse getConfiguracaoLancamentos(Integer idFuncionario);
+
     void insertDespesaFixaTemp(Integer idDespesaTemp, Integer dsMesTemp, Integer dsAnoTemp, Integer idFuncionario);
 
     void insertDespesasFixasMensais(DespesasFixasMensaisRequest request);

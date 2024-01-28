@@ -2,6 +2,7 @@ package br.com.esc.backend.service;
 
 import br.com.esc.backend.domain.*;
 import br.com.esc.backend.repository.AplicacaoRepository;
+import br.com.esc.backend.utils.MotorCalculoUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
@@ -14,6 +15,7 @@ import java.util.List;
 
 import static br.com.esc.backend.utils.GlobalUtils.getAnoAtual;
 import static br.com.esc.backend.utils.MotorCalculoUtils.*;
+import static br.com.esc.backend.utils.ObjectUtils.isEmpty;
 import static br.com.esc.backend.utils.ObjectUtils.isNull;
 import static br.com.esc.backend.utils.VariaveisGlobais.*;
 
@@ -110,6 +112,9 @@ public class LancamentosFinanceirosServices {
     }
 
     public void gravarDespesasFixasMensais(DespesasFixasMensaisRequest request) {
+        if (!isEmpty(request.getDVlTotal())) {
+            request.setVlTotal(convertDecimalToString(request.getDVlTotal()));
+        }
         if (this.isDespesaFixaExistente(request)) {
             log.info("Atualizando despesas fixas mensais - request: {}", request);
             repository.updateDespesasFixasMensais(request);

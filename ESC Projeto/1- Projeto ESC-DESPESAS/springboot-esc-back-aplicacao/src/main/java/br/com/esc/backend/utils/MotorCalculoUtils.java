@@ -15,7 +15,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Slf4j
 public class MotorCalculoUtils {
-    private static DecimalFormat decimalFormat = new DecimalFormat("0.00");
+    private static DecimalFormat decimalFormat = new DecimalFormat("###,###,##0.00");
 
     public static BigDecimal calcularReceitaPositivaMes(List<BigDecimal> listReceitas) {
         try {
@@ -54,7 +54,13 @@ public class MotorCalculoUtils {
             return BigDecimal.ZERO;
         }
 
-        var dValor = Double.parseDouble(valor.trim().replace("- ", "-").replace(",", "."));
+        var dValor = 0d;
+        if(valor.contains(".") && valor.contains(",")) {
+            dValor = Double.parseDouble(valor.trim().replace("- ", "-").replace(".","").replace(",", "."));
+        } else {
+            dValor = Double.parseDouble(valor.trim().replace("- ", "-").replace(",", "."));
+        }
+
         if (dValor <= 0 || isNull(dValor)) {
             return BigDecimal.ZERO;
         }

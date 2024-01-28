@@ -13,7 +13,7 @@ INSERT INTO tbd_DespesasFixasMensais
     )
 VALUES (
     :fixas.idDespesa,
-    :fixas.dsDescricao,
+    UPPER(:fixas.dsDescricao),
     :fixas.vlTotal,
     :fixas.tpStatus,
     :fixas.dsMes,

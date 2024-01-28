@@ -309,6 +309,11 @@ public interface JdbiRepository extends AplicacaoRepository {
     List<RelatorioDespesasParceladasQuitacaoDAO> getRelatorioDespesasParceladasQuitacao(Integer idDespesa, Integer idFuncionario);
 
     @Override
+    @SqlQuery
+    @UseRowMapper(ConfiguracaoLancamentosRowMapper.class)
+    ConfiguracaoLancamentosResponse getConfiguracaoLancamentos(Integer idFuncionario);
+
+    @Override
     @SqlUpdate
     void insertDespesaFixaTemp(Integer idDespesaTemp, Integer dsMesTemp, Integer dsAnoTemp, Integer idFuncionario);
 

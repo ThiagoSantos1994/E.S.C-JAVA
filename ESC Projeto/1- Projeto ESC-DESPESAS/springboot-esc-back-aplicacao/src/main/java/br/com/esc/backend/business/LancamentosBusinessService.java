@@ -4,6 +4,7 @@ import br.com.esc.backend.domain.*;
 import br.com.esc.backend.exception.CamposObrigatoriosException;
 import br.com.esc.backend.repository.AplicacaoRepository;
 import br.com.esc.backend.service.*;
+import br.com.esc.backend.utils.DataUtils;
 import br.com.esc.backend.utils.ObjectUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -12,6 +13,9 @@ import lombok.var;
 import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static br.com.esc.backend.utils.ObjectUtils.isEmpty;
+import static br.com.esc.backend.utils.ObjectUtils.isNull;
 
 
 @Service
@@ -140,9 +144,35 @@ public class LancamentosBusinessService {
 
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
-    public void processarPagamentoDetalheDespesas(PagamentoDespesasRequest request) {
-        log.info("Processando pagamento despesas mensais - Filtros: {}", request.toString());
+    public void processarPagamentoDetalheDespesa(PagamentoDespesasRequest request) {
+        log.info("Processando pagamento detalhe despesa mensal - Filtros: {}", request.toString());
         detalheDespesasServices.baixarPagamentoDespesas(request);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
+    public void processarPagamentoDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String observacaoPagamento) {
+        log.info("Processando pagamento despesa mensal - Filtros: idDespesa: {} - idDetalheDespesa: {} - idFuncionario: {} - observacaoPagamento: {}", idDespesa, idDetalheDespesa, idFuncionario, observacaoPagamento);
+        var detalheDespesas = detalheDespesasServices.obterDetalheDespesaMensal(idDespesa, idDetalheDespesa, idFuncionario, null)
+                .getDetalheDespesaMensal();
+
+        for (DetalheDespesasMensaisDAO despesa : detalheDespesas) {
+            var request = PagamentoDespesasRequest.builder()
+                    .idDespesa(despesa.getIdDespesa())
+                    .idDetalheDespesa(despesa.getIdDetalheDespesa())
+                    .idDespesaParcelada(isNull(despesa.getIdDespesaParcelada()) ? 0 : despesa.getIdDespesaParcelada())
+                    .idParcela(isNull(despesa.getIdParcela()) ? 0 : despesa.getIdParcela())
+                    .idOrdem(despesa.getIdOrdem())
+                    .idFuncionario(despesa.getIdFuncionario())
+                    .vlTotal(despesa.getVlTotal())
+                    .vlTotalPago(despesa.getVlTotal())
+                    .tpStatus(despesa.getTpStatus())
+                    .dsObservacoes(isEmpty(observacaoPagamento) ? "Pagamento realizado em ".concat(DataUtils.DataHoraAtual()): observacaoPagamento)
+                    .isProcessamentoAdiantamentoParcelas(false)
+                    .build();
+
+            detalheDespesasServices.baixarPagamentoDespesas(request);
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -366,6 +396,10 @@ public class LancamentosBusinessService {
 
     public AutenticacaoResponse autenticarUsuario(LoginRequest request) {
         return autenticacaoServices.autenticarUsuario(request);
+    }
+
+    public ConfiguracaoLancamentosResponse obterConfiguracaoLancamentos(Integer idFuncionario) {
+        return repository.getConfiguracaoLancamentos(idFuncionario);
     }
 
     @Transactional(rollbackFor = Exception.class)

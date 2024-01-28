@@ -1,7 +1,7 @@
 UPDATE
     tbd_DespesasFixasMensais
 SET
-    ds_Descricao = :fixas.dsDescricao,
+    ds_Descricao = UPPER(:fixas.dsDescricao),
     vl_Total = :fixas.vlTotal,
     tp_Status = :fixas.tpStatus,
     tpFixasObrigatorias = :fixas.tpFixasObrigatorias,

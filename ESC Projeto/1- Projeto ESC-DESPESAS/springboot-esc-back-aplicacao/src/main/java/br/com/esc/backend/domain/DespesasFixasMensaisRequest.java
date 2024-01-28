@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -13,6 +15,7 @@ public class DespesasFixasMensaisRequest {
     private Integer idDespesa;
     private String dsDescricao;
     private String vlTotal;
+    private BigDecimal dVlTotal;
     private String tpStatus;
     private Integer idOrdem;
     private String dsMes;
