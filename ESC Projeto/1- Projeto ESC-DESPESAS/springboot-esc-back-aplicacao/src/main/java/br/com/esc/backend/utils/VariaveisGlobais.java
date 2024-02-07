@@ -13,6 +13,7 @@ public class VariaveisGlobais {
     public static final String NESTE_MES_FOI_QUITADO = "Neste mês foi quitado ";
     public static final String NESTE_MES_SERA_QUITADO = "Neste mês será quitado ";
     public static final String VISUALIZACAO_TEMPORARIA_DE_LANCAMENTOS = "Visualizacao Temporaria de Lancamentos";
+    public static final String SEM_DESPESA_MENSAGEM_PADRAO = "Ops! Não existe lançamentos de despesas para este mês, clique em Criar Nova Receita para começar ou realize a importação.";
     public static final String VALIDACAO_DESPESA_DEBITO_CARTAO_EXISTENTE = "ATENÇÃO: Ja existe uma despesa classificada como DÉBITO CARTÃO, não será permitido aplicar esta categoria nesta despesa.";
     public static final String VALIDACAO_DESPESA_INEXISTENTE = "ATENÇÃO: Necessário gravar esta despesa ANTES de executar esta ação.";
     public static final String TITULO_DESPESA_INEXISTENTE = "Não foi localizado este titulo de despesa na base de dados.";

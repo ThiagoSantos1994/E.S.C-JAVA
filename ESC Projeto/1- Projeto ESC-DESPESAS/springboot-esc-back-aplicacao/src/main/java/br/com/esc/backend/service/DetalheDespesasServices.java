@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 
 import static br.com.esc.backend.utils.GlobalUtils.getAnoAtual;
 import static br.com.esc.backend.utils.GlobalUtils.getMesAtual;
-import static br.com.esc.backend.utils.MotorCalculoUtils.convertDecimalToString;
+import static br.com.esc.backend.utils.MotorCalculoUtils.*;
 import static br.com.esc.backend.utils.ObjectUtils.*;
 import static br.com.esc.backend.utils.VariaveisGlobais.*;
 
@@ -29,12 +29,24 @@ public class DetalheDespesasServices {
 
         if (despesaMensal.size() <= 0) {
             return new DetalheDespesasMensaisDTO();
+        } else {
+            var tpRelatorio = despesaMensal.get(0).getTpRelatorio();
+
+            despesaMensal.get(0).setVlTotalDespesa((tpRelatorio.equalsIgnoreCase("S")) ?
+                    convertToMoedaBR(repository.getCalculoDespesaTipoRelatorio(idDespesa, idDetalheDespesa, idFuncionario)) :
+                    convertToMoedaBR(convertStringToDecimal(repository.getValorTotalDespesa(idDespesa, idDetalheDespesa, idFuncionario))));
+
+            despesaMensal.get(0).setVlLimiteExibicao((despesaMensal.get(0).getTpReferenciaSaldoMesAnterior().equalsIgnoreCase("S")) ?
+                    this.obterSubTotalDespesa((idDespesa - 1), idDetalheDespesa, idFuncionario, (tpRelatorio.equals("S") ? "relatorio" : "default")).getVlSubTotalDespesa() :
+                    despesaMensal.get(0).getVlLimite());
+
+            despesaMensal.get(0).setDsExtratoDespesa(this.obterExtratoDespesasMes(idDespesa, idDetalheDespesa, idFuncionario, "detalheDespesas").getMensagem());
         }
 
         var detalheDespesasMensaisList = repository.getDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario, parserOrdem(ordem));
         return DetalheDespesasMensaisDTO.builder()
                 .sizeDetalheDespesaMensalVB(detalheDespesasMensaisList.size())
-                .despesaMensal(repository.getDespesasMensais(idDespesa, idFuncionario, idDetalheDespesa).get(0))
+                .despesaMensal(despesaMensal.get(0))
                 .detalheDespesaMensal(detalheDespesasMensaisList)
                 .build();
     }
@@ -239,7 +251,7 @@ public class DetalheDespesasServices {
         } else {
             var despesasFixas = repository.getDespesasFixasMensaisPorID(idDespesa, idFuncionario);
             if (despesasFixas.size() == 0) {
-                extrato.setMensagem(VISUALIZACAO_TEMPORARIA_DE_LANCAMENTOS);
+                extrato.setMensagem(SEM_DESPESA_MENSAGEM_PADRAO);
                 return extrato;
             }
 
@@ -257,9 +269,9 @@ public class DetalheDespesasServices {
 
                 mensagemBuffer.append(isExtratoMesAtual ? NESTE_MES_SERA_QUITADO : NESTE_MES_FOI_QUITADO);
                 mensagemBuffer.append(qtdeDespesasQuitacaoMes.getQtdeParcelas() + "/" + qtdeDespesasParceladasMes);
-                mensagemBuffer.append(" Despesas Parceladas, Totalizando: " + qtdeDespesasQuitacaoMes.getVlParcelas() + "R$");
-                mensagemBuffer.append("                                   ");
-                mensagemBuffer.append("[ Despesa (2022): ").append(convertDecimalToString(repository.getCalculoReceitaNegativaMES((idDespesa - 12), idFuncionario))).append("R$ ]");
+                mensagemBuffer.append(" Despesas Parceladas, Totalizando: " + convertToMoedaBR(qtdeDespesasQuitacaoMes.getVlParcelas()) + "R$");
+                /*mensagemBuffer.append("                                   ");
+                mensagemBuffer.append("[ Despesa (2022): ").append(convertDecimalToString(repository.getCalculoReceitaNegativaMES((idDespesa - 12), idFuncionario))).append("R$ ]");*/
 
                 extrato.setMensagem(mensagemBuffer.toString());
 
@@ -285,7 +297,7 @@ public class DetalheDespesasServices {
                 .idDespesa(detalhe.getIdDespesa())
                 .idDetalheDespesa(detalhe.getIdDetalheDespesa())
                 .idFuncionario(detalhe.getIdFuncionario())
-                .idOrdem(detalhe.getTpLinhaSeparacao().equalsIgnoreCase("N") ? null : detalhe.getIdOrdem())
+                .idOrdem(detalhe.getIdOrdem())
                 .build();
 
         var detalheDespesasMensais = repository.getDetalheDespesaMensalPorFiltro(filtro);

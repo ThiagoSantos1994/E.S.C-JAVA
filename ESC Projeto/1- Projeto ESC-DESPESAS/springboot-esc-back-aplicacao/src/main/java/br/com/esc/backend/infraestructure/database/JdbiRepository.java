@@ -314,6 +314,10 @@ public interface JdbiRepository extends AplicacaoRepository {
     ConfiguracaoLancamentosResponse getConfiguracaoLancamentos(Integer idFuncionario);
 
     @Override
+    @SqlQuery
+    String getValorTotalDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+
+    @Override
     @SqlUpdate
     void insertDespesaFixaTemp(Integer idDespesaTemp, Integer dsMesTemp, Integer dsAnoTemp, Integer idFuncionario);
 

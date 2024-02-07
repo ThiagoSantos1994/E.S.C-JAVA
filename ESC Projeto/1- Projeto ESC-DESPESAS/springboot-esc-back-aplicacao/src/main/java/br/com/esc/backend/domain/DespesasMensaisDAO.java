@@ -16,7 +16,10 @@ public class DespesasMensaisDAO {
     private Integer idDetalheDespesa;
     private String dsTituloDespesa;
     private String dsNomeDespesa;
+    private String dsExtratoDespesa;
     private String vlLimite;
+    private String vlLimiteExibicao;
+    private String vlTotalDespesa;
     private Integer idOrdemExibicao;
     private Integer idFuncionario;
     private Integer idEmprestimo;
