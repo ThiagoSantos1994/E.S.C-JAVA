@@ -273,11 +273,13 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlQuery
-    List<String> getNomeDespesasParceladas(Integer idFuncionario);
+    @UseRowMapper(TituloDespesaRowMapper.class)
+    List<TituloDespesa> getNomeDespesasParceladas(Integer idFuncionario);
 
     @Override
     @SqlQuery
-    List<String> getNomeDespesasParceladasParaImportacao(Integer idFuncionario);
+    @UseRowMapper(TituloDespesaRowMapper.class)
+    List<TituloDespesa> getNomeDespesasParceladasParaImportacao(Integer idFuncionario);
 
     @Override
     @SqlQuery

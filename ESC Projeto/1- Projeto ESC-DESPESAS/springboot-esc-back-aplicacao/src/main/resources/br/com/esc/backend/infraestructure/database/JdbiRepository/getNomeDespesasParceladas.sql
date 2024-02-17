@@ -1,4 +1,5 @@
 SELECT DISTINCT
+    id_DespesaParcelada,
     ds_TituloDespesaParcelada
 FROM
     tbd_DespesasParceladas

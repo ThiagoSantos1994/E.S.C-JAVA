@@ -124,6 +124,14 @@ public class LancamentosBusinessService {
 
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
+    public void processarImportacaoDespesaParcelada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idFuncionario) {
+        log.info("Iniciando processamento importacao despesa parcelada - Filtros: idDespesa= {} - idDetalheDespesa= {} - idDespesaParcelada= {} - idFuncionario= {}", idDespesa, idDetalheDespesa, idDespesaParcelada, idFuncionario);
+        importacaoServices.processarImportacaoDespesaParcelada(idDespesa, idDetalheDespesa, idDespesaParcelada, idFuncionario);
+        this.atualizaStatusDespesasParceladasEmAberto(idFuncionario);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
     public void gravarDespesaMensal(DespesasMensaisRequest request) {
         DespesasMensaisDAO mensaisDAO = new DespesasMensaisDAO();
         BeanUtils.copyProperties(mensaisDAO, request);
@@ -167,7 +175,7 @@ public class LancamentosBusinessService {
                     .vlTotal(despesa.getVlTotal())
                     .vlTotalPago(despesa.getVlTotal())
                     .tpStatus(despesa.getTpStatus())
-                    .dsObservacoes(isEmpty(observacaoPagamento) ? "Pagamento realizado em ".concat(DataUtils.DataHoraAtual()): observacaoPagamento)
+                    .dsObservacoes(isEmpty(observacaoPagamento) ? "Pagamento realizado em ".concat(DataUtils.DataHoraAtual()) : observacaoPagamento)
                     .isProcessamentoAdiantamentoParcelas(false)
                     .build();
 

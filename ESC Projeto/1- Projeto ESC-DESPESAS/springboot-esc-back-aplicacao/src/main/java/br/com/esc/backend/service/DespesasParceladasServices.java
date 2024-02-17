@@ -2,6 +2,7 @@ package br.com.esc.backend.service;
 
 import br.com.esc.backend.domain.*;
 import br.com.esc.backend.exception.ErroNegocioException;
+import br.com.esc.backend.mapper.TituloDespesaRowMapper;
 import br.com.esc.backend.repository.AplicacaoRepository;
 import br.com.esc.backend.utils.ObjectUtils;
 import lombok.RequiredArgsConstructor;
@@ -236,7 +237,7 @@ public class DespesasParceladasServices {
     }
 
     public TituloDespesaResponse getNomeDespesasParceladasParaImportacao(Integer idFuncionario, String tipo) {
-        List<String> listaDespesas;
+        List<TituloDespesa> listaDespesas;
 
         if (tipo.equalsIgnoreCase("ativas")) {
             listaDespesas = repository.getNomeDespesasParceladasParaImportacao(idFuncionario);
@@ -244,10 +245,16 @@ public class DespesasParceladasServices {
             listaDespesas = repository.getNomeDespesasParceladas(idFuncionario);
         }
 
+        List<String> listTituloDespesa = new ArrayList<>();
+        for (TituloDespesa despesas: listaDespesas) {
+            listTituloDespesa.add(despesas.getTituloDespesa());
+        }
+
         log.info("ListaNomesDespesasParceladas: {}", listaDespesas);
         return TituloDespesaResponse.builder()
-                .tituloDespesa(listaDespesas)
+                .despesas(listaDespesas)
                 .sizeTituloDespesaVB(listaDespesas.size())
+                .tituloDespesa(listTituloDespesa)
                 .build();
     }
 

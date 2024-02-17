@@ -66,6 +66,7 @@ public class DetalheDespesasServices {
             ParcelasDAO parcela = repository.getParcelaPorDataVencimento(detalheDAO.getIdDespesaParcelada(), dataVencimento, detalheDAO.getIdFuncionario());
             detalheDAO.setVlTotal(parcela.getVlParcela());
             detalheDAO.setDsDescricao(DESCRICAO_DESPESA_PARCELADA);
+            detalheDAO.setIdParcela(parcela.getIdParcela());
             bIsParcelaAdiada = parcela.getTpParcelaAdiada().equalsIgnoreCase("S") ? true : false;
             detalheDAO.setTpParcelaAdiada(bIsParcelaAdiada ? "S" : detalheDAO.getTpParcelaAdiada());
         }

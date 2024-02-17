@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static br.com.esc.backend.utils.DataUtils.DataHoraAtual;
 import static br.com.esc.backend.utils.GlobalUtils.parserMesToString;
@@ -254,4 +255,36 @@ public class ImportarLancamentosServices {
         return true;
     }
 
+    public void processarImportacaoDespesaParcelada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idFuncionario) throws Exception {
+        var despesaParcelada = repository.getDespesaParcelada(idDespesaParcelada, null, idFuncionario);
+        var detalheDespesaMensal = repository.getDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario, "a.id_Ordem");
+
+        List<DetalheDespesasMensaisDAO> despesaParceladaExistente = detalheDespesaMensal.stream()
+                .filter(d -> d.getIdDespesaParcelada().equals(despesaParcelada.getIdDespesaParcelada()))
+                .collect(Collectors.toList());
+
+        if (despesaParceladaExistente.size() == 0) {
+            var request = DetalheDespesasMensaisDAO.builder()
+                    .idDespesa(idDespesa)
+                    .idDetalheDespesa(idDetalheDespesa)
+                    .tpStatus(PENDENTE)
+                    .idOrdem(null)
+                    .idFuncionario(idFuncionario)
+                    .idDespesaParcelada(despesaParcelada.getIdDespesaParcelada())
+                    .idDespesaLinkRelatorio(0)
+                    .tpAnotacao("N")
+                    .tpReprocessar("N")
+                    .tpMeta("N")
+                    .tpRelatorio("N")
+                    .tpParcelaAdiada("N")
+                    .tpLinhaSeparacao("N")
+                    .build();
+
+            detalheDespesasServices.gravarDetalheDespesasMensais(request);
+
+            log.info("Importacao realizada com sucesso.");
+        } else {
+            log.info("Despesa Parcelada ja importada na despesa anteriormente, importação não concluida!");
+        }
+    }
 }

@@ -1,6 +1,7 @@
 package br.com.esc.backend.repository;
 
 import br.com.esc.backend.domain.*;
+import br.com.esc.backend.mapper.TituloDespesaRowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -117,9 +118,9 @@ public interface AplicacaoRepository {
 
     List<String> getTituloDespesa(Integer idFuncionario);
 
-    List<String> getNomeDespesasParceladas(Integer idFuncionario);
+    List<TituloDespesa> getNomeDespesasParceladas(Integer idFuncionario);
 
-    List<String> getNomeDespesasParceladasParaImportacao(Integer idFuncionario);
+    List<TituloDespesa> getNomeDespesasParceladasParaImportacao(Integer idFuncionario);
 
     List<String> getTituloDespesaEmprestimoAReceber(Integer idFuncionario);
 

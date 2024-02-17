@@ -11,8 +11,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TituloDespesaResponse {
-    private List<TituloDespesa> despesas;
-    private List<String> tituloDespesa;
-    private Integer sizeTituloDespesaVB;
+public class TituloDespesa {
+    private Integer idDespesaParcelada;
+    private String tituloDespesa;
 }
