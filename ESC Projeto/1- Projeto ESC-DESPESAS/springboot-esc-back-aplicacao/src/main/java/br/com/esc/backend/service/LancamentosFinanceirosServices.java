@@ -94,7 +94,7 @@ public class LancamentosFinanceirosServices {
 
             detalhes.setVlTotalDespesaPendente(repository.getCalculoTotalDespesaPendente(idDespesa, idDetalheDespesa, idFuncionario));
             detalhes.setVlTotalDespesaPaga(repository.getCalculoTotalDespesaPaga(idDespesa, idDetalheDespesa, idFuncionario));
-            detalhes.setStatusPagamento(detalhes.getVlTotalDespesaPendente().compareTo(new BigDecimal(0)) == 0 ? "Pago" : "Pendente");
+            detalhes.setStatusPagamento(repository.getStatusDetalheDespesaPendentePagamento(idDespesa, idDetalheDespesa, idFuncionario) ? "Pendente" : "Pago");
 
             if (detalhes.getTpEmprestimo().equalsIgnoreCase("N")) {
                 var percentual = calculaPorcentagem(convertStringToDecimal(detalhes.getVlLimite()), detalhes.getVlTotalDespesa());

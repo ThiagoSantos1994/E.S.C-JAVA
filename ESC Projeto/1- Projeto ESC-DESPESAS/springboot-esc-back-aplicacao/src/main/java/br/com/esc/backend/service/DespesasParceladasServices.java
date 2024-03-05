@@ -31,14 +31,14 @@ public class DespesasParceladasServices {
     private final AplicacaoRepository repository;
     private NumberFormat formatter = new DecimalFormat("000");
 
-    public DetalheDespesasParceladasResponse obterDespesaParceladaPorNome(String nomeDespesaParcelada, Integer idFuncionario) {
-        var despesa = repository.getDespesaParcelada(null, nomeDespesaParcelada, idFuncionario);
+    public DetalheDespesasParceladasResponse obterDespesaParceladaPorFiltros(Integer idDespesa, String nomeDespesaParcelada, Integer idFuncionario) {
+        var despesa = repository.getDespesaParcelada(idDespesa, nomeDespesaParcelada, idFuncionario);
         var parcelas = repository.getParcelasPorFiltro(despesa.getIdDespesaParcelada(), null, null, idFuncionario);
 
         var idDespesaParcelada = despesa.getIdDespesaParcelada();
         var valorDespesa = repository.getValorTotalDespesaParcelada(idDespesaParcelada, idFuncionario);
         var qtdeParcelas = parcelas.size();
-        var nomeDespesaVinculada = (ObjectUtils.isEmpty(repository.getDespesaParceladaVinculada(idDespesaParcelada, idFuncionario)) ? "" :
+        var nomeDespesaVinculada = (ObjectUtils.isEmpty(repository.getDespesaParceladaVinculada(idDespesaParcelada, idFuncionario)) ? "Despesa disponivel para importação*" :
                 DESPESA_VINCULADA_A.concat(repository.getDespesaParceladaVinculada(idDespesaParcelada, idFuncionario)));
         var parcelaAtual = repository.getParcelaAtual(idDespesaParcelada, idFuncionario);
 
@@ -347,6 +347,7 @@ public class DespesasParceladasServices {
 
         if (ObjectUtils.isEmpty(idDespesaExistente)) {
             log.info("Gravando Nova Despesa Parcelada >> Request: {}", despesa);
+            despesa.setDtCadastro(DataHoraAtual());
             repository.insertDespesaParcelada(despesa);
         } else {
             log.info("Atualizando Despesa Parcelada >> Request: {}", despesa);

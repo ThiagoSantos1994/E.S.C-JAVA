@@ -320,13 +320,33 @@ public class LancamentosBusinessService {
 
     public DetalheDespesasParceladasResponse obterDespesaParceladaPorNome(String nomeDespesaParcelada, Integer idFuncionario) {
         log.info("Consultando detalhe despesa parcelada por filtros >>> nomeDespesaParcelada= {} - idFuncionario= {}", nomeDespesaParcelada, idFuncionario);
-        return despesasParceladasServices.obterDespesaParceladaPorNome(nomeDespesaParcelada, idFuncionario);
+        return despesasParceladasServices.obterDespesaParceladaPorFiltros(null, nomeDespesaParcelada, idFuncionario);
+    }
+
+    public DetalheDespesasParceladasResponse obterDespesaParceladaPorID(Integer idDespesaParcelada, Integer idFuncionario) {
+        log.info("Consultando detalhe despesa parcelada por filtros >>> idDespesaParcelada= {} - idFuncionario= {}", idDespesaParcelada, idFuncionario);
+        return despesasParceladasServices.obterDespesaParceladaPorFiltros(idDespesaParcelada, null, idFuncionario);
     }
 
     @SneakyThrows
     public ExplodirFluxoParcelasResponse gerarFluxoParcelas(Integer idDespesaParcelada, String valorParcela, Integer qtdeParcelas, String dataReferencia, Integer idFuncionario) {
         log.info("Gerando fluxo de parcelas >>> filtros: idDespesaParcelada: {} - valorParcela: {} - qtdeParcelas: {} - dataReferencia: {} - idFuncionario: {}", idDespesaParcelada, valorParcela, qtdeParcelas, dataReferencia, idFuncionario);
         return despesasParceladasServices.gerarFluxoParcelas(idDespesaParcelada, valorParcela, qtdeParcelas, dataReferencia, idFuncionario);
+    }
+
+    @SneakyThrows
+    public DetalheDespesasParceladasResponse gerarFluxoParcelasV2(Integer idDespesaParcelada, String valorParcela, Integer qtdeParcelas, String dataReferencia, Integer idFuncionario) {
+        log.info("Gerando fluxo de parcelas V2 >>> filtros: idDespesaParcelada: {} - valorParcela: {} - qtdeParcelas: {} - dataReferencia: {} - idFuncionario: {}", idDespesaParcelada, valorParcela, qtdeParcelas, dataReferencia, idFuncionario);
+        var idDespesa = (idDespesaParcelada == -1 ? this.retornaNovaChaveKey("DESPESASPARCELADAS").getNovaChave() : idDespesaParcelada);
+        var fluxoParcelas = despesasParceladasServices.gerarFluxoParcelas(idDespesa, valorParcela, qtdeParcelas, dataReferencia, idFuncionario);
+
+        var response = DetalheDespesasParceladasResponse.builder()
+                .idDespesaParcelada(idDespesa)
+                .despesaVinculada("Novo fluxo de parcelas, clique em SALVAR para gravar esta despesa parcelada.")
+                .parcelas(fluxoParcelas.getParcelas())
+                .build();
+
+        return response;
     }
 
     public StringResponse consultarNomeDespesaParceladaPorFiltro(Integer idDespesaParcelada, Integer idFuncionario) {

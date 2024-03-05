@@ -150,6 +150,8 @@ public interface AplicacaoRepository {
 
     String getValorTotalDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 
+    Boolean getStatusDetalheDespesaPendentePagamento(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+
     void insertDespesaFixaTemp(Integer idDespesaTemp, Integer dsMesTemp, Integer dsAnoTemp, Integer idFuncionario);
 
     void insertDespesasFixasMensais(DespesasFixasMensaisRequest request);

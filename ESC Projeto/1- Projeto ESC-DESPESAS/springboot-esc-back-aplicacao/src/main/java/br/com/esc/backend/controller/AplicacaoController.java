@@ -86,9 +86,21 @@ public class AplicacaoController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping(path = "v2/despesasParceladas/consultar/{idDespesaParcelada}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DetalheDespesasParceladasResponse> obterDespesaParceladaPorID(@PathVariable("idDespesaParcelada") Integer idDespesaParcelada, @PathVariable("idFuncionario") Integer idFuncionario) {
+        var response = service.obterDespesaParceladaPorID(idDespesaParcelada, idFuncionario);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping(path = "/despesasParceladas/gerarFluxoParcelas/{idDespesaParcelada}/{valorParcela}/{qtdeParcelas}/{dataReferencia}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ExplodirFluxoParcelasResponse> gerarFluxoParcelas(@PathVariable("idDespesaParcelada") Integer idDespesaParcelada, @PathVariable("valorParcela") String valorParcela, @PathVariable("qtdeParcelas") Integer qtdeParcelas, @PathVariable("dataReferencia") String dataReferencia, @PathVariable("idFuncionario") Integer idFuncionario) {
         var response = service.gerarFluxoParcelas(idDespesaParcelada, valorParcela, qtdeParcelas, dataReferencia, idFuncionario);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(path = "v2/despesasParceladas/gerarFluxoParcelas/{idDespesaParcelada}/{valorParcela}/{qtdeParcelas}/{dataReferencia}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DetalheDespesasParceladasResponse> gerarFluxoParcelasV2(@PathVariable("idDespesaParcelada") Integer idDespesaParcelada, @PathVariable("valorParcela") String valorParcela, @PathVariable("qtdeParcelas") Integer qtdeParcelas, @PathVariable("dataReferencia") String dataReferencia, @PathVariable("idFuncionario") Integer idFuncionario) {
+        var response = service.gerarFluxoParcelasV2(idDespesaParcelada, valorParcela, qtdeParcelas, dataReferencia, idFuncionario);
         return ResponseEntity.ok(response);
     }
 

@@ -320,6 +320,10 @@ public interface JdbiRepository extends AplicacaoRepository {
     String getValorTotalDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 
     @Override
+    @SqlQuery
+    Boolean getStatusDetalheDespesaPendentePagamento(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+
+    @Override
     @SqlUpdate
     void insertDespesaFixaTemp(Integer idDespesaTemp, Integer dsMesTemp, Integer dsAnoTemp, Integer idFuncionario);
 
