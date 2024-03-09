@@ -165,7 +165,7 @@ public class AplicacaoController {
     }
 
     @PostMapping(path = "/despesasParceladas/excluir/{idDespesaParcelada}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> excluirParcela(@PathVariable("idDespesaParcelada") Integer idDespesaParcelada, @PathVariable("idFuncionario") Integer idFuncionario) {
+    public ResponseEntity<Void> excluirDespesaParcelada(@PathVariable("idDespesaParcelada") Integer idDespesaParcelada, @PathVariable("idFuncionario") Integer idFuncionario) {
         service.deleteDespesaParcelada(idDespesaParcelada, idFuncionario);
         return new ResponseEntity<>(HttpStatus.OK);
     }

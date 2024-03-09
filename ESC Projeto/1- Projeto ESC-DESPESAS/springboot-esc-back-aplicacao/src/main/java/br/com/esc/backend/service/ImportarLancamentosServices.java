@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static br.com.esc.backend.utils.DataUtils.DataHoraAtual;
 import static br.com.esc.backend.utils.GlobalUtils.parserMesToString;
@@ -257,13 +256,20 @@ public class ImportarLancamentosServices {
 
     public void processarImportacaoDespesaParcelada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idFuncionario) throws Exception {
         var despesaParcelada = repository.getDespesaParcelada(idDespesaParcelada, null, idFuncionario);
-        var detalheDespesaMensal = repository.getDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario, "a.id_Ordem");
+        if (isEmpty(despesaParcelada)) {
+            throw new ErroNegocioException("Despesa parcelada não existente na base de dados, não será possivel realizar a importação.");
+        }
 
-        List<DetalheDespesasMensaisDAO> despesaParceladaExistente = detalheDespesaMensal.stream()
-                .filter(d -> d.getIdDespesaParcelada().equals(despesaParcelada.getIdDespesaParcelada()))
-                .collect(Collectors.toList());
+        var filtro = DetalheDespesasMensaisDAO.builder()
+                .idDespesa(idDespesa)
+                .idDetalheDespesa(idDetalheDespesa)
+                .idDespesaParcelada(idDespesaParcelada)
+                .idFuncionario(idFuncionario)
+                .build();
 
-        if (despesaParceladaExistente.size() == 0) {
+        var isDespesaJaImportada = repository.getDetalheDespesaMensalPorFiltro(filtro);
+
+        if (isNull(isDespesaJaImportada)) {
             var request = DetalheDespesasMensaisDAO.builder()
                     .idDespesa(idDespesa)
                     .idDetalheDespesa(idDetalheDespesa)
