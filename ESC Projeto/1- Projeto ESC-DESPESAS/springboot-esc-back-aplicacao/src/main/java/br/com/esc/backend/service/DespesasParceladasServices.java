@@ -2,7 +2,6 @@ package br.com.esc.backend.service;
 
 import br.com.esc.backend.domain.*;
 import br.com.esc.backend.exception.ErroNegocioException;
-import br.com.esc.backend.mapper.TituloDespesaRowMapper;
 import br.com.esc.backend.repository.AplicacaoRepository;
 import br.com.esc.backend.utils.ObjectUtils;
 import lombok.RequiredArgsConstructor;
@@ -168,7 +167,7 @@ public class DespesasParceladasServices {
             }
 
             var parcela = repository.getUltimaParcelaDespesaParcelada(idDespesaParcelada, idFuncionario);
-            var novaParcelaRequest = this.parserToNovaParcelaAmortizacao(parcela);
+            var novaParcelaRequest = this.parserToNovaParcelaAdiantamento(parcela);
 
             /*Grava a nova parcela adiantada*/
             log.info("Gravando nova parcela adiantamento >>> " + novaParcelaRequest);
@@ -246,7 +245,7 @@ public class DespesasParceladasServices {
         }
 
         List<String> listTituloDespesa = new ArrayList<>();
-        for (TituloDespesa despesas: listaDespesas) {
+        for (TituloDespesa despesas : listaDespesas) {
             listTituloDespesa.add(despesas.getTituloDespesa());
         }
 
@@ -398,7 +397,7 @@ public class DespesasParceladasServices {
                 .build();
     }
 
-    private ParcelasDAO parserToNovaParcelaAmortizacao(ParcelasDAO parcela) throws ParseException {
+    private ParcelasDAO parserToNovaParcelaAdiantamento(ParcelasDAO parcela) throws ParseException {
         NumberFormat formatter = new DecimalFormat("000");
 
         Integer idParcelaNova = (parcela.getIdParcela() + 1);
@@ -420,6 +419,10 @@ public class DespesasParceladasServices {
         parcela.setIdDespesa(0);
 
         return parcela;
+    }
+
+    public List<ParcelasDAO> obterParcelasParaAmortizacao(Integer idDespesaParcelada, Integer idFuncionario) {
+        return repository.getParcelasParaAmortizacao(idDespesaParcelada, idFuncionario);
     }
 
     private void validarBaixaCadastroDespesaParcelada(Integer idDespesaParcelada, Integer idFuncionario) {

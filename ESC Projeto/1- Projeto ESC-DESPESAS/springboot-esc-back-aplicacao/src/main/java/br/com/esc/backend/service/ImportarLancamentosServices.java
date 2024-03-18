@@ -32,6 +32,7 @@ public class ImportarLancamentosServices {
     public void processarImportacaoDespesasMensais(Integer idDespesa, Integer idFuncionario, String dsMes, String dsAno) throws Exception {
         if (bProcessamentoTemporario == false) {
             /*Limpa a base dos dados temporarios gerados para visualizacao temporaria*/
+            repository.deleteDespesasFixasMensaisTemp(idFuncionario);
             repository.deleteDespesasMensaisTemp(idFuncionario);
             repository.deleteDetalheDespesasMensaisTemp(idFuncionario);
         }
@@ -283,14 +284,47 @@ public class ImportarLancamentosServices {
                     .tpMeta("N")
                     .tpRelatorio("N")
                     .tpParcelaAdiada("N")
+                    .tpParcelaAmortizada("N")
                     .tpLinhaSeparacao("N")
                     .build();
 
-            detalheDespesasServices.gravarDetalheDespesasMensais(request);
+            detalheDespesasServices.gravarDetalheDespesasMensais(request, false);
 
             log.info("Importacao realizada com sucesso.");
         } else {
             log.info("Despesa Parcelada ja importada na despesa anteriormente, importação não concluida!");
         }
+    }
+
+    public void incluirDespesaParceladaAmortizada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario) throws Exception {
+        var despesaParcelada = repository.getDespesaParcelada(idDespesaParcelada, null, idFuncionario);
+        if (isEmpty(despesaParcelada)) {
+            throw new ErroNegocioException("Despesa parcelada não existente na base de dados, não será possivel gravar a parcela amortizada.");
+        }
+
+        var request = DetalheDespesasMensaisDAO.builder()
+                .idDespesa(idDespesa)
+                .idDetalheDespesa(idDetalheDespesa)
+                .tpStatus(PENDENTE)
+                .idOrdem(null)
+                .idFuncionario(idFuncionario)
+                .dsObservacao("<AUT AMORTIZACAO - ".concat(DataHoraAtual()).concat(">"))
+                .idDespesaParcelada(idDespesaParcelada)
+                .idParcela(idParcela)
+                .idDespesaLinkRelatorio(0)
+                .tpAnotacao("N")
+                .tpReprocessar("N")
+                .tpMeta("N")
+                .tpRelatorio("N")
+                .tpParcelaAdiada("N")
+                .tpParcelaAmortizada("S")
+                .tpLinhaSeparacao("N")
+                .build();
+
+        detalheDespesasServices.gravarDetalheDespesasMensais(request, true);
+        log.info("Inclusao da parcela amortizada realizada com sucesso.");
+
+        log.info("Atualizando status amortizacao parcela com sucesso");
+        repository.updateParcelaStatusAmortizado(idDespesaParcelada, idParcela, idFuncionario);
     }
 }

@@ -51,7 +51,7 @@ public class DetalheDespesasServices {
                 .build();
     }
 
-    public void gravarDetalheDespesasMensais(DetalheDespesasMensaisDAO detalheDAO) throws Exception {
+    public void gravarDetalheDespesasMensais(DetalheDespesasMensaisDAO detalheDAO, boolean isParcelaAmortizacao) throws Exception {
         var bIsParcelaAdiada = false;
 
         if (detalheDAO.getTpRelatorio().equalsIgnoreCase("S")) {
@@ -63,6 +63,13 @@ public class DetalheDespesasServices {
         if (detalheDAO.getIdDespesaParcelada() > 0) {
             var referencia = this.obterReferenciaMesProcessamento(detalheDAO.getIdDespesa(), detalheDAO.getIdFuncionario());
             var dataVencimento = (referencia.getDsMes() + "/" + referencia.getDsAno());
+
+            /*Fluxo especifico para gravacao de parcelas amortizadas*/
+            if (isParcelaAmortizacao) {
+                var referenciaParcela = repository.getParcelasPorFiltro(detalheDAO.getIdDespesaParcelada(), detalheDAO.getIdParcela(), "N", detalheDAO.getIdFuncionario());
+                dataVencimento = referenciaParcela.get(0).getDsDataVencimento();
+            }
+
             ParcelasDAO parcela = repository.getParcelaPorDataVencimento(detalheDAO.getIdDespesaParcelada(), dataVencimento, detalheDAO.getIdFuncionario());
             detalheDAO.setVlTotal(parcela.getVlParcela());
             detalheDAO.setDsDescricao(DESCRICAO_DESPESA_PARCELADA);
@@ -77,6 +84,10 @@ public class DetalheDespesasServices {
             detalheDAO.setTpParcelaAmortizada(isEmpty(detalheDAO.getTpParcelaAmortizada()) ? "N" : detalheDAO.getTpParcelaAmortizada());
             detalheDAO.setTpParcelaAdiada(isEmpty(detalheDAO.getTpParcelaAdiada()) ? "N" : detalheDAO.getTpParcelaAdiada());
         }
+
+        //Retira os espaços em branco recebido na request pelo frontend
+        detalheDAO.setVlTotal(this.removeNBSP_html(detalheDAO.getVlTotal()));
+        detalheDAO.setVlTotalPago(this.removeNBSP_html(detalheDAO.getVlTotalPago()));
 
         if (isNotNull(detalheDAO.getIdOrdem()) && this.isDetalheDespesaExistente(detalheDAO)) {
             log.info("Atualizando DetalheDespesaMensal: request = {}", detalheDAO);
@@ -348,5 +359,7 @@ public class DetalheDespesasServices {
                 : ordem.equals("relatorio") ? "a.id_DespesaLinkRelatorio, a.id_DespesaParcelada, a.id_Ordem ASC" : "a.id_Ordem";
     }
 
-
+    private String removeNBSP_html(String valor) {
+        return valor.replace("\u00a0", "");
+    }
 }

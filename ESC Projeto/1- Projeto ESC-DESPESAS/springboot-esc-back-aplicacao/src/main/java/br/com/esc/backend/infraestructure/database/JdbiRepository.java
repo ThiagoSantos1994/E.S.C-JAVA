@@ -114,6 +114,11 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlQuery
     @UseRowMapper(ParcelasRowMapper.class)
+    List<ParcelasDAO> getParcelasParaAmortizacao(Integer idDespesaParcelada, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
+    @UseRowMapper(ParcelasRowMapper.class)
     ParcelasDAO getParcelaDisponivelSemAmortizacao(Integer idDespesaParcelada, Integer idFuncionario);
 
     @Override
@@ -417,6 +422,10 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlUpdate
+    void updateParcelaStatusAmortizado(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
     void updateDespesasParceladasEmAberto(Integer idFuncionario);
 
     @Override
@@ -506,6 +515,10 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlUpdate
     void deleteDetalheDespesasMensaisTemp(Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void deleteDespesasFixasMensaisTemp(Integer idFuncionario);
 
     @Override
     @SqlUpdate

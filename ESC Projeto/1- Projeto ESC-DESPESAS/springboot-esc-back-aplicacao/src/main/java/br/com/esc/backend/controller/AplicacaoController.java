@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -146,6 +147,12 @@ public class AplicacaoController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping(path = "/despesasParceladas/obterParcelasParaAmortizacao/{idDespesaParcelada}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ParcelasDAO>> obterParcelasParaAmortizacao(@PathVariable("idDespesaParcelada") Integer idDespesaParcelada, @PathVariable("idFuncionario") Integer idFuncionario) {
+        var response = service.obterParcelasParaAmortizacao(idDespesaParcelada, idFuncionario);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping(path = "/despesasParceladas/gravar", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> gravarDespesasParceladas(@RequestBody DespesaParceladaDAO request) {
         service.gravarDespesaParcelada(request);
@@ -260,6 +267,12 @@ public class AplicacaoController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @PostMapping(path = "/lancamentosFinanceiros/importacao/despesaParceladaAmortizada/{idDespesa}/{idDetalheDespesa}/{idDespesaParcelada}/{idParcela}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> incluirDespesaParceladaAmortizada(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idDespesaParcelada") Integer idDespesaParcelada, @PathVariable("idParcela") Integer idParcela, @PathVariable("idFuncionario") Integer idFuncionario) {
+        service.incluirDespesaParceladaAmortizada(idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, idFuncionario);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @PostMapping(path = "/lancamentosFinanceiros/parcelas/adiantarFluxoParcelas/{idDespesa}/{idDetalheDespesa}/{idDespesaParcelada}/{idParcela}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> adiantarFluxoParcelas(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idDespesaParcelada") Integer idDespesaParcelada, @PathVariable("idParcela") Integer idParcela, @PathVariable("idFuncionario") Integer idFuncionario) {
         service.adiantarFluxoParcelas(idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, idFuncionario);
@@ -333,5 +346,11 @@ public class AplicacaoController {
             return new ResponseEntity(response, HttpStatus.UNAUTHORIZED);
         }
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(path = "/login/limparDadosTemporarios/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> limparDadosTemporarios(@PathVariable("idFuncionario") Integer idFuncionario) {
+        service.limparDadosTemporarios(idFuncionario);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

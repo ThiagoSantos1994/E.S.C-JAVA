@@ -14,6 +14,8 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static br.com.esc.backend.utils.ObjectUtils.isEmpty;
 import static br.com.esc.backend.utils.ObjectUtils.isNull;
 
@@ -132,6 +134,14 @@ public class LancamentosBusinessService {
 
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
+    public void incluirDespesaParceladaAmortizada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario) {
+        log.info("Gravando despesa parcelada amortizada na despesa mensal - Filtros: idDespesa= {} - idDetalheDespesa= {} - idDespesaParcelada= {} - idParcela = {} - idFuncionario= {}", idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, idFuncionario);
+        importacaoServices.incluirDespesaParceladaAmortizada(idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, idFuncionario);
+        this.atualizaStatusDespesasParceladasEmAberto(idFuncionario);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
     public void gravarDespesaMensal(DespesasMensaisRequest request) {
         DespesasMensaisDAO mensaisDAO = new DespesasMensaisDAO();
         BeanUtils.copyProperties(mensaisDAO, request);
@@ -147,7 +157,7 @@ public class LancamentosBusinessService {
     public void gravarDetalheDespesasMensais(DetalheDespesasMensaisRequest request) {
         DetalheDespesasMensaisDAO detalheDAO = new DetalheDespesasMensaisDAO();
         BeanUtils.copyProperties(detalheDAO, request);
-        detalheDespesasServices.gravarDetalheDespesasMensais(detalheDAO);
+        detalheDespesasServices.gravarDetalheDespesasMensais(detalheDAO, false);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -328,6 +338,11 @@ public class LancamentosBusinessService {
         return despesasParceladasServices.obterDespesaParceladaPorFiltros(idDespesaParcelada, null, idFuncionario);
     }
 
+    public List<ParcelasDAO> obterParcelasParaAmortizacao(Integer idDespesaParcelada, Integer idFuncionario) {
+        log.info("Consultando parcelas para amortizacao >>> idDespesaParcelada= {} - idFuncionario= {}", idDespesaParcelada, idFuncionario);
+        return despesasParceladasServices.obterParcelasParaAmortizacao(idDespesaParcelada, idFuncionario);
+    }
+
     @SneakyThrows
     public ExplodirFluxoParcelasResponse gerarFluxoParcelas(Integer idDespesaParcelada, String valorParcela, Integer qtdeParcelas, String dataReferencia, Integer idFuncionario) {
         log.info("Gerando fluxo de parcelas >>> filtros: idDespesaParcelada: {} - valorParcela: {} - qtdeParcelas: {} - dataReferencia: {} - idFuncionario: {}", idDespesaParcelada, valorParcela, qtdeParcelas, dataReferencia, idFuncionario);
@@ -424,6 +439,15 @@ public class LancamentosBusinessService {
 
     public AutenticacaoResponse autenticarUsuario(LoginRequest request) {
         return autenticacaoServices.autenticarUsuario(request);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
+    public void limparDadosTemporarios(Integer idFuncionario) {
+        log.info("Limpando dados temporarios de lançamentos mensais");
+        repository.deleteDespesasFixasMensaisTemp(idFuncionario);
+        repository.deleteDespesasMensaisTemp(idFuncionario);
+        repository.deleteDetalheDespesasMensaisTemp(idFuncionario);
     }
 
     public ConfiguracaoLancamentosResponse obterConfiguracaoLancamentos(Integer idFuncionario) {

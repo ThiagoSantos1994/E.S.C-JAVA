@@ -1,7 +1,6 @@
 package br.com.esc.backend.repository;
 
 import br.com.esc.backend.domain.*;
-import br.com.esc.backend.mapper.TituloDespesaRowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -55,6 +54,8 @@ public interface AplicacaoRepository {
     ParcelasDAO getUltimaParcelaDespesaParcelada(Integer idDespesaParcelada, Integer idFuncionario);
 
     List<ParcelasDAO> getParcelasPorFiltro(Integer idDespesaParcelada, Integer idParcela, String tpBaixado, Integer idFuncionario);
+
+    List<ParcelasDAO> getParcelasParaAmortizacao(Integer idDespesaParcelada, Integer idFuncionario);
 
     String getValidaDespesaParceladaAmortizacao(Integer idDespesaParcelada, Integer idFuncionario);
 
@@ -198,6 +199,8 @@ public interface AplicacaoRepository {
 
     void updateParcelaStatusPendenteParcelaAdiada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, String vlParcela, Integer idFuncionario);
 
+    void updateParcelaStatusAmortizado(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
+
     void updateQuantidadeParcelasAdiantadas(Integer idDespesaParcelada, Integer idFuncionario);
 
     void updateQuantidadeParcelasDesfazerAdiantamento(Integer idDespesaParcelada, Integer idFuncionario);
@@ -243,6 +246,8 @@ public interface AplicacaoRepository {
     void deleteDespesasMensaisTemp(Integer idFuncionario);
 
     void deleteDetalheDespesasMensaisTemp(Integer idFuncionario);
+
+    void deleteDespesasFixasMensaisTemp(Integer idFuncionario);
 
     void deleteTodasDespesasFixasMensais(Integer idDespesa, Integer idFuncionario);
 
