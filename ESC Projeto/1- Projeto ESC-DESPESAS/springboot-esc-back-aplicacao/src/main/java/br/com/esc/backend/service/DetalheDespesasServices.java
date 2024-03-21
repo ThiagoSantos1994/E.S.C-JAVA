@@ -220,6 +220,26 @@ public class DetalheDespesasServices {
         repository.updateStatusBaixaLinhaSeparacao(request.getIdDespesa(), request.getIdFuncionario());
     }
 
+    public void desfazerBaixaPagamentoDespesas(PagamentoDespesasRequest request) throws Exception {
+        if (request.getTpStatus().equalsIgnoreCase(PAGO)) {
+            var bProcessamentoAdiantamentoParcelas = request.getIsProcessamentoAdiantamentoParcelas();
+
+            if ((bProcessamentoAdiantamentoParcelas.equals(true) && request.getIdDetalheDespesa() > 0) || bProcessamentoAdiantamentoParcelas.equals(false)) {
+                var existeParcelasAdiadas = repository.getValidaDetalheDespesaComParcelaAdiada(request.getIdDespesa(), request.getIdDetalheDespesa(), request.getIdFuncionario());
+                if (existeParcelasAdiadas.equalsIgnoreCase("N")) {
+                    repository.updateStatusPagamentoDetalheDespesa(request.getVlTotal(), request.getVlTotalPago(), PENDENTE, request.getDsObservacoes(), request.getDsObservacoesComplementar(), request.getIdDespesa(), request.getIdDetalheDespesa(), request.getIdOrdem(), request.getIdFuncionario());
+                }
+            }
+
+            if (bProcessamentoAdiantamentoParcelas.equals(false)) {
+                despesasParceladasServices.validaStatusDespesaParcelada(request.getIdDespesa(), request.getIdDetalheDespesa(), request.getIdDespesaParcelada(), request.getIdParcela(), request.getIdFuncionario(), PENDENTE, false);
+            }
+        }
+
+        /*Atualiza o stts pagamento para as linhas de separacao*/
+        repository.updateStatusBaixaLinhaSeparacao(request.getIdDespesa(), request.getIdFuncionario());
+    }
+
     public void alterarOrdemRegistroDetalheDespesas(Integer idDespesa, Integer idDetalheDespesa, Integer iOrdemAtual, Integer iOrdemNova, Integer idFuncionario) {
         var iOrdemTemp1 = 9998;
         var iOrdemTemp2 = 9999;
@@ -252,7 +272,6 @@ public class DetalheDespesasServices {
 
     public ExtratoDespesasDAO obterExtratoDespesasMes(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String tipo) {
         StringBuffer mensagemBuffer = new StringBuffer();
-        Boolean isExtratoMesAtual = false;
         var extrato = new ExtratoDespesasDAO();
 
         if (tipo.equalsIgnoreCase("cadastroParcelas")) {
@@ -267,11 +286,6 @@ public class DetalheDespesasServices {
                 return extrato;
             }
 
-            /*Regra para validar se o mes de pesquisa é o mes atual e tratar a mensagem*/
-            if (despesasFixas.get(0).getDsMes().equalsIgnoreCase(getMesAtual()) && despesasFixas.get(0).getDsAno().equalsIgnoreCase(getAnoAtual())) {
-                isExtratoMesAtual = true;
-            }
-
             if (tipo.equalsIgnoreCase("lancamentosMensais")) {
                 var qtdeDespesasParceladasMes = repository.getQuantidadeDespesasParceladasMes(idDespesa, idFuncionario);
                 var qtdeDespesasQuitacaoMes = repository.getQuantidadeDespesasParceladasQuitacaoMes(idDespesa, idFuncionario);
@@ -279,7 +293,7 @@ public class DetalheDespesasServices {
                 extrato.setQtDespesas(qtdeDespesasQuitacaoMes.getQtdeParcelas());
                 extrato.setVlDespesas(convertDecimalToString(qtdeDespesasQuitacaoMes.getVlParcelas()));
 
-                mensagemBuffer.append(isExtratoMesAtual ? NESTE_MES_SERA_QUITADO : NESTE_MES_FOI_QUITADO);
+                mensagemBuffer.append(NESTE_MES_SERA_QUITADO);
                 mensagemBuffer.append(qtdeDespesasQuitacaoMes.getQtdeParcelas() + "/" + qtdeDespesasParceladasMes);
                 mensagemBuffer.append(" Despesas Parceladas, Totalizando: " + convertToMoedaBR(qtdeDespesasQuitacaoMes.getVlParcelas()) + "R$");
                 /*mensagemBuffer.append("                                   ");
@@ -292,7 +306,8 @@ public class DetalheDespesasServices {
 
                 var qtdeTotalDespParceladasMes = repository.getQuantidadeDetalheDespesasParceladasMes(idDespesa, idDetalheDespesa, idFuncionario);
 
-                mensagemBuffer.append(isExtratoMesAtual ? NESTE_MES_SERA_QUITADO : NESTE_MES_FOI_QUITADO);
+                mensagemBuffer.append("Ref: " + despesasFixas.get(0).getDsMes().concat("/").concat(despesasFixas.get(0).getDsAno())
+                        .concat(" - " + NESTE_MES_SERA_QUITADO));
                 mensagemBuffer.append(extrato.getQtDespesas() + "/" + qtdeTotalDespParceladasMes);
                 mensagemBuffer.append(" Despesas Parceladas, Totalizando: " + extrato.getVlDespesas() + "R$");
             }

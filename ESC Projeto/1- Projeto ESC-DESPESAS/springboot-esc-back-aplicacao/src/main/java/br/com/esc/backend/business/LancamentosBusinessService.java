@@ -18,6 +18,8 @@ import java.util.List;
 
 import static br.com.esc.backend.utils.ObjectUtils.isEmpty;
 import static br.com.esc.backend.utils.ObjectUtils.isNull;
+import static br.com.esc.backend.utils.VariaveisGlobais.PENDENTE;
+import static br.com.esc.backend.utils.VariaveisGlobais.VALOR_ZERO;
 
 
 @Service
@@ -91,6 +93,15 @@ public class LancamentosBusinessService {
 
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
+    public void deleteDetalheDespesasMensaisV2(List<DetalheDespesasMensaisRequest> request) {
+        for (DetalheDespesasMensaisRequest detalhe : request) {
+            log.info("Excluindo detalhe despesa mensal - request: {}", detalhe);
+            detalheDespesasServices.deleteDetalheDespesasMensais(detalhe.getIdDespesa(), detalhe.getIdDetalheDespesa(), detalhe.getIdOrdem(), detalhe.getIdFuncionario());
+        }
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
     public void deleteTodosLancamentosMensais(Integer idDespesa, Integer idFuncionario) {
         log.info("Excluindo todas despesas fixas mensais - request: idDespesa= {} - idFuncionario= {}", idDespesa, idFuncionario);
         repository.deleteTodasDespesasFixasMensais(idDespesa, idFuncionario);
@@ -134,9 +145,9 @@ public class LancamentosBusinessService {
 
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
-    public void incluirDespesaParceladaAmortizada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario) {
-        log.info("Gravando despesa parcelada amortizada na despesa mensal - Filtros: idDespesa= {} - idDetalheDespesa= {} - idDespesaParcelada= {} - idParcela = {} - idFuncionario= {}", idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, idFuncionario);
-        importacaoServices.incluirDespesaParceladaAmortizada(idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, idFuncionario);
+    public void incluirDespesaParceladaAmortizada(Integer idDespesa, Integer idDetalheDespesa, List<ParcelasDAO> parcelas, Integer idFuncionario) {
+        log.info("Gravando despesa parcelada amortizada na despesa mensal - Filtros: idDespesa= {} - idDetalheDespesa= {} - parcelas = {} - idFuncionario= {}", idDespesa, idDetalheDespesa, parcelas.toString(), idFuncionario);
+        importacaoServices.incluirDespesaParceladaAmortizada(idDespesa, idDetalheDespesa, parcelas, idFuncionario);
         this.atualizaStatusDespesasParceladasEmAberto(idFuncionario);
     }
 
@@ -190,6 +201,32 @@ public class LancamentosBusinessService {
                     .build();
 
             detalheDespesasServices.baixarPagamentoDespesas(request);
+        }
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
+    public void desfazerPagamentoDespesas(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario) {
+        log.info("Desfazendo pagamento despesa mensal - Filtros: idDespesa: {} - idDetalheDespesa: {} - idFuncionario: {}", idDespesa, idDetalheDespesa, idFuncionario);
+        var detalheDespesas = detalheDespesasServices.obterDetalheDespesaMensal(idDespesa, idDetalheDespesa, idFuncionario, null)
+                .getDetalheDespesaMensal();
+
+        for (DetalheDespesasMensaisDAO despesa : detalheDespesas) {
+            var request = PagamentoDespesasRequest.builder()
+                    .idDespesa(despesa.getIdDespesa())
+                    .idDetalheDespesa(despesa.getIdDetalheDespesa())
+                    .idDespesaParcelada(isNull(despesa.getIdDespesaParcelada()) ? 0 : despesa.getIdDespesaParcelada())
+                    .idParcela(isNull(despesa.getIdParcela()) ? 0 : despesa.getIdParcela())
+                    .idOrdem(despesa.getIdOrdem())
+                    .idFuncionario(despesa.getIdFuncionario())
+                    .vlTotal(despesa.getVlTotal())
+                    .vlTotalPago(VALOR_ZERO)
+                    .tpStatus(despesa.getTpStatus())
+                    .dsObservacoes("")
+                    .isProcessamentoAdiantamentoParcelas(false)
+                    .build();
+
+            detalheDespesasServices.desfazerBaixaPagamentoDespesas(request);
         }
     }
 

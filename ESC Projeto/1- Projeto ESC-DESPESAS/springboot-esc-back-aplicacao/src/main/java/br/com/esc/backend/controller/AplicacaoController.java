@@ -207,6 +207,12 @@ public class AplicacaoController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @PostMapping(path = "/v2/lancamentosFinanceiros/detalheDespesasMensais/excluir", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> deleteDetalheDespesasMensais(@RequestBody List<DetalheDespesasMensaisRequest> request) {
+        service.deleteDetalheDespesasMensaisV2(request);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @PostMapping(path = "/lancamentosFinanceiros/despesasMensais/incluir", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> gravarDespesaMensal(@RequestBody DespesasMensaisRequest request) throws InvocationTargetException, IllegalAccessException {
         service.gravarDespesaMensal(request);
@@ -243,6 +249,22 @@ public class AplicacaoController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @PostMapping(path = "/v2/lancamentosFinanceiros/baixarPagamentoDespesa/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> processarPagamentoDespesaV2(@RequestBody List<LancamentosMensaisDAO> request, @PathVariable("idFuncionario") Integer idFuncionario) {
+        for (LancamentosMensaisDAO despesa : request) {
+            service.processarPagamentoDespesa(despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), idFuncionario, null);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping(path = "/lancamentosFinanceiros/desfazerPagamentoDespesa/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> desfazerPagamentoDespesa(@RequestBody List<LancamentosMensaisDAO> request, @PathVariable("idFuncionario") Integer idFuncionario) {
+        for (LancamentosMensaisDAO despesa : request) {
+            service.desfazerPagamentoDespesas(despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), idFuncionario);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @PostMapping(path = "/lancamentosFinanceiros/excluir/{idDespesa}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> deleteTodosLancamentosMensais(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idFuncionario") Integer idFuncionario) {
         service.deleteTodosLancamentosMensais(idDespesa, idFuncionario);
@@ -267,9 +289,9 @@ public class AplicacaoController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping(path = "/lancamentosFinanceiros/importacao/despesaParceladaAmortizada/{idDespesa}/{idDetalheDespesa}/{idDespesaParcelada}/{idParcela}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> incluirDespesaParceladaAmortizada(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idDespesaParcelada") Integer idDespesaParcelada, @PathVariable("idParcela") Integer idParcela, @PathVariable("idFuncionario") Integer idFuncionario) {
-        service.incluirDespesaParceladaAmortizada(idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, idFuncionario);
+    @PostMapping(path = "/lancamentosFinanceiros/importacao/despesaParceladaAmortizada/{idDespesa}/{idDetalheDespesa}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> incluirDespesaParceladaAmortizada(@RequestBody List<ParcelasDAO> parcelas, @PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idFuncionario") Integer idFuncionario) {
+        service.incluirDespesaParceladaAmortizada(idDespesa, idDetalheDespesa, parcelas, idFuncionario);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

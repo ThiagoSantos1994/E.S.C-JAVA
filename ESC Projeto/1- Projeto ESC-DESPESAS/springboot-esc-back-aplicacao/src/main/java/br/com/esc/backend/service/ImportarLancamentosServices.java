@@ -296,35 +296,42 @@ public class ImportarLancamentosServices {
         }
     }
 
-    public void incluirDespesaParceladaAmortizada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario) throws Exception {
-        var despesaParcelada = repository.getDespesaParcelada(idDespesaParcelada, null, idFuncionario);
+    public void incluirDespesaParceladaAmortizada(Integer idDespesa, Integer idDetalheDespesa, List<ParcelasDAO> parcelas, Integer idFuncionario) throws Exception {
+        var despesaParcelada = repository.getDespesaParcelada(parcelas.get(0).getIdDespesaParcelada(), null, idFuncionario);
         if (isEmpty(despesaParcelada)) {
             throw new ErroNegocioException("Despesa parcelada não existente na base de dados, não será possivel gravar a parcela amortizada.");
         }
 
-        var request = DetalheDespesasMensaisDAO.builder()
-                .idDespesa(idDespesa)
-                .idDetalheDespesa(idDetalheDespesa)
-                .tpStatus(PENDENTE)
-                .idOrdem(null)
-                .idFuncionario(idFuncionario)
-                .dsObservacao("<AUT AMORTIZACAO - ".concat(DataHoraAtual()).concat(">"))
-                .idDespesaParcelada(idDespesaParcelada)
-                .idParcela(idParcela)
-                .idDespesaLinkRelatorio(0)
-                .tpAnotacao("N")
-                .tpReprocessar("N")
-                .tpMeta("N")
-                .tpRelatorio("N")
-                .tpParcelaAdiada("N")
-                .tpParcelaAmortizada("S")
-                .tpLinhaSeparacao("N")
-                .build();
+        for (ParcelasDAO parcela: parcelas) {
+            var idParcela = parcela.getIdParcela();
+            var idDespesaParcelada = parcela.getIdDespesaParcelada();
 
-        detalheDespesasServices.gravarDetalheDespesasMensais(request, true);
-        log.info("Inclusao da parcela amortizada realizada com sucesso.");
+            log.info("Incluindo despesa parcelada - idDespesaParcelada: {} - idParcela: {}.", idDespesaParcelada, idParcela);
 
-        log.info("Atualizando status amortizacao parcela com sucesso");
-        repository.updateParcelaStatusAmortizado(idDespesaParcelada, idParcela, idFuncionario);
+            var request = DetalheDespesasMensaisDAO.builder()
+                    .idDespesa(idDespesa)
+                    .idDetalheDespesa(idDetalheDespesa)
+                    .tpStatus(PENDENTE)
+                    .idOrdem(null)
+                    .idFuncionario(idFuncionario)
+                    .dsObservacao("<AUT AMORTIZACAO - ".concat(DataHoraAtual()).concat(">"))
+                    .idDespesaParcelada(idDespesaParcelada)
+                    .idParcela(idParcela)
+                    .idDespesaLinkRelatorio(0)
+                    .tpAnotacao("N")
+                    .tpReprocessar("N")
+                    .tpMeta("N")
+                    .tpRelatorio("N")
+                    .tpParcelaAdiada("N")
+                    .tpParcelaAmortizada("S")
+                    .tpLinhaSeparacao("N")
+                    .build();
+
+            detalheDespesasServices.gravarDetalheDespesasMensais(request, true);
+            log.info("Parcela amortizada incluida com sucesso.");
+
+            log.info("Atualizando status amortizacao parcela com sucesso");
+            repository.updateParcelaStatusAmortizado(idDespesaParcelada, idParcela, idFuncionario);
+        }
     }
 }
