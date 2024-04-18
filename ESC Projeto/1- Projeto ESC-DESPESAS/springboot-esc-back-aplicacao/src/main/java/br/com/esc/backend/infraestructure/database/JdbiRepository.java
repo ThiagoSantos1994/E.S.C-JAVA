@@ -313,7 +313,7 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlQuery
     @UseRowMapper(RelatorioDespesasParceladasQuitacaoRowMapper.class)
-    List<RelatorioDespesasParceladasQuitacaoDAO> getRelatorioDespesasParceladasQuitacao(Integer idDespesa, Integer idFuncionario);
+    List<RelatorioDespesasParceladasQuitacaoDAO> getRelatorioDespesasParceladasQuitacao(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 
     @Override
     @SqlQuery
@@ -355,6 +355,14 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlUpdate
     void updateDespesaParcelada(@BindBean("despesa") DespesaParceladaDAO despesaParceladaDAO);
+
+    @Override
+    @SqlUpdate
+    void updateConfiguracoesLancamentos(@BindBean("parametro") ConfiguracaoLancamentosRequest request);
+
+    @Override
+    @SqlUpdate
+    void updateDataConfiguracoesLancamentos(Integer idFuncionario, Integer mesReferencia);
 
     @Override
     @SqlUpdate

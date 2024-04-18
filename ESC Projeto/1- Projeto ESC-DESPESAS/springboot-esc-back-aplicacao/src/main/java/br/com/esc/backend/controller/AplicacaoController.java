@@ -137,7 +137,13 @@ public class AplicacaoController {
 
     @GetMapping(path = "/despesasParceladas/obterRelatorioDespesasParceladasQuitacao/{idDespesa}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StringResponse> obterRelatorioDespesasParceladasQuitacao(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idFuncionario") Integer idFuncionario) {
-        var response = service.obterRelatorioDespesasParceladasQuitacao(idDespesa, idFuncionario);
+        var response = service.obterRelatorioDespesasParceladasQuitacao(idDespesa,null, idFuncionario);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(path = "/detalheDespesas/despesasParceladas/obterRelatorioDespesasParceladasQuitacao/{idDespesa}/{idDetalheDespesa}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StringResponse> obterRelatorioDespesasParceladasQuitacao(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idFuncionario") Integer idFuncionario) {
+        var response = service.obterRelatorioDespesasParceladasQuitacao(idDespesa, idDetalheDespesa, idFuncionario);
         return ResponseEntity.ok(response);
     }
 
@@ -153,6 +159,12 @@ public class AplicacaoController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping(path = "/parametros/gravar", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> gravarParametrosSistema(@RequestBody ConfiguracaoLancamentosRequest request) {
+        service.gravarConfiguracoesLancamentos(request);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @PostMapping(path = "/despesasParceladas/gravar", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> gravarDespesasParceladas(@RequestBody DespesaParceladaDAO request) {
         service.gravarDespesaParcelada(request);
@@ -160,7 +172,7 @@ public class AplicacaoController {
     }
 
     @PostMapping(path = "/despesasParceladas/parcelas/gravar", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> gravarParcela(@RequestBody ParcelasDAO request) {
+    public ResponseEntity<Void> gravarParcela(@RequestBody List<ParcelasDAO> request) {
         service.gravarParcela(request);
         return new ResponseEntity<>(HttpStatus.OK);
     }

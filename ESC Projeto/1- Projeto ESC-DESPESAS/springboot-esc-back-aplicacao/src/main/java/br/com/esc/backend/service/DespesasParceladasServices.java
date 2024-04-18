@@ -380,8 +380,8 @@ public class DespesasParceladasServices {
         }
     }
 
-    public StringResponse obterRelatorioDespesasParceladasQuitacao(Integer idDespesa, Integer idFuncionario) {
-        var relatorioDAO = repository.getRelatorioDespesasParceladasQuitacao(idDespesa, idFuncionario);
+    public StringResponse obterRelatorioDespesasParceladasQuitacao(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario) {
+        var relatorioDAO = repository.getRelatorioDespesasParceladasQuitacao(idDespesa, idDetalheDespesa, idFuncionario);
         StringBuffer buffer = new StringBuffer();
 
         for (RelatorioDespesasParceladasQuitacaoDAO dao : relatorioDAO) {

@@ -18,6 +18,12 @@ public class DataUtils {
         return MesAtual().concat("/").concat(AnoAtual());
     }
 
+    public static String DiaAtual() {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd");
+        Date data = new Date(System.currentTimeMillis());
+        return simpleDateFormat.format(data);
+    }
+
     public static String MesAtual() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM");
         Date data = new Date(System.currentTimeMillis());

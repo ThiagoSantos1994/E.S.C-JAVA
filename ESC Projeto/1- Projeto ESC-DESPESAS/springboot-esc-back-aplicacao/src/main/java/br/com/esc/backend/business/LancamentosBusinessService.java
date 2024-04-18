@@ -98,6 +98,9 @@ public class LancamentosBusinessService {
             log.info("Excluindo detalhe despesa mensal - request: {}", detalhe);
             detalheDespesasServices.deleteDetalheDespesasMensais(detalhe.getIdDespesa(), detalhe.getIdDetalheDespesa(), detalhe.getIdOrdem(), detalhe.getIdFuncionario());
         }
+
+        var detalheRequest = request.get(0);
+        detalheDespesasServices.ordenarListaDetalheDespesasMensais(detalheRequest.getIdDespesa(), detalheRequest.getIdDetalheDespesa(), detalheRequest.getIdFuncionario(), "prazo");
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -419,8 +422,10 @@ public class LancamentosBusinessService {
 
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
-    public void gravarParcela(ParcelasDAO parcela) {
-        despesasParceladasServices.gravarParcela(parcela);
+    public void gravarParcela(List<ParcelasDAO> parcelas) {
+        for (ParcelasDAO parcela: parcelas) {
+            despesasParceladasServices.gravarParcela(parcela);
+        }
     }
 
     @SneakyThrows
@@ -464,9 +469,9 @@ public class LancamentosBusinessService {
     }
 
     @SneakyThrows
-    public StringResponse obterRelatorioDespesasParceladasQuitacao(Integer idDespesa, Integer idFuncionario) {
-        log.info("Obtendo relatorio despesas parceladas que serão quitadas - idDespesa: {} - idFuncionario: {}", idDespesa, idFuncionario);
-        return despesasParceladasServices.obterRelatorioDespesasParceladasQuitacao(idDespesa, idFuncionario);
+    public StringResponse obterRelatorioDespesasParceladasQuitacao(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario) {
+        log.info("Obtendo relatorio despesas parceladas que serão quitadas - idDespesa: {} - idDetalheDespesa: {}- idFuncionario: {}", idDespesa, idDetalheDespesa, idFuncionario);
+        return despesasParceladasServices.obterRelatorioDespesasParceladasQuitacao(idDespesa, idDetalheDespesa, idFuncionario);
     }
 
     public StringResponse processarBackupBaseDados() {
@@ -488,7 +493,16 @@ public class LancamentosBusinessService {
     }
 
     public ConfiguracaoLancamentosResponse obterConfiguracaoLancamentos(Integer idFuncionario) {
+        log.info("Obtendo parametros sistemicos");
         return repository.getConfiguracaoLancamentos(idFuncionario);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
+    public void gravarConfiguracoesLancamentos(ConfiguracaoLancamentosRequest request) {
+        log.info("Gravando parametros sistemicos - {}", request);
+        request.setViradaAutomatica(request.isBViradaAutomatica() == true? 'S': 'N');
+        repository.updateConfiguracoesLancamentos(request);
     }
 
     @Transactional(rollbackFor = Exception.class)

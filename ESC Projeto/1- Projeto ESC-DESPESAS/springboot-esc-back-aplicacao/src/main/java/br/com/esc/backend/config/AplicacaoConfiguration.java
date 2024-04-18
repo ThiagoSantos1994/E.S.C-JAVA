@@ -50,7 +50,7 @@ public class AplicacaoConfiguration {
 
     @Bean
     @Primary
-    AutenticacaoServices autenticacaoServices(AutenticacaoRepository repository) {
-        return new AutenticacaoServices(repository);
+    AutenticacaoServices autenticacaoServices(AplicacaoRepository aplicacaoRepository, AutenticacaoRepository repository) {
+        return new AutenticacaoServices(aplicacaoRepository, repository);
     }
 }

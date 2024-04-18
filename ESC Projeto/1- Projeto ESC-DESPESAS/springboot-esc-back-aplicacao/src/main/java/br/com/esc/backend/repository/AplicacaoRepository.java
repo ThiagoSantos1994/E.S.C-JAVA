@@ -1,6 +1,7 @@
 package br.com.esc.backend.repository;
 
 import br.com.esc.backend.domain.*;
+import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -145,7 +146,7 @@ public interface AplicacaoRepository {
 
     Integer getValidaTituloDespesaParceladaExistente(String dsTituloDespesaParcelada, Integer idDespesaParcelada, Integer idFuncionario);
 
-    List<RelatorioDespesasParceladasQuitacaoDAO> getRelatorioDespesasParceladasQuitacao(Integer idDespesa, Integer idFuncionario);
+    List<RelatorioDespesasParceladasQuitacaoDAO> getRelatorioDespesasParceladasQuitacao(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 
     ConfiguracaoLancamentosResponse getConfiguracaoLancamentos(Integer idFuncionario);
 
@@ -164,6 +165,10 @@ public interface AplicacaoRepository {
     void insertParcela(ParcelasDAO parcelasDAO);
 
     void insertDespesaParcelada(DespesaParceladaDAO despesaParceladaDAO);
+
+    void updateConfiguracoesLancamentos(ConfiguracaoLancamentosRequest request);
+
+    void updateDataConfiguracoesLancamentos(Integer idFuncionario, Integer mesReferencia);
 
     void updateParcela(ParcelasDAO parcelasDAO);
 

@@ -11,4 +11,5 @@ public interface AutenticacaoRepository {
 
     List<LoginDAO> getLoginUsuario();
 
+    void insertAuditoriaAcesso(Integer idFuncionario, String dataHoraLogin, String idMaquina);
 }

@@ -116,7 +116,7 @@ public class DetalheDespesasServices {
         Integer iOrdemNova = 1;
         for (DetalheDespesasMensaisDAO detalheDespesas : repository.getDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario, parserOrdem(ordem))) {
             log.info("Ordenando registros listaDetalheDespesas: idDespesa = {}, idDetalheDespesa = {}, idOrdemAntiga = {}, idOrdemNova = {}", detalheDespesas.getIdDespesa(), detalheDespesas.getIdDetalheDespesa(), detalheDespesas.getIdOrdem(), iOrdemNova);
-            repository.updateDetalheDespesasMensaisOrdenacao(detalheDespesas.getIdDespesa(), detalheDespesas.getIdDetalheDespesa(), detalheDespesas.getIdDespesaParcelada(), detalheDespesas.getIdOrdem(), iOrdemNova, detalheDespesas.getIdFuncionario());
+            this.alterarOrdemRegistroDetalheDespesas(detalheDespesas.getIdDespesa(), detalheDespesas.getIdDetalheDespesa(), detalheDespesas.getIdOrdem(), iOrdemNova, detalheDespesas.getIdFuncionario());
             iOrdemNova++;
         }
     }
