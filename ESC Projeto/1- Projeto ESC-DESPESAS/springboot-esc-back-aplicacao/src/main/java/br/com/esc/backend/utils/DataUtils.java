@@ -1,15 +1,27 @@
 package br.com.esc.backend.utils;
 
+import lombok.var;
+import org.joda.time.DateTime;
+import org.joda.time.Days;
+
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import static java.lang.Integer.parseInt;
+
 public class DataUtils {
 
     public static String DataHoraAtual() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        Date data = new Date(System.currentTimeMillis());
+        return simpleDateFormat.format(data);
+    }
+
+    public static String DataAtual() {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd");
         Date data = new Date(System.currentTimeMillis());
         return simpleDateFormat.format(data);
     }
@@ -37,7 +49,7 @@ public class DataUtils {
     }
 
     public static String AnoAnterior() {
-        int ano = (Integer.parseInt(AnoAtual()) - 1);
+        int ano = (parseInt(AnoAtual()) - 1);
         return String.valueOf(ano);
     }
 
@@ -52,7 +64,7 @@ public class DataUtils {
     }
 
     public static String MesNomeAtual() {
-        int mes = (Integer.parseInt(MesAtual()) - 1);
+        int mes = (parseInt(MesAtual()) - 1);
         String[] months = new DateFormatSymbols().getMonths();
         return months[mes];
     }
@@ -83,5 +95,16 @@ public class DataUtils {
     public static String convertDateToString_MMYYYY(Date date) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/yyyy");
         return simpleDateFormat.format(date);
+    }
+
+    public static Days diferencaEmDias(String referencia) throws ParseException {
+        DateTime dataAtual = new DateTime();
+        var dia = parseInt(referencia.substring(8, 10));
+        var mes = parseInt(referencia.substring(5, 7));
+        var ano = parseInt(referencia.substring(0, 4));
+
+        DateTime dataReferencia = new DateTime(ano, mes, dia, 0, 0);
+
+        return Days.daysBetween(dataAtual, dataReferencia);
     }
 }

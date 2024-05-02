@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>br.com.esc</groupId>
 	<artifactId>springboot-esc-back-aplicacao</artifactId>
-	<version>1.0.11-SNAPSHOT</version>
+	<version>1.0.12-SNAPSHOT</version>
 	<name>springboot-esc-back-aplicacao</name>
 	<description>Componente backend para aplicacao E.S.C</description>
 	<properties>
@@ -150,6 +150,11 @@
 			<version>2.2.1</version>
 		</dependency>
 
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+			<version>2.5</version>
+		</dependency>
 	</dependencies>
 
 	<build>

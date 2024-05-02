@@ -14,8 +14,11 @@ public class AplicacaoConfiguration {
 
     @Bean
     @Primary
-    LancamentosBusinessService lancamentosFinanceirosService(AplicacaoRepository repository, ImportarLancamentosServices importacaoBusiness, LancamentosFinanceirosServices lancamentosBusiness, DetalheDespesasServices detalheDespesasServices, DespesasParceladasServices despesasParceladasServices, BackupServices backupServices, AutenticacaoServices autenticacaoServices) {
-        return new LancamentosBusinessService(repository, importacaoBusiness, lancamentosBusiness, detalheDespesasServices, despesasParceladasServices, backupServices, autenticacaoServices);
+    LancamentosBusinessService lancamentosFinanceirosService(AplicacaoRepository repository, ImportarLancamentosServices importacaoBusiness,
+                                                             LancamentosFinanceirosServices lancamentosBusiness, DetalheDespesasServices detalheDespesasServices,
+                                                             DespesasParceladasServices despesasParceladasServices, BackupServices backupServices, AutenticacaoServices autenticacaoServices,
+                                                             LembreteServices lembreteServices) {
+        return new LancamentosBusinessService(repository, importacaoBusiness, lancamentosBusiness, detalheDespesasServices, despesasParceladasServices, backupServices, autenticacaoServices, lembreteServices);
     }
 
     @Bean
@@ -52,5 +55,11 @@ public class AplicacaoConfiguration {
     @Primary
     AutenticacaoServices autenticacaoServices(AplicacaoRepository aplicacaoRepository, AutenticacaoRepository repository) {
         return new AutenticacaoServices(aplicacaoRepository, repository);
+    }
+
+    @Bean
+    @Primary
+    LembreteServices lembreteServices(AplicacaoRepository repository) {
+        return new LembreteServices(repository);
     }
 }

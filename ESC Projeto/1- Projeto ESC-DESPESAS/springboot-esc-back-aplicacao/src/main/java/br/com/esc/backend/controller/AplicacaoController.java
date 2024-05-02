@@ -159,6 +159,12 @@ public class AplicacaoController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping(path = "/lembretes/monitor/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<LembretesDAO>> obterMonitorLembretesEmAberto (@PathVariable("idFuncionario") Integer idFuncionario) {
+        var response = service.obterLembretes(idFuncionario);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping(path = "/parametros/gravar", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> gravarParametrosSistema(@RequestBody ConfiguracaoLancamentosRequest request) {
         service.gravarConfiguracoesLancamentos(request);

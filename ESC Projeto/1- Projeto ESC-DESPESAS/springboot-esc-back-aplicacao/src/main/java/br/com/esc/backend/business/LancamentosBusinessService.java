@@ -34,6 +34,7 @@ public class LancamentosBusinessService {
     private final DespesasParceladasServices despesasParceladasServices;
     private final BackupServices backupServices;
     private final AutenticacaoServices autenticacaoServices;
+    private final LembreteServices lembreteServices;
 
     @SneakyThrows
     public LancamentosFinanceirosDTO obterLancamentosFinanceiros(String dsMes, String dsAno, Integer idFuncionario) {
@@ -503,6 +504,13 @@ public class LancamentosBusinessService {
         log.info("Gravando parametros sistemicos - {}", request);
         request.setViradaAutomatica(request.isBViradaAutomatica() == true? 'S': 'N');
         repository.updateConfiguracoesLancamentos(request);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
+    public List<LembretesDAO> obterLembretes(Integer idFuncionario) {
+        log.info("Obtendo lista de lembretes");
+        return lembreteServices.getLembretes(idFuncionario);
     }
 
     @Transactional(rollbackFor = Exception.class)

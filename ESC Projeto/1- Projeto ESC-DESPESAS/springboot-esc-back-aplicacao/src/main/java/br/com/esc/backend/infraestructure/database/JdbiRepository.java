@@ -329,6 +329,15 @@ public interface JdbiRepository extends AplicacaoRepository {
     Boolean getStatusDetalheDespesaPendentePagamento(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 
     @Override
+    @SqlQuery
+    @UseRowMapper(LembretesRowMapper.class)
+    List<LembretesDAO> getLembretes(Integer idFuncionario, String tpBaixado, @Define("whereSemanal") String sWhereSemanal);
+
+    @Override
+    @SqlQuery
+    String getDiaSemana();
+
+    @Override
     @SqlUpdate
     void insertDespesaFixaTemp(Integer idDespesaTemp, Integer dsMesTemp, Integer dsAnoTemp, Integer idFuncionario);
 
@@ -495,6 +504,10 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlUpdate
     void updateTituloDespesasMensais(Integer idDetalheDespesa, Integer idFuncionario, String dsNomeDespesa, String anoReferencia);
+
+    @Override
+    @SqlUpdate
+    void updateDataRenovacaoAUTOLembrete(Integer idLembrete, Integer idFuncionario, String dataInicial);
 
     @Override
     @SqlUpdate
