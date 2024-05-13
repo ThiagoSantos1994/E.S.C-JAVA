@@ -18,7 +18,6 @@ import java.util.List;
 
 import static br.com.esc.backend.utils.ObjectUtils.isEmpty;
 import static br.com.esc.backend.utils.ObjectUtils.isNull;
-import static br.com.esc.backend.utils.VariaveisGlobais.PENDENTE;
 import static br.com.esc.backend.utils.VariaveisGlobais.VALOR_ZERO;
 
 
@@ -495,7 +494,9 @@ public class LancamentosBusinessService {
 
     public ConfiguracaoLancamentosResponse obterConfiguracaoLancamentos(Integer idFuncionario) {
         log.info("Obtendo parametros sistemicos");
-        return repository.getConfiguracaoLancamentos(idFuncionario);
+        var response = repository.getConfiguracaoLancamentos(idFuncionario);
+        response.setQtdeLembretes(this.obterListaMonitorLembretes(idFuncionario).size());
+        return response;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -506,11 +507,28 @@ public class LancamentosBusinessService {
         repository.updateConfiguracoesLancamentos(request);
     }
 
+    public LembretesDAO obterDetalheLembrete(Integer idLembrete, Integer idFuncionario) {
+        log.info("Obtendo detalhes lembrete id = {}", idLembrete);
+        return lembreteServices.getLembreteDetalhe(idLembrete, idFuncionario);
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
-    public List<LembretesDAO> obterLembretes(Integer idFuncionario) {
+    public void baixarLembretesMonitor(List<TituloLembretesDAO> request, String tipoBaixa) {
+        log.info("Realizando a baixa de lembretes >>> tipoBaixa: {} - request: {}", request, tipoBaixa);
+        lembreteServices.baixarLembretesMonitor(request, tipoBaixa);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
+    public List<TituloLembretesDAO> obterListaMonitorLembretes(Integer idFuncionario) {
         log.info("Obtendo lista de lembretes");
-        return lembreteServices.getLembretes(idFuncionario);
+        return lembreteServices.getListaMonitorLembretes(idFuncionario);
+    }
+
+    public List<TituloLembretesDAO> obterTituloLembretes(Integer idFuncionario, Boolean tpBaixado) {
+        log.info("Obtendo lista de nomes dos lembretes");
+        return lembreteServices.getListaNomesLembretes(idFuncionario, tpBaixado);
     }
 
     @Transactional(rollbackFor = Exception.class)

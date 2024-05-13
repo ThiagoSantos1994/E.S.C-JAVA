@@ -1,6 +1,7 @@
 package br.com.esc.backend.repository;
 
 import br.com.esc.backend.domain.*;
+import org.jdbi.v3.sqlobject.customizer.Define;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.springframework.stereotype.Repository;
 
@@ -154,7 +155,11 @@ public interface AplicacaoRepository {
 
     Boolean getStatusDetalheDespesaPendentePagamento(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 
-    List<LembretesDAO> getLembretes(Integer idFuncionario, String tpBaixado, String sWhereSemanal);
+    List<LembretesDAO> getMonitorLembretes(Integer idFuncionario, String tpBaixado, String sWhereSemanal);
+
+    List<TituloLembretesDAO> getTituloLembretes(Integer idFuncionario, String tpBaixado);
+
+    LembretesDAO getLembreteDetalhe(Integer idLembrete, Integer idFuncionario);
 
     String getDiaSemana();
 
@@ -177,6 +182,10 @@ public interface AplicacaoRepository {
     void updateParcela(ParcelasDAO parcelasDAO);
 
     void updateParcelasReprocessamento(String vlParcela, Integer idDespesaParcelada, Integer idFuncionario);
+
+    void updateDataBaixaLembrete(Integer idLembrete, String data, Integer idFuncionario);
+
+    void updateBaixarLembrete(Integer idLembrete, Integer idFuncionario);
 
     void updateDespesaParcelada(DespesaParceladaDAO despesaParceladaDAO);
 

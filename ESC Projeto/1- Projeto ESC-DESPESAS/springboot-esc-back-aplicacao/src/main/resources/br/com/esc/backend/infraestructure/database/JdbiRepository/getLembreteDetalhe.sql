@@ -1,0 +1,29 @@
+SELECT
+	id_Lembrete,
+	ds_TituloLembrete,
+	chkHabilitarNotificacaoDiaria,
+	tp_Segunda,
+	tp_Terca,
+	tp_Quarta,
+	tp_Quinta,
+	tp_Sexta,
+	tp_Sabado,
+	tp_Domingo,
+	ds_DataInicial,
+	ds_Observacoes,
+	id_Funcionario,
+	tp_Baixado,
+	tp_LembreteContagemRegressiva,
+	data1,
+	data2,
+	data3,
+	data4,
+	data5,
+	tp_LembreteDatado,
+	tp_RenovarAuto,
+	nr_NumeroDias
+FROM
+	tbd_CadastroLembretes
+WHERE
+    id_Lembrete = :idLembrete
+	AND id_Funcionario = :idFuncionario

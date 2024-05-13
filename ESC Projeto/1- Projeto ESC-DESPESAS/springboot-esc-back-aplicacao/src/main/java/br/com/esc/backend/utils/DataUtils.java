@@ -4,6 +4,7 @@ import lombok.var;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 
+import java.text.DateFormat;
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -18,6 +19,28 @@ public class DataUtils {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date data = new Date(System.currentTimeMillis());
         return simpleDateFormat.format(data);
+    }
+
+    public static String formatarDataBR(String ref) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        Date data = new Date(ref);
+        return simpleDateFormat.format(data);
+    }
+
+    public static String formatarDataBR(Calendar ref) {
+        DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+        return df.format(ref);
+    }
+
+    public static String formatarDataEUA(String ref) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        Date data = new Date(ref);
+        return simpleDateFormat.format(data);
+    }
+
+    public static String formatarDataEUA(Date ref) {
+        DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
+        return df.format(ref);
     }
 
     public static String DataAtual() {
@@ -73,18 +96,19 @@ public class DataUtils {
         return new SimpleDateFormat("dd/MM/yyyy").parse(sData);
     }
 
-    public static Date retornaDataPersonalizada(Date data, Integer qtdeMes) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(data);
-        cal.add(Calendar.MONTH, qtdeMes);
-        return cal.getTime();
-    }
-
     public static Date retornaDataPersonalizada(String data, Integer qtdeMes) throws ParseException {
         Calendar cal = Calendar.getInstance();
         cal.setTime(convertStringToDate(data));
         cal.add(Calendar.MONTH, qtdeMes);
         return cal.getTime();
+    }
+
+    public static String retornaDataPersonalizadaEmDias(String data, Integer qtdeDias) throws ParseException {
+        Date a = new Date(data);
+        a.setDate(a.getDate() + qtdeDias);
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        return simpleDateFormat.format(a);
     }
 
     public static String convertDateToString(Date date) {

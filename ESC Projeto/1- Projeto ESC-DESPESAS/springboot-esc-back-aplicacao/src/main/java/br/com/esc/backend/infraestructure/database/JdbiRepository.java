@@ -331,7 +331,17 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlQuery
     @UseRowMapper(LembretesRowMapper.class)
-    List<LembretesDAO> getLembretes(Integer idFuncionario, String tpBaixado, @Define("whereSemanal") String sWhereSemanal);
+    List<LembretesDAO> getMonitorLembretes(Integer idFuncionario, String tpBaixado, @Define("whereSemanal") String sWhereSemanal);
+
+    @Override
+    @SqlQuery
+    @UseRowMapper(TituloLembretesRowMapper.class)
+    List<TituloLembretesDAO> getTituloLembretes(Integer idFuncionario, String tpBaixado);
+
+    @Override
+    @SqlQuery
+    @UseRowMapper(LembretesRowMapper.class)
+    LembretesDAO getLembreteDetalhe(Integer idLembrete, Integer idFuncionario);
 
     @Override
     @SqlQuery
@@ -360,6 +370,14 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlUpdate
     void insertDespesaParcelada(@BindBean("despesa") DespesaParceladaDAO despesaParceladaDAO);
+
+    @Override
+    @SqlUpdate
+    void updateDataBaixaLembrete(Integer idLembrete, String data, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void updateBaixarLembrete(Integer idLembrete, Integer idFuncionario);
 
     @Override
     @SqlUpdate

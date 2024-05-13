@@ -159,10 +159,28 @@ public class AplicacaoController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping(path = "/lembretes/monitor/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<LembretesDAO>> obterMonitorLembretesEmAberto (@PathVariable("idFuncionario") Integer idFuncionario) {
-        var response = service.obterLembretes(idFuncionario);
+    @GetMapping(path = "/lembretes/detalhe/{idLembrete}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<LembretesDAO> obterDetalhesLembrete (@PathVariable("idLembrete") Integer idLembrete ,@PathVariable("idFuncionario") Integer idFuncionario) {
+        var response = service.obterDetalheLembrete(idLembrete, idFuncionario);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(path = "/lembretes/monitor/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<TituloLembretesDAO>> obterMonitorLembretesEmAberto (@PathVariable("idFuncionario") Integer idFuncionario) {
+        var response = service.obterListaMonitorLembretes(idFuncionario);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(path = "/lembretes/obterTituloLembretes/{idFuncionario}/{tpBaixado}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<TituloLembretesDAO>> obterTituloLembretes (@PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("tpBaixado") Boolean tpBaixado) {
+        var response = service.obterTituloLembretes(idFuncionario, tpBaixado);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(path = "/lembretes/monitor/baixar/{tipoBaixa}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> baixarLembreteMonitor(@RequestBody List<TituloLembretesDAO> request, @PathVariable("tipoBaixa") String tipoBaixa) {
+        service.baixarLembretesMonitor(request, tipoBaixa);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping(path = "/parametros/gravar", produces = MediaType.APPLICATION_JSON_VALUE)

@@ -9,10 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ConfiguracaoLancamentosResponse {
-    private Integer dataViradaMes;
-    private Integer mesReferencia;
-    private boolean bViradaAutomatica;
+public class TituloLembretesDAO {
+    private Integer idLembrete;
     private Integer idFuncionario;
-    private Integer qtdeLembretes;
+    private String dsTituloLembrete;
 }

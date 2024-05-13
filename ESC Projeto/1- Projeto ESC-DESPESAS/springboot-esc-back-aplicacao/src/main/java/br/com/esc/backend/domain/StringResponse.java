@@ -16,6 +16,7 @@ public class StringResponse {
     private String mesAno;
     private String mensagem;
     private String nomeDespesaParcelada;
+    private String nomeLembrete;
     private String vlSubTotalDespesa;
     private String vlDespesaParcelada;
     private String vlCalculo;

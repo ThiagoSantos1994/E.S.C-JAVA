@@ -124,11 +124,11 @@ public class LancamentosFinanceirosServices {
             log.info("Atualizando despesas fixas mensais - request: {}", request);
             repository.updateDespesasFixasMensais(request);
         } else {
-            request.setIdOrdem(repository.getMaxOrdemDespesasFixasMensais(request.getIdDespesa(), request.getIdFuncionario()));
-
-            if (request.getIdDespesa() <= 0) {
+            if (null == request.getIdDespesa() || request.getIdDespesa() <= 0) {
                 request.setIdOrdem(1);
-                request.setIdDespesa(1);
+                request.setIdDespesa((repository.getMaxIdDespesa(request.getIdFuncionario()) + 1));
+            } else {
+                request.setIdOrdem(repository.getMaxOrdemDespesasFixasMensais(request.getIdDespesa(), request.getIdFuncionario()));
             }
 
             log.info("Inserindo despesas fixas mensais - request: {}", request);
