@@ -100,7 +100,7 @@ public class LancamentosBusinessService {
         }
 
         var detalheRequest = request.get(0);
-        detalheDespesasServices.ordenarListaDetalheDespesasMensais(detalheRequest.getIdDespesa(), detalheRequest.getIdDetalheDespesa(), detalheRequest.getIdFuncionario(), "prazo");
+        detalheDespesasServices.ordenarRegistrosAtualizacao(detalheRequest.getIdDespesa(), detalheRequest.getIdDetalheDespesa(), detalheRequest.getIdFuncionario(), "prazo");
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -344,6 +344,16 @@ public class LancamentosBusinessService {
         return lancamentosServices.getTituloEmprestimo(idFuncionario);
     }
 
+    public StringResponse obterObservacoesDetalheDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario) {
+        log.info("Consultando observações dos detalhes da despesa");
+        return detalheDespesasServices.getObservacoesDetalheDespesa(idDespesa, idDetalheDespesa, idOrdem, idFuncionario);
+    }
+
+    public void gravarObservacoesDetalheDespesa(ObservacoesDetalheDespesaRequest request) {
+        log.info("Gravando observações detalhe despesa >> Request: {}", request);
+        detalheDespesasServices.gravarObservacoesDetalheDespesa(request);
+    }
+
     public DespesasParceladasResponse obterDespesasParceladas(Integer idFuncionario, String status) {
         log.info("Consultando lista de despesas parceladas");
         return despesasParceladasServices.getDespesasParceladas(idFuncionario, status);
@@ -423,7 +433,7 @@ public class LancamentosBusinessService {
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
     public void gravarParcela(List<ParcelasDAO> parcelas) {
-        for (ParcelasDAO parcela: parcelas) {
+        for (ParcelasDAO parcela : parcelas) {
             despesasParceladasServices.gravarParcela(parcela);
         }
     }
@@ -503,7 +513,7 @@ public class LancamentosBusinessService {
     @SneakyThrows
     public void gravarConfiguracoesLancamentos(ConfiguracaoLancamentosRequest request) {
         log.info("Gravando parametros sistemicos - {}", request);
-        request.setViradaAutomatica(request.isBViradaAutomatica() == true? 'S': 'N');
+        request.setViradaAutomatica(request.isBViradaAutomatica() == true ? 'S' : 'N');
         repository.updateConfiguracoesLancamentos(request);
     }
 
@@ -517,6 +527,12 @@ public class LancamentosBusinessService {
     public void baixarLembretesMonitor(List<TituloLembretesDAO> request, String tipoBaixa) {
         log.info("Realizando a baixa de lembretes >>> tipoBaixa: {} - request: {}", request, tipoBaixa);
         lembreteServices.baixarLembretesMonitor(request, tipoBaixa);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
+    public void gravarLembrete(LembretesDAO request) {
+        lembreteServices.gravarLembrete(request);
     }
 
     @Transactional(rollbackFor = Exception.class)

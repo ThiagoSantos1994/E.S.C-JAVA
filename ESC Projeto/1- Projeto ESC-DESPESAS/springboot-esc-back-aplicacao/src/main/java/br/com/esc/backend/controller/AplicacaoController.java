@@ -69,6 +69,12 @@ public class AplicacaoController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping(path = "/lancamentosFinanceiros/detalheDespesasMensais/observacoes/consultar/{idDespesa}/{idDetalheDespesa}/{idOrdem}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StringResponse> obterObservacoesDetalheDespesasMensais(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idOrdem") Integer idOrdem, @PathVariable("idFuncionario") Integer idFuncionario) {
+        var response = service.obterObservacoesDetalheDespesa(idDespesa, idDetalheDespesa, idOrdem, idFuncionario);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping(path = "/despesasParceladas/obterListaDespesas/{idFuncionario}/{status}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DespesasParceladasResponse> obterDespesasParceladas(@PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("status") String status) {
         var response = service.obterDespesasParceladas(idFuncionario, status);
@@ -137,7 +143,7 @@ public class AplicacaoController {
 
     @GetMapping(path = "/despesasParceladas/obterRelatorioDespesasParceladasQuitacao/{idDespesa}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StringResponse> obterRelatorioDespesasParceladasQuitacao(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idFuncionario") Integer idFuncionario) {
-        var response = service.obterRelatorioDespesasParceladasQuitacao(idDespesa,null, idFuncionario);
+        var response = service.obterRelatorioDespesasParceladasQuitacao(idDespesa, null, idFuncionario);
         return ResponseEntity.ok(response);
     }
 
@@ -160,26 +166,38 @@ public class AplicacaoController {
     }
 
     @GetMapping(path = "/lembretes/detalhe/{idLembrete}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<LembretesDAO> obterDetalhesLembrete (@PathVariable("idLembrete") Integer idLembrete ,@PathVariable("idFuncionario") Integer idFuncionario) {
+    public ResponseEntity<LembretesDAO> obterDetalhesLembrete(@PathVariable("idLembrete") Integer idLembrete, @PathVariable("idFuncionario") Integer idFuncionario) {
         var response = service.obterDetalheLembrete(idLembrete, idFuncionario);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping(path = "/lembretes/monitor/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<TituloLembretesDAO>> obterMonitorLembretesEmAberto (@PathVariable("idFuncionario") Integer idFuncionario) {
+    public ResponseEntity<List<TituloLembretesDAO>> obterMonitorLembretesEmAberto(@PathVariable("idFuncionario") Integer idFuncionario) {
         var response = service.obterListaMonitorLembretes(idFuncionario);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping(path = "/lembretes/obterTituloLembretes/{idFuncionario}/{tpBaixado}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<TituloLembretesDAO>> obterTituloLembretes (@PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("tpBaixado") Boolean tpBaixado) {
+    public ResponseEntity<List<TituloLembretesDAO>> obterTituloLembretes(@PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("tpBaixado") Boolean tpBaixado) {
         var response = service.obterTituloLembretes(idFuncionario, tpBaixado);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(path = "/lancamentosFinanceiros/detalheDespesasMensais/observacoes/gravar", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> gravarObservacoesDetalheDespesa(@RequestBody ObservacoesDetalheDespesaRequest request) {
+        service.gravarObservacoesDetalheDespesa(request);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping(path = "/lembretes/monitor/baixar/{tipoBaixa}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> baixarLembreteMonitor(@RequestBody List<TituloLembretesDAO> request, @PathVariable("tipoBaixa") String tipoBaixa) {
         service.baixarLembretesMonitor(request, tipoBaixa);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping(path = "/lembretes/monitor/gravar", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> gravarLembrete(@RequestBody LembretesDAO request) {
+        service.gravarLembrete(request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

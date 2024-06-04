@@ -27,6 +27,18 @@ public class LembreteServices {
         return aplicacaoRepository.getLembreteDetalhe(idLembrete, idFuncionario);
     }
 
+    public void gravarLembrete(LembretesDAO request) {
+        var isLembreteExistente = this.isLembreteExistente(request.getIdLembrete(), request.getIdFuncionario());
+
+        if (isLembreteExistente) {
+            log.info("Atualizando lembrete >> request {}", request);
+            aplicacaoRepository.updateLembrete(request);
+        } else {
+            log.info("Incluindo novo lembrete >> request {}", request);
+            aplicacaoRepository.insertLembrete(request);
+        }
+    }
+
     public void baixarLembretesMonitor(List<TituloLembretesDAO> request, String tipoBaixa) throws ParseException {
         for (TituloLembretesDAO lembrete : request) {
             var data = this.validarNovaDataBaixa(lembrete, tipoBaixa);
@@ -95,6 +107,11 @@ public class LembreteServices {
         if (iQtdeDiasRestantes <= 0) {
             aplicacaoRepository.updateDataRenovacaoAUTOLembrete(idLembrete, idFuncionario, dataInicial);
         }
+    }
+
+    private boolean isLembreteExistente(Integer idLembrete, Integer idFuncionario) {
+        var result = aplicacaoRepository.getLembreteDetalhe(idLembrete, idFuncionario);
+        return (null != result);
     }
 
     private String sWhereSemanal() {

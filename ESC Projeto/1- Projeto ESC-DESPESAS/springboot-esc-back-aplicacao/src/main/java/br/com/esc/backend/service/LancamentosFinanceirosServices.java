@@ -2,7 +2,6 @@ package br.com.esc.backend.service;
 
 import br.com.esc.backend.domain.*;
 import br.com.esc.backend.repository.AplicacaoRepository;
-import br.com.esc.backend.utils.MotorCalculoUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;

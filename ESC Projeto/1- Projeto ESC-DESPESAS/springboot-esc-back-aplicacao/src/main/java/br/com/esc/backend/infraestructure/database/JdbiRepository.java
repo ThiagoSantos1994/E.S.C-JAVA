@@ -260,6 +260,10 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlQuery
+    String getObservacoesDetalheDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
     @UseRowMapper(ExtratoDespesasRowMapper.class)
     ExtratoDespesasDAO getExtratoDespesasMes(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 
@@ -365,6 +369,10 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlUpdate
+    void insertObservacaoDetalheDespesaMensal(@BindBean("detalhe") ObservacoesDetalheDespesaRequest detalheDAO);
+
+    @Override
+    @SqlUpdate
     void insertParcela(@BindBean("parcela") ParcelasDAO parcelasDAO);
 
     @Override
@@ -373,11 +381,23 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlUpdate
+    void insertLembrete(@BindBean("lembrete") LembretesDAO lembretesDAO);
+
+    @Override
+    @SqlUpdate
+    void updateLembrete(LembretesDAO lembretesDAO);
+
+    @Override
+    @SqlUpdate
     void updateDataBaixaLembrete(Integer idLembrete, String data, Integer idFuncionario);
 
     @Override
     @SqlUpdate
     void updateBaixarLembrete(Integer idLembrete, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void updateObservacaoDetalheDespesaMensal(@BindBean("detalhe") ObservacoesDetalheDespesaRequest request);
 
     @Override
     @SqlUpdate
@@ -422,6 +442,10 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlUpdate
     void updateDetalheDespesasMensaisOrdenacao(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idOrdem, Integer idNovaOrdem, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void updateObservacaoDetalheDespesasMensaisOrdenacao(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idNovaOrdem, Integer idFuncionario);
 
     @Override
     @SqlUpdate
@@ -586,6 +610,14 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlUpdate
     void deleteDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void deleteObservacaoDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void deleteTodasObservacaoDetalheDespesaMensal(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 
     @Override
     @SqlUpdate

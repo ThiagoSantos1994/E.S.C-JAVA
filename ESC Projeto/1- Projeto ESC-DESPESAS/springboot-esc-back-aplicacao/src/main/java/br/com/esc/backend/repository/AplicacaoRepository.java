@@ -1,8 +1,6 @@
 package br.com.esc.backend.repository;
 
 import br.com.esc.backend.domain.*;
-import org.jdbi.v3.sqlobject.customizer.Define;
-import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -107,6 +105,8 @@ public interface AplicacaoRepository {
 
     String getMesAnoPorIDTemp(Integer idDespesa, Integer idFuncionario);
 
+    String getObservacoesDetalheDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario);
+
     ExtratoDespesasDAO getExtratoDespesasMes(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 
     ExtratoDespesasDAO getExtratoDespesasParceladasMes(String dsMes, String dsAno, Integer idFuncionario);
@@ -171,9 +171,17 @@ public interface AplicacaoRepository {
 
     void insertDetalheDespesasMensais(DetalheDespesasMensaisDAO detalheDAO);
 
+    void insertObservacaoDetalheDespesaMensal(ObservacoesDetalheDespesaRequest request);
+
     void insertParcela(ParcelasDAO parcelasDAO);
 
     void insertDespesaParcelada(DespesaParceladaDAO despesaParceladaDAO);
+
+    void insertLembrete(LembretesDAO lembretesDAO);
+
+    void updateLembrete(LembretesDAO lembretesDAO);
+
+    void updateObservacaoDetalheDespesaMensal(ObservacoesDetalheDespesaRequest request);
 
     void updateConfiguracoesLancamentos(ConfiguracaoLancamentosRequest request);
 
@@ -202,6 +210,8 @@ public interface AplicacaoRepository {
     void updateDetalheDespesasMensais(DetalheDespesasMensaisDAO detalheDespesasMensais);
 
     void updateDetalheDespesasMensaisOrdenacao(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idOrdem, Integer idNovaOrdem, Integer idFuncionario);
+
+    void updateObservacaoDetalheDespesasMensaisOrdenacao(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idNovaOrdem, Integer idFuncionario);
 
     void updateDespesasMensaisOrdenacao(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idNovaOrdem, Integer idFuncionario);
 
@@ -282,6 +292,10 @@ public interface AplicacaoRepository {
     void deleteDetalheDespesasMensaisPorFiltro(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario);
 
     void deleteDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+
+    void deleteObservacaoDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario);
+
+    void deleteTodasObservacaoDetalheDespesaMensal(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 
     void deleteParcela(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
 
