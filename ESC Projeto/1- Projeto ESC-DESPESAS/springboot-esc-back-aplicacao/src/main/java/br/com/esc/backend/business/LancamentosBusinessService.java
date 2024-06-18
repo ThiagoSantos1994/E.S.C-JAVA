@@ -532,7 +532,19 @@ public class LancamentosBusinessService {
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
     public void gravarLembrete(LembretesDAO request) {
+        log.info("Gravando detalhes do lembrete...");
+        if(isNull(request.getIdLembrete()) || request.getIdLembrete() == -1) {
+            request.setIdLembrete(this.retornaNovaChaveKey("LEMBRETES").getNovaChave());
+        }
+
         lembreteServices.gravarLembrete(request);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
+    public void excluirLembrete(LembretesDAO request) {
+        log.info("Excluindo lembrete >> request {}", request);
+        repository.deleteLembrete(request.getIdLembrete(), request.getIdFuncionario());
     }
 
     @Transactional(rollbackFor = Exception.class)

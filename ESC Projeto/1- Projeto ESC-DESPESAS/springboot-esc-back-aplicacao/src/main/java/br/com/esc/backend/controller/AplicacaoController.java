@@ -195,9 +195,15 @@ public class AplicacaoController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping(path = "/lembretes/monitor/gravar", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/lembretes/detalhe/gravar", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> gravarLembrete(@RequestBody LembretesDAO request) {
         service.gravarLembrete(request);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping(path = "/lembretes/detalhe/excluir", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> exluirLembrete(@RequestBody LembretesDAO request) {
+        service.excluirLembrete(request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

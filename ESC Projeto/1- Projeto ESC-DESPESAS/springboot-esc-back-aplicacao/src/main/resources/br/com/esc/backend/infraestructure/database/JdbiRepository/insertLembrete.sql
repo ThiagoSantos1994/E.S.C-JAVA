@@ -1,4 +1,4 @@
-INSERT INTO tbd_DespesaMensal
+INSERT INTO tbd_CadastroLembretes
     (
     id_Lembrete,
     ds_TituloLembrete,
@@ -46,6 +46,6 @@ VALUES (
     :lembrete.data4,
     :lembrete.data5,
     :lembrete.tpLembreteDatado,
-    :lembrete.tpRenovaAuto,
+    :lembrete.tpRenovarAuto,
     :lembrete.numeroDias
 )

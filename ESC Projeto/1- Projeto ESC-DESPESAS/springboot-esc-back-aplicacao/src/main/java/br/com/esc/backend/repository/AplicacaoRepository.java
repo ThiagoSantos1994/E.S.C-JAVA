@@ -301,4 +301,5 @@ public interface AplicacaoRepository {
 
     void deleteParcelaDetalheDespesasMensaisAdiantada(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
 
+    void deleteLembrete(Integer idLembrete, Integer idFuncionario);
 }

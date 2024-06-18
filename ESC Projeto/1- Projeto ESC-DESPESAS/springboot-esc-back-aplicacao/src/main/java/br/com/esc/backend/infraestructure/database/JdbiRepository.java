@@ -385,7 +385,7 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlUpdate
-    void updateLembrete(LembretesDAO lembretesDAO);
+    void updateLembrete(@BindBean("lembrete") LembretesDAO lembretesDAO);
 
     @Override
     @SqlUpdate
@@ -626,4 +626,8 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlUpdate
     void deleteParcelaDetalheDespesasMensaisAdiantada(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void deleteLembrete(Integer idLembrete, Integer idFuncionario);
 }

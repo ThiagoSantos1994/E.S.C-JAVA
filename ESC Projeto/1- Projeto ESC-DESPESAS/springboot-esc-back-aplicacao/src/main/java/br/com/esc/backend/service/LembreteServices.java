@@ -3,6 +3,7 @@ package br.com.esc.backend.service;
 import br.com.esc.backend.domain.LembretesDAO;
 import br.com.esc.backend.domain.TituloLembretesDAO;
 import br.com.esc.backend.repository.AplicacaoRepository;
+import br.com.esc.backend.utils.DataUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
@@ -24,11 +25,26 @@ public class LembreteServices {
     private final AplicacaoRepository aplicacaoRepository;
 
     public LembretesDAO getLembreteDetalhe(Integer idLembrete, Integer idFuncionario) {
-        return aplicacaoRepository.getLembreteDetalhe(idLembrete, idFuncionario);
+        var response = aplicacaoRepository.getLembreteDetalhe(idLembrete, idFuncionario);
+        response.setDataInicial(formatarDataBR(response.getDataInicial()));
+        response.setData1(formatarDataBR(response.getData1()));
+        response.setData2(formatarDataBR(response.getData2()));
+        response.setData3(formatarDataBR(response.getData3()));
+        response.setData4(formatarDataBR(response.getData4()));
+        response.setData5(formatarDataBR(response.getData5()));
+
+        return response;
     }
 
     public void gravarLembrete(LembretesDAO request) {
         var isLembreteExistente = this.isLembreteExistente(request.getIdLembrete(), request.getIdFuncionario());
+
+        request.setDataInicial(formatarDataEUA(request.getDataInicial()));
+        request.setData1(formatarDataEUA(request.getData1()));
+        request.setData2(formatarDataEUA(request.getData2()));
+        request.setData3(formatarDataEUA(request.getData3()));
+        request.setData4(formatarDataEUA(request.getData4()));
+        request.setData5(formatarDataEUA(request.getData5()));
 
         if (isLembreteExistente) {
             log.info("Atualizando lembrete >> request {}", request);

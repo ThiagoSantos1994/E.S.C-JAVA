@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import static br.com.esc.backend.utils.ObjectUtils.isEmpty;
 import static java.lang.Integer.parseInt;
 
 public class DataUtils {
@@ -22,17 +23,29 @@ public class DataUtils {
     }
 
     public static String formatarDataBR(String ref) {
+        if (isEmpty(ref)) {
+            return "";
+        }
+
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
         Date data = new Date(ref);
         return simpleDateFormat.format(data);
     }
 
     public static String formatarDataBR(Calendar ref) {
+        if (isEmpty(ref)) {
+            return "";
+        }
+
         DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
         return df.format(ref);
     }
 
     public static String formatarDataEUA(String ref) {
+        if (isEmpty(ref)) {
+            return "";
+        }
+
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd");
         Date data = new Date(ref);
         return simpleDateFormat.format(data);
