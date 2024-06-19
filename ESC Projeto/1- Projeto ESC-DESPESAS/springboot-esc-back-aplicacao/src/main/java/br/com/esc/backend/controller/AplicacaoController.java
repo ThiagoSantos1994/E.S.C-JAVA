@@ -183,6 +183,12 @@ public class AplicacaoController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping(path = "/sessao/validar/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StringResponse> validaSessaoUsuario(@PathVariable("idFuncionario") Integer idFuncionario) {
+        var response = service.validaSessaoUsuario(idFuncionario);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping(path = "/lancamentosFinanceiros/detalheDespesasMensais/observacoes/gravar", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> gravarObservacoesDetalheDespesa(@RequestBody ObservacoesDetalheDespesaRequest request) {
         service.gravarObservacoesDetalheDespesa(request);

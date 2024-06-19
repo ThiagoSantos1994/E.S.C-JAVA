@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static br.com.esc.backend.utils.GlobalUtils.getProperties;
 import static br.com.esc.backend.utils.ObjectUtils.isEmpty;
 import static br.com.esc.backend.utils.ObjectUtils.isNull;
 import static br.com.esc.backend.utils.VariaveisGlobais.VALOR_ZERO;
@@ -557,6 +558,10 @@ public class LancamentosBusinessService {
     public List<TituloLembretesDAO> obterTituloLembretes(Integer idFuncionario, Boolean tpBaixado) {
         log.info("Obtendo lista de nomes dos lembretes");
         return lembreteServices.getListaNomesLembretes(idFuncionario, tpBaixado);
+    }
+
+    public StringResponse validaSessaoUsuario(Integer idFuncionario) {
+        return autenticacaoServices.validarSessaoUsuario(idFuncionario);
     }
 
     @Transactional(rollbackFor = Exception.class)

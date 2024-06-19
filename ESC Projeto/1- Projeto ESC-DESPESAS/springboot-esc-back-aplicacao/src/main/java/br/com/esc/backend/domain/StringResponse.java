@@ -24,4 +24,5 @@ public class StringResponse {
     private String relatorioDespesas;
     private Boolean isTituloJaExistente;
     private Boolean isDespesaExistente;
+    private Boolean isSessaoValida;
 }

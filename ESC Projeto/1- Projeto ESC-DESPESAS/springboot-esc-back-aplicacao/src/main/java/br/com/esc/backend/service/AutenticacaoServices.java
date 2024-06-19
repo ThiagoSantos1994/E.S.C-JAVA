@@ -3,6 +3,7 @@ package br.com.esc.backend.service;
 import br.com.esc.backend.domain.AutenticacaoResponse;
 import br.com.esc.backend.domain.LoginDAO;
 import br.com.esc.backend.domain.LoginRequest;
+import br.com.esc.backend.domain.StringResponse;
 import br.com.esc.backend.repository.AplicacaoRepository;
 import br.com.esc.backend.repository.AutenticacaoRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,9 @@ import org.springframework.stereotype.Service;
 import java.net.UnknownHostException;
 
 import static br.com.esc.backend.utils.DataUtils.*;
+import static br.com.esc.backend.utils.GlobalUtils.getProperties;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 import static java.lang.Integer.parseInt;
 import static java.net.InetAddress.getLocalHost;
 
@@ -58,6 +62,26 @@ public class AutenticacaoServices {
                 .autenticacao("Bearer -")
                 .autorizado(idLogin != -1 ? true : false)
                 .build();
+    }
+
+    public StringResponse validarSessaoUsuario(Integer idFuncionario) {
+        var parametro = parseInt(getProperties().getProperty("prop.tempoLimiteSessao"));
+        var result = repository.getHorarioLoginAuditoriaAcesso(idFuncionario);
+
+        log.info("Validando Sessao Usuario >> ParametroRef: {} - ResponseAuditoria: {}", parametro, result);
+
+        if (result.getDataLogin().equalsIgnoreCase(formatarDataBR(DataAtual()))) {
+            if (result.getTempoLogado().compareTo(parametro) >= 0) {
+                log.info("Validando Sessao Usuario >> Result FALSE por tempo excedido.");
+                return StringResponse.builder().isSessaoValida(FALSE).build();
+            } else {
+                log.info("Validando Sessao Usuario >> Result TRUE - sessao valida.");
+                return StringResponse.builder().isSessaoValida(TRUE).build();
+            }
+        }
+
+        log.info("Validando Sessao Usuario >> Result FALSE por validacao de Datas.");
+        return StringResponse.builder().isSessaoValida(FALSE).build();
     }
 
     private void validarViradaAutomatica(Integer idFuncionario) {
