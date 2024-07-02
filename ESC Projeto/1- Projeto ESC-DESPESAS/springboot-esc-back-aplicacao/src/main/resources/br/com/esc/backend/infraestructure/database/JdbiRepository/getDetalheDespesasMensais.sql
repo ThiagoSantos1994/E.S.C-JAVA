@@ -10,7 +10,7 @@ SELECT
     a.id_DespesaLinkRelatorio,
     a.vl_Total,
     a.vl_TotalPago,
-    CASE ISNULL(a.tp_Relatorio, 'N') WHEN 'S' THEN 'REF: ' + (SELECT ds_NomeDespesa FROM tbd_DespesaMensal WHERE id_Despesa = a.id_Despesa AND id_DetalheDespesa = a.id_DetalheDespesa AND id_Funcionario = a.id_Funcionario) ELSE a.ds_Observacao END as ds_Observacao,
+    CASE ISNULL(desp.tp_Relatorio, 'N') WHEN 'S' THEN 'REF: ' + (SELECT ds_NomeDespesa FROM tbd_DespesaMensal WHERE id_Despesa = a.id_Despesa AND id_DetalheDespesa = a.id_DetalheDespesa AND id_Funcionario = a.id_Funcionario) ELSE a.ds_Observacao END as ds_Observacao,
     a.ds_Observacao2,
     a.tp_CategoriaDespesa,
     ISNULL(a.tp_Status, 'N') AS tp_Status,
@@ -25,6 +25,7 @@ FROM
     tbd_DetalheDespesasMensais a
     LEFT JOIN tbd_DespesasParceladas b on b.id_DespesaParcelada = a.id_DespesaParcelada
     LEFT JOIN tbd_Parcelas c on c.id_DespesaParcelada = b.id_DespesaParcelada and c.id_Parcelas = a.id_Parcela
+    LEFT JOIN tbd_DespesaMensal desp on desp.id_Despesa = a.id_Despesa AND desp.id_DetalheDespesa = :idDetalheDespesa
 WHERE
     a.id_Despesa = :idDespesa
     AND a.id_Funcionario = :idFuncionario

@@ -13,5 +13,6 @@ import java.util.List;
 @NoArgsConstructor
 public class DespesasParceladasResponse {
     private List<DespesaParceladaDAO> despesas;
+    private List<String> anosReferenciaFiltro;
     private Integer sizeDespesasParceladasVB;
 }

@@ -14,9 +14,10 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import static br.com.esc.backend.utils.GlobalUtils.getProperties;
+import static br.com.esc.backend.utils.DataUtils.AnoSeguinte;
 import static br.com.esc.backend.utils.ObjectUtils.isEmpty;
 import static br.com.esc.backend.utils.ObjectUtils.isNull;
 import static br.com.esc.backend.utils.VariaveisGlobais.VALOR_ZERO;
@@ -119,7 +120,7 @@ public class LancamentosBusinessService {
         log.info("Atualizando status das parcelas para Pendente - request: idDespesa= {} - idFuncionario= {}", idDespesa, idFuncionario);
         repository.updateParcelaStatusPendenteDespesasExcluidas(idDespesa, idFuncionario);
 
-        log.info("Atualizando status das despesas parcelas para Em Aberto - request: idFuncionario= {}", idDespesa, idFuncionario);
+        log.info("Atualizando status das despesas parcelas para Em Aberto - request: idFuncionario= {}", idFuncionario);
         this.atualizaStatusDespesasParceladasEmAberto(idFuncionario);
     }
 
@@ -345,6 +346,11 @@ public class LancamentosBusinessService {
         return lancamentosServices.getTituloEmprestimo(idFuncionario);
     }
 
+    public TituloDespesaResponse obterTitulosDespesasRelatorio(Integer idDespesa, Integer idFuncionario) {
+        log.info("Consultando titulos das despesas cadastradas como relatorio");
+        return lancamentosServices.getTituloDespesaRelatorio(idDespesa, idFuncionario);
+    }
+
     public StringResponse obterObservacoesDetalheDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario) {
         log.info("Consultando observações dos detalhes da despesa");
         return detalheDespesasServices.getObservacoesDetalheDespesa(idDespesa, idDetalheDespesa, idOrdem, idFuncionario);
@@ -357,7 +363,9 @@ public class LancamentosBusinessService {
 
     public DespesasParceladasResponse obterDespesasParceladas(Integer idFuncionario, String status) {
         log.info("Consultando lista de despesas parceladas");
-        return despesasParceladasServices.getDespesasParceladas(idFuncionario, status);
+        var response = despesasParceladasServices.getDespesasParceladas(idFuncionario, status);
+        response.setAnosReferenciaFiltro(this.obterListaAnosReferencia());
+        return response;
     }
 
     public StringResponse obterValorDespesaParcelada(Integer idDespesaParcelada, Integer idParcela, String mesAnoReferencia, Integer idFuncionario) {
@@ -406,13 +414,11 @@ public class LancamentosBusinessService {
         var idDespesa = (idDespesaParcelada == -1 ? this.retornaNovaChaveKey("DESPESASPARCELADAS").getNovaChave() : idDespesaParcelada);
         var fluxoParcelas = despesasParceladasServices.gerarFluxoParcelas(idDespesa, valorParcela, qtdeParcelas, dataReferencia, idFuncionario);
 
-        var response = DetalheDespesasParceladasResponse.builder()
+        return DetalheDespesasParceladasResponse.builder()
                 .idDespesaParcelada(idDespesa)
                 .despesaVinculada("Novo fluxo de parcelas, clique em SALVAR para gravar esta despesa parcelada.")
                 .parcelas(fluxoParcelas.getParcelas())
                 .build();
-
-        return response;
     }
 
     public StringResponse consultarNomeDespesaParceladaPorFiltro(Integer idDespesaParcelada, Integer idFuncionario) {
@@ -468,10 +474,7 @@ public class LancamentosBusinessService {
         log.info("Validando se a despesa parcelada existe na base - dsTituloDespesaParcelada: {} - idFuncionario: {}", dsTituloDespesaParcelada, idFuncionario);
         var response = repository.getDespesaParcelada(null, dsTituloDespesaParcelada, idFuncionario);
 
-        Boolean result = true;
-        if (ObjectUtils.isEmpty(response)) {
-            result = false;
-        }
+        boolean result = !ObjectUtils.isEmpty(response);
 
         log.info("Response: Despesa Existente ?? - {}", result);
         return StringResponse.builder()
@@ -494,6 +497,21 @@ public class LancamentosBusinessService {
         return autenticacaoServices.autenticarUsuario(request);
     }
 
+    private List<String> obterListaAnosReferencia() {
+        log.info("Obtendo lista de anos referencia...");
+
+        List<String> responseList = new ArrayList<>();
+        responseList.add(AnoSeguinte());
+
+        try {
+            responseList.addAll(repository.getListaAnoReferencia());
+        } catch (Exception ex) {
+            responseList.add(DataUtils.AnoAtual());
+        }
+
+        return responseList;
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
     public void limparDadosTemporarios(Integer idFuncionario) {
@@ -507,6 +525,7 @@ public class LancamentosBusinessService {
         log.info("Obtendo parametros sistemicos");
         var response = repository.getConfiguracaoLancamentos(idFuncionario);
         response.setQtdeLembretes(this.obterListaMonitorLembretes(idFuncionario).size());
+        response.setAnosReferenciaFiltro(this.obterListaAnosReferencia());
         return response;
     }
 
@@ -514,7 +533,7 @@ public class LancamentosBusinessService {
     @SneakyThrows
     public void gravarConfiguracoesLancamentos(ConfiguracaoLancamentosRequest request) {
         log.info("Gravando parametros sistemicos - {}", request);
-        request.setViradaAutomatica(request.isBViradaAutomatica() == true ? 'S' : 'N');
+        request.setViradaAutomatica(request.isBViradaAutomatica() ? 'S' : 'N');
         repository.updateConfiguracoesLancamentos(request);
     }
 
@@ -534,7 +553,7 @@ public class LancamentosBusinessService {
     @SneakyThrows
     public void gravarLembrete(LembretesDAO request) {
         log.info("Gravando detalhes do lembrete...");
-        if(isNull(request.getIdLembrete()) || request.getIdLembrete() == -1) {
+        if (isNull(request.getIdLembrete()) || request.getIdLembrete() == -1) {
             request.setIdLembrete(this.retornaNovaChaveKey("LEMBRETES").getNovaChave());
         }
 

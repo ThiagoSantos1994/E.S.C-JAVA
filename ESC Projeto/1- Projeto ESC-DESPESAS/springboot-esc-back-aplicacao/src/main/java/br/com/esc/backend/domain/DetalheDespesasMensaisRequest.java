@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class DetalheDespesasMensaisRequest {
     private Integer idDespesa;
     private Integer idDetalheDespesa;
+    private Integer idDetalheReferencia;
     private String dsTituloDespesa;
     private String dsDescricao;
     private Integer idOrdem;

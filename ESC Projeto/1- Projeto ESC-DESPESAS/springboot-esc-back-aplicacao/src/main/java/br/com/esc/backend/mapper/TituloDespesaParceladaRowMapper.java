@@ -10,13 +10,13 @@ import java.sql.SQLException;
 import java.util.Locale;
 
 @Slf4j
-public class TituloDespesaRowMapper implements RowMapper<TituloDespesa> {
+public class TituloDespesaParceladaRowMapper implements RowMapper<TituloDespesa> {
 
     @Override
     public TituloDespesa map(ResultSet rs, StatementContext ctx) throws SQLException {
         return TituloDespesa.builder()
-                .idDespesa(rs.getInt("id_DetalheDespesa"))
-                .tituloDespesa(rs.getString("ds_NomeDespesa").toUpperCase(Locale.ROOT))
+                .idDespesa(rs.getInt("id_DespesaParcelada"))
+                .tituloDespesa(rs.getString("ds_TituloDespesaParcelada").toUpperCase(Locale.ROOT))
                 .build();
     }
 }

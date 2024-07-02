@@ -13,6 +13,7 @@ import java.util.Date;
 
 import static br.com.esc.backend.utils.ObjectUtils.isEmpty;
 import static java.lang.Integer.parseInt;
+import static java.lang.String.valueOf;
 
 public class DataUtils {
 
@@ -84,9 +85,15 @@ public class DataUtils {
         return simpleDateFormat.format(ano);
     }
 
+    public static String AnoSeguinte() {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("YYYY");
+        Date ano = new Date(System.currentTimeMillis());
+        return valueOf(parseInt(simpleDateFormat.format(ano)) + 1);
+    }
+
     public static String AnoAnterior() {
         int ano = (parseInt(AnoAtual()) - 1);
-        return String.valueOf(ano);
+        return valueOf(ano);
     }
 
     public static String MesNome(int mes) {

@@ -69,6 +69,12 @@ public class AplicacaoController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping(path = "/lancamentosFinanceiros/obterTitulosDespesasRelatorio/{idDespesa}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TituloDespesaResponse> obterTitulosDespesasRelatorio(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idFuncionario") Integer idFuncionario) {
+        var response = service.obterTitulosDespesasRelatorio(idDespesa, idFuncionario);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping(path = "/lancamentosFinanceiros/detalheDespesasMensais/observacoes/consultar/{idDespesa}/{idDetalheDespesa}/{idOrdem}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StringResponse> obterObservacoesDetalheDespesasMensais(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idOrdem") Integer idOrdem, @PathVariable("idFuncionario") Integer idFuncionario) {
         var response = service.obterObservacoesDetalheDespesa(idDespesa, idDetalheDespesa, idOrdem, idFuncionario);

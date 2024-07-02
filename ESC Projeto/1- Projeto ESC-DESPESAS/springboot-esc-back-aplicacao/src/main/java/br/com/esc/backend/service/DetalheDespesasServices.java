@@ -55,9 +55,9 @@ public class DetalheDespesasServices {
 
     public void gravarDetalheDespesasMensais(DetalheDespesasMensaisDAO detalheDAO, boolean isParcelaAmortizacao) throws Exception {
         var bIsParcelaAdiada = false;
-
-        if (detalheDAO.getTpRelatorio().equalsIgnoreCase("S")) {
-            // Despesas do tipo relatorio nao permite a gravacao\atualizacao na base de dados
+        var despesa = repository.getDespesaMensalPorFiltro(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheReferencia(), detalheDAO.getIdFuncionario());
+        if (null != despesa && despesa.getTpRelatorio().equalsIgnoreCase("S") && detalheDAO.getTpRelatorio().equalsIgnoreCase("S")) {
+            //Se a despesa referencia for do tipo relatorio e o detalhe tambem, não permite a gravação dos dados.
             return;
         }
 
@@ -76,7 +76,7 @@ public class DetalheDespesasServices {
             detalheDAO.setVlTotal(parcela.getVlParcela());
             detalheDAO.setDsDescricao(DESCRICAO_DESPESA_PARCELADA);
             detalheDAO.setIdParcela(parcela.getIdParcela());
-            bIsParcelaAdiada = parcela.getTpParcelaAdiada().equalsIgnoreCase("S") ? true : false;
+            bIsParcelaAdiada = parcela.getTpParcelaAdiada().equalsIgnoreCase("S");
             detalheDAO.setTpParcelaAdiada(bIsParcelaAdiada ? "S" : detalheDAO.getTpParcelaAdiada());
         }
 
@@ -148,7 +148,7 @@ public class DetalheDespesasServices {
 
     public void gravarDespesasMensais(DespesasMensaisDAO mensaisDAO) {
         if (mensaisDAO.getTpLinhaSeparacao().equalsIgnoreCase("N")) {
-            if (mensaisDAO.getTpEmprestimo().equalsIgnoreCase("S") && mensaisDAO.getIdEmprestimo().intValue() > 0) {
+            if (mensaisDAO.getTpEmprestimo().equalsIgnoreCase("S") && mensaisDAO.getIdEmprestimo() > 0) {
                 var idEmprestimo = repository.getCodigoEmprestimo(mensaisDAO.getDsTituloDespesa(), mensaisDAO.getIdFuncionario());
                 if (idEmprestimo > 0) {
                     mensaisDAO.setDsNomeDespesa(DESCRICAO_DESPESA_EMPRESTIMO);
@@ -186,6 +186,8 @@ public class DetalheDespesasServices {
             repository.deleteDetalheDespesasMensaisPorFiltro(idDespesa, idDetalheDespesa, idOrdem, idFuncionario);
             repository.deleteObservacaoDetalheDespesasMensais(idDespesa, idDetalheDespesa, idOrdem, idFuncionario);
         }
+
+        repository.updateDetalheDespesasMensaisSemRelatorio(idDespesa, idDetalheDespesa, idFuncionario);
     }
 
     public StringResponse getObservacoesDetalheDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario) {
@@ -346,7 +348,7 @@ public class DetalheDespesasServices {
             extrato = repository.getExtratoDespesasParceladasMes(getMesAtual(), getAnoAtual(), idFuncionario);
 
             mensagemBuffer.append(NESTE_MES_SERA_QUITADO);
-            mensagemBuffer.append(extrato.getVlDespesas() + "R$");
+            mensagemBuffer.append(extrato.getVlDespesas()).append("R$");
         } else {
             var despesasFixas = repository.getDespesasFixasMensaisPorID(idDespesa, idFuncionario);
             if (despesasFixas.size() == 0) {
@@ -362,8 +364,8 @@ public class DetalheDespesasServices {
                 extrato.setVlDespesas(convertDecimalToString(qtdeDespesasQuitacaoMes.getVlParcelas()));
 
                 mensagemBuffer.append(NESTE_MES_SERA_QUITADO);
-                mensagemBuffer.append(qtdeDespesasQuitacaoMes.getQtdeParcelas() + "/" + qtdeDespesasParceladasMes);
-                mensagemBuffer.append(" Despesas Parceladas, Totalizando: " + convertToMoedaBR(qtdeDespesasQuitacaoMes.getVlParcelas()) + "R$");
+                mensagemBuffer.append(qtdeDespesasQuitacaoMes.getQtdeParcelas()).append("/").append(qtdeDespesasParceladasMes);
+                mensagemBuffer.append(" Despesas Parceladas, Totalizando: ").append(convertToMoedaBR(qtdeDespesasQuitacaoMes.getVlParcelas())).append("R$");
                 /*mensagemBuffer.append("                                   ");
                 mensagemBuffer.append("[ Despesa (2022): ").append(convertDecimalToString(repository.getCalculoReceitaNegativaMES((idDespesa - 12), idFuncionario))).append("R$ ]");*/
 
@@ -374,10 +376,10 @@ public class DetalheDespesasServices {
 
                 var qtdeTotalDespParceladasMes = repository.getQuantidadeDetalheDespesasParceladasMes(idDespesa, idDetalheDespesa, idFuncionario);
 
-                mensagemBuffer.append("Ref: " + despesasFixas.get(0).getDsMes().concat("/").concat(despesasFixas.get(0).getDsAno())
+                mensagemBuffer.append("Ref: ").append(despesasFixas.get(0).getDsMes().concat("/").concat(despesasFixas.get(0).getDsAno())
                         .concat(" - " + NESTE_MES_SERA_QUITADO));
-                mensagemBuffer.append(extrato.getQtDespesas() + "/" + qtdeTotalDespParceladasMes);
-                mensagemBuffer.append(" Despesas Parceladas, Totalizando: " + extrato.getVlDespesas() + "R$");
+                mensagemBuffer.append(extrato.getQtDespesas()).append("/").append(qtdeTotalDespParceladasMes);
+                mensagemBuffer.append(" Despesas Parceladas, Totalizando: ").append(extrato.getVlDespesas()).append("R$");
             }
         }
 
@@ -416,7 +418,7 @@ public class DetalheDespesasServices {
             return null;
         }
 
-        var mensaisDAO = DespesasMensaisDAO.builder()
+        return DespesasMensaisDAO.builder()
                 .idDespesa(idDespesa)
                 .idDetalheDespesa(idDetalheDespesa)
                 .idFuncionario(idFuncionario)
@@ -424,8 +426,6 @@ public class DetalheDespesasServices {
                 .tpDebitoCartao(detalheDespesaMensal.getDespesaMensal().getTpDebitoCartao())
                 .tpAnotacao(ObjectUtils.isEmpty(detalheDespesaMensal.getDespesaMensal().getTpAnotacao()) ? "N" : detalheDespesaMensal.getDespesaMensal().getTpAnotacao())
                 .build();
-
-        return mensaisDAO;
     }
 
     private DespesasFixasMensaisDAO obterReferenciaMesProcessamento(Integer idDespesa, Integer idFuncionario) {

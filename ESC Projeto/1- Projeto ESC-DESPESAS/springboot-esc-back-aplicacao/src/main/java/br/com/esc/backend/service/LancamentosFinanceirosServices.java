@@ -276,11 +276,17 @@ public class LancamentosFinanceirosServices {
         return tituloDespesaResponse;
     }
 
+    public TituloDespesaResponse getTituloDespesaRelatorio(Integer idDespesa, Integer idFuncionario) {
+        var tituloList = repository.getNomeDespesaRelatorio(idDespesa, idFuncionario);
+
+        return TituloDespesaResponse.builder().
+                despesas(tituloList).
+                build();
+    }
+
     private BigDecimal obterPercentualUtilizacaoDespesaMes(BigDecimal saldoInicialMes, BigDecimal receita, BigDecimal despesa) {
         var iPercentualUtilizadoBase = calculaPorcentagem(receita, (saldoInicialMes.subtract(receita)), 2);
-        var iPercentualDespesaMesCalculado = calculaPorcentagem(saldoInicialMes, (despesa.subtract(saldoInicialMes)), 2).add(iPercentualUtilizadoBase);
-
-        return iPercentualDespesaMesCalculado;
+        return calculaPorcentagem(saldoInicialMes, (despesa.subtract(saldoInicialMes)), 2).add(iPercentualUtilizadoBase);
     }
 
     private Boolean isDespesaFixaExistente(DespesasFixasMensaisRequest request) {

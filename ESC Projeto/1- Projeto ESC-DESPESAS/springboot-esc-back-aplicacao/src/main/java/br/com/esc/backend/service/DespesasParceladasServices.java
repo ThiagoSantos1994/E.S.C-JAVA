@@ -62,7 +62,7 @@ public class DespesasParceladasServices {
         if (ObjectUtils.isNull(idOrdem) || idOrdem == -1) {
             /*Regra especifica para exclusao de todas as despesas parceladas da despesa com idOrdem = -1 ou Nulo*/
             for (DetalheDespesasMensaisDAO detalhe : repository.getDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario, "a.id_Ordem")) {
-                if (detalhe.getTpLinhaSeparacao().equalsIgnoreCase("N") && detalhe.getIdDespesaParcelada().intValue() > 0) {
+                if (detalhe.getTpLinhaSeparacao().equalsIgnoreCase("N") && detalhe.getIdDespesaParcelada() > 0) {
                     this.validaStatusDespesaParcelada(detalhe.getIdDespesa(), detalhe.getIdDetalheDespesa(), detalhe.getIdDespesaParcelada(), detalhe.getIdParcela(), detalhe.getIdFuncionario(), detalhe.getTpStatus(), true);
                 }
             }
@@ -77,7 +77,7 @@ public class DespesasParceladasServices {
                 .build();
 
         var detalhe = repository.getDetalheDespesaMensalPorFiltro(filtro);
-        if (!ObjectUtils.isEmpty(detalhe) && detalhe.getTpLinhaSeparacao().equalsIgnoreCase("N") && detalhe.getIdDespesaParcelada().intValue() > 0) {
+        if (!ObjectUtils.isEmpty(detalhe) && detalhe.getTpLinhaSeparacao().equalsIgnoreCase("N") && detalhe.getIdDespesaParcelada() > 0) {
             this.validaStatusDespesaParcelada(detalhe.getIdDespesa(), detalhe.getIdDetalheDespesa(), detalhe.getIdDespesaParcelada(), detalhe.getIdParcela(), detalhe.getIdFuncionario(), detalhe.getTpStatus(), true);
         }
     }
@@ -116,7 +116,7 @@ public class DespesasParceladasServices {
     }
 
     public ExplodirFluxoParcelasResponse gerarFluxoParcelas(Integer idDespesaParcelada, String valorParcela, Integer qtdeParcelas, String dataReferencia, Integer idFuncionario) throws ParseException {
-        Boolean bNovoProcessamento = true;
+        boolean bNovoProcessamento = true;
         List<ParcelasDAO> listParcelas = new ArrayList<>();
 
         //Valida se existe parcelas gravadas, caso sim, trata a logica como reprocessamento

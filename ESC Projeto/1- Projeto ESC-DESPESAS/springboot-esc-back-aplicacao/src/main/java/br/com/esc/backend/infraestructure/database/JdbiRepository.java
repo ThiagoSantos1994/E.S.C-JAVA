@@ -282,13 +282,18 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlQuery
-    @UseRowMapper(TituloDespesaRowMapper.class)
+    @UseRowMapper(TituloDespesaParceladaRowMapper.class)
     List<TituloDespesa> getNomeDespesasParceladas(Integer idFuncionario);
 
     @Override
     @SqlQuery
-    @UseRowMapper(TituloDespesaRowMapper.class)
+    @UseRowMapper(TituloDespesaParceladaRowMapper.class)
     List<TituloDespesa> getNomeDespesasParceladasParaImportacao(Integer idFuncionario);
+
+    @Override
+    @SqlQuery
+    @UseRowMapper(TituloDespesaRowMapper.class)
+    List<TituloDespesa> getNomeDespesaRelatorio(Integer idDespesa, Integer idFuncionario);
 
     @Override
     @SqlQuery
@@ -352,6 +357,10 @@ public interface JdbiRepository extends AplicacaoRepository {
     String getDiaSemana();
 
     @Override
+    @SqlQuery
+    List<String> getListaAnoReferencia();
+
+    @Override
     @SqlUpdate
     void insertDespesaFixaTemp(Integer idDespesaTemp, Integer dsMesTemp, Integer dsAnoTemp, Integer idFuncionario);
 
@@ -382,6 +391,10 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlUpdate
     void insertLembrete(@BindBean("lembrete") LembretesDAO lembretesDAO);
+
+    @Override
+    @SqlUpdate
+    void insertDataConfiguracoesLancamentosNovo(Integer idFuncionario);
 
     @Override
     @SqlUpdate
@@ -502,6 +515,10 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlUpdate
     void updateDetalheDespesasMensaisParcelaAdiada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, String dsObservacoes, String dsObservacoes2, String vlTotalParcelaAdiantada, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void updateDetalheDespesasMensaisSemRelatorio(Integer idDespesa, Integer idDespesaLinkRelatorio, Integer idFuncionario);
 
     @Override
     @SqlUpdate

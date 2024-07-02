@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 public class DetalheDespesasMensaisDAO {
     private Integer idDespesa;
     private Integer idDetalheDespesa;
+    private Integer idDetalheReferencia;
     private String dsTituloDespesa;
     private String dsDescricao;
     private Integer idOrdem;

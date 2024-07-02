@@ -68,14 +68,14 @@ public class AutenticacaoServices {
         var parametro = parseInt(getProperties().getProperty("prop.tempoLimiteSessao"));
         var result = repository.getHorarioLoginAuditoriaAcesso(idFuncionario);
 
-        log.info("Validando Sessao Usuario >> ParametroRef: {} - ResponseAuditoria: {}", parametro, result);
+        log.info("Validando Sessao Usuario >> ParametroRequest: {} - ResponseAuditoria: {}", parametro, result);
 
         if (result.getDataLogin().equalsIgnoreCase(formatarDataBR(DataAtual()))) {
             if (result.getTempoLogado().compareTo(parametro) >= 0) {
-                log.info("Validando Sessao Usuario >> Result FALSE por tempo excedido.");
+                log.info("Validando Sessao Usuario Response >> Sessao expirada por tempo excedido.");
                 return StringResponse.builder().isSessaoValida(FALSE).build();
             } else {
-                log.info("Validando Sessao Usuario >> Result TRUE - sessao valida.");
+                log.info("Validando Sessao Usuario Response >> Sessao validada com sucesso.");
                 return StringResponse.builder().isSessaoValida(TRUE).build();
             }
         }
@@ -86,12 +86,17 @@ public class AutenticacaoServices {
 
     private void validarViradaAutomatica(Integer idFuncionario) {
         log.info("Validando parametros de virada de mês...");
-        var configuracao = aplicacaoRepository.getConfiguracaoLancamentos(idFuncionario);
+        try {
+            var configuracao = aplicacaoRepository.getConfiguracaoLancamentos(idFuncionario);
 
-        //Muda a data de referencia somente no dia e mes programado
-        if ((parseInt(DiaAtual()) >= configuracao.getDataViradaMes()) && parseInt(MesAtual()) == configuracao.getMesReferencia()) {
-            var mesViradaConfiguracao = (parseInt(MesAtual()) + 1 == 13 ? 1 : parseInt(MesAtual()) + 1);
-            aplicacaoRepository.updateDataConfiguracoesLancamentos(idFuncionario, mesViradaConfiguracao);
+            //Muda a data de referencia somente no dia e mes programado
+            if (configuracao.getDataViradaMes().compareTo(0) != 0 && (parseInt(DiaAtual()) >= configuracao.getDataViradaMes()) && parseInt(MesAtual()) == configuracao.getMesReferencia()) {
+                var mesViradaConfiguracao = (parseInt(MesAtual()) + 1 == 13 ? 1 : parseInt(MesAtual()) + 1);
+                aplicacaoRepository.updateDataConfiguracoesLancamentos(idFuncionario, mesViradaConfiguracao);
+            }
+        }  catch (Exception ex) {
+            log.info("Funcionario sem parametrizacao de configuracoes lancamentos, incluindo novo registro na base.");
+            aplicacaoRepository.insertDataConfiguracoesLancamentosNovo(idFuncionario);
         }
     }
 

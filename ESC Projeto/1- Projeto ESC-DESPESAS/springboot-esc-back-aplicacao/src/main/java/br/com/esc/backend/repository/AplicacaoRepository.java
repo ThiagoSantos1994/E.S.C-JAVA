@@ -125,6 +125,8 @@ public interface AplicacaoRepository {
 
     List<TituloDespesa> getNomeDespesasParceladasParaImportacao(Integer idFuncionario);
 
+    List<TituloDespesa> getNomeDespesaRelatorio(Integer idDespesa, Integer idFuncionario);
+
     List<String> getTituloDespesaEmprestimoAReceber(Integer idFuncionario);
 
     String getTituloDespesaEmprestimoPorID(Integer idEmprestimo, Integer idFuncionario);
@@ -163,6 +165,8 @@ public interface AplicacaoRepository {
 
     String getDiaSemana();
 
+    List<String> getListaAnoReferencia();
+
     void insertDespesaFixaTemp(Integer idDespesaTemp, Integer dsMesTemp, Integer dsAnoTemp, Integer idFuncionario);
 
     void insertDespesasFixasMensais(DespesasFixasMensaisRequest request);
@@ -178,6 +182,8 @@ public interface AplicacaoRepository {
     void insertDespesaParcelada(DespesaParceladaDAO despesaParceladaDAO);
 
     void insertLembrete(LembretesDAO lembretesDAO);
+
+    void insertDataConfiguracoesLancamentosNovo(Integer idFuncionario);
 
     void updateLembrete(LembretesDAO lembretesDAO);
 
@@ -246,6 +252,8 @@ public interface AplicacaoRepository {
     void updateStatusBaixaLinhaSeparacao(Integer idDespesa, Integer idFuncionario);
 
     void updateDetalheDespesasMensaisParcelaAdiada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, String dsObservacoes, String dsObservacoes2, String vlTotalParcelaAdiantada, Integer idFuncionario);
+
+    void updateDetalheDespesasMensaisSemRelatorio(Integer idDespesa, Integer idDespesaLinkRelatorio, Integer idFuncionario);
 
     void updateDetalheDespesasMensaisDesfazerAdiantamento(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, String vlTotal, Integer idFuncionario);
 
