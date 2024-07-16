@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static br.com.esc.backend.utils.GlobalUtils.getAnoAtual;
@@ -17,6 +18,7 @@ import static br.com.esc.backend.utils.GlobalUtils.getMesAtual;
 import static br.com.esc.backend.utils.MotorCalculoUtils.*;
 import static br.com.esc.backend.utils.ObjectUtils.*;
 import static br.com.esc.backend.utils.VariaveisGlobais.*;
+import static java.util.Arrays.asList;
 
 @Service
 @RequiredArgsConstructor
@@ -103,7 +105,7 @@ public class DetalheDespesasServices {
             detalheDAO.setIdOrdem(idOrdemInsert);
 
             log.info("Inserindo DetalheDespesaMensal: request = {}", detalheDAO);
-            repository.insertDetalheDespesasMensais(detalheDAO);
+            repository.insertDetalheDespesasMensais(asList(detalheDAO));
 
             if (bIsParcelaAdiada) {
                 var valorParcelaAdiantada = repository.getMaxValorParcela(detalheDAO.getIdDespesaParcelada(), detalheDAO.getIdFuncionario());
@@ -139,11 +141,8 @@ public class DetalheDespesasServices {
         log.info("Excluindo todos os registros para gravacao...");
         repository.deleteDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario);
 
-        //Grava novamente com os dados ordenados
-        for (DetalheDespesasMensaisDAO detalheDespesas : listDespesasOrdenadas) {
-            log.info("Inserindo dados ordenados - DetalheDespesaMensal: request = {}", detalheDespesas);
-            repository.insertDetalheDespesasMensais(detalheDespesas);
-        }
+        log.info("Incluindo todos os registros com a nova ordenacao");
+        repository.insertDetalheDespesasMensais(listDespesasOrdenadas);
     }
 
     public void gravarDespesasMensais(DespesasMensaisDAO mensaisDAO) {

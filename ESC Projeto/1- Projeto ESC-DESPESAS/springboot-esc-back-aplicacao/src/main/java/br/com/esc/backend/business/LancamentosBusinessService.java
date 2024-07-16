@@ -117,10 +117,13 @@ public class LancamentosBusinessService {
         log.info("Excluindo todos detalhes despesas mensais - request: idDespesa= {} - idFuncionario= {}", idDespesa, idFuncionario);
         repository.deleteTodosDetalhesDespesasMensais(idDespesa, idFuncionario);
 
-        log.info("Atualizando status das parcelas para Pendente - request: idDespesa= {} - idFuncionario= {}", idDespesa, idFuncionario);
+        log.info("Excluindo todas observacoes detalhes despesas mensais - request: idDespesa= {} - idFuncionario= {}", idDespesa, idFuncionario);
+        repository.deleteTodasObservacaoDetalheDespesaMensal(idDespesa, null, idFuncionario);
+
+        log.info("Atualizando status das parcelas comuns e amortizadas para Pendente - request: idDespesa= {} - idFuncionario= {}", idDespesa, idFuncionario);
         repository.updateParcelaStatusPendenteDespesasExcluidas(idDespesa, idFuncionario);
 
-        log.info("Atualizando status das despesas parcelas para Em Aberto - request: idFuncionario= {}", idFuncionario);
+        log.info("Atualizando status das despesas parceladas para Em Aberto - request: idFuncionario= {}", idFuncionario);
         this.atualizaStatusDespesasParceladasEmAberto(idFuncionario);
     }
 

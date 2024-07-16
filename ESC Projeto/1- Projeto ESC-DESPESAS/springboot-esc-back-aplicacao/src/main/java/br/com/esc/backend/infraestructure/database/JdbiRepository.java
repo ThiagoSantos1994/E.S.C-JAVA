@@ -6,9 +6,7 @@ import br.com.esc.backend.repository.AplicacaoRepository;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.customizer.Define;
 import org.jdbi.v3.sqlobject.locator.UseClasspathSqlLocator;
-import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.jdbi.v3.sqlobject.statement.UseRowMapper;
+import org.jdbi.v3.sqlobject.statement.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -361,6 +359,10 @@ public interface JdbiRepository extends AplicacaoRepository {
     List<String> getListaAnoReferencia();
 
     @Override
+    @SqlQuery
+    List<Integer> getIdDespesaProcessada(Integer idDespesa, Integer idFuncionario);
+
+    @Override
     @SqlUpdate
     void insertDespesaFixaTemp(Integer idDespesaTemp, Integer dsMesTemp, Integer dsAnoTemp, Integer idFuncionario);
 
@@ -373,8 +375,9 @@ public interface JdbiRepository extends AplicacaoRepository {
     void insertDespesasMensais(@BindBean("despesa") DespesasMensaisDAO despesasMensaisDAO);
 
     @Override
-    @SqlUpdate
-    void insertDetalheDespesasMensais(@BindBean("detalhe") DetalheDespesasMensaisDAO detalheDAO);
+    @SqlBatch
+    @BatchChunkSize(100)
+    void insertDetalheDespesasMensais(@BindBean("detalhe") List<DetalheDespesasMensaisDAO> detalheDAO);
 
     @Override
     @SqlUpdate

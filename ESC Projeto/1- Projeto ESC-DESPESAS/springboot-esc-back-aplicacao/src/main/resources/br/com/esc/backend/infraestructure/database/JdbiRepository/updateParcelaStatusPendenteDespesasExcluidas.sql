@@ -3,6 +3,7 @@ UPDATE
 SET
     tp_Baixado = 'N',
     tp_Quitado = 'N',
+    tp_ParcelaAmortizada = 'N',
     ds_Observacoes = '',
     id_DetalheDespesa = 0,
     id_Despesa = 0

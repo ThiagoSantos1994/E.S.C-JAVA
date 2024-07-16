@@ -17,6 +17,7 @@ import static br.com.esc.backend.utils.GlobalUtils.retornaMesAnterior;
 import static br.com.esc.backend.utils.ObjectUtils.*;
 import static br.com.esc.backend.utils.VariaveisGlobais.*;
 import static java.lang.Integer.parseInt;
+import static java.util.Arrays.asList;
 
 @Service
 @RequiredArgsConstructor
@@ -76,7 +77,7 @@ public class ImportarLancamentosServices {
                 }
             } else {
                 log.info("Inserindo detalhe despesas mensais >>>  {}", detalheDespesa);
-                repository.insertDetalheDespesasMensais(detalheDespesa);
+                repository.insertDetalheDespesasMensais(asList(detalheDespesa));
 
                 if (bDespesaComParcelaAdiantada == true) {
                     log.info("Despesa mensal com status adiantamento de parcela, realizando tratamento para gravar. >>>  {}", detalheDespesa);
@@ -84,7 +85,6 @@ public class ImportarLancamentosServices {
                     /*Altera a flag de ParcelaAdiada no detalhe das despesas mensais e baixa o pagamento e marca como despesa de anotacao*/
                     var logProcessamento = "Operacao realizada em: " + DataHoraAtual() + " - Usuario: ** " + repository.getUsuarioLogado(idFuncionario);
                     repository.updateDetalheDespesasMensaisParcelaAdiada(idDespesa, idDetalheDespesa, detalheDespesa.getIdDespesaParcelada(), "Despesa adiantada no fluxo de adiantamento de parcelas.", logProcessamento, detalheDespesa.getVlTotal(), idFuncionario);
-                    continue;
                 }
             }
         }
@@ -261,38 +261,40 @@ public class ImportarLancamentosServices {
             throw new ErroNegocioException("Despesa parcelada não existente na base de dados, não será possivel realizar a importação.");
         }
 
-        var filtro = DetalheDespesasMensaisDAO.builder()
-                .idDespesa(idDespesa)
-                .idDetalheDespesa(idDetalheDespesa)
-                .idDespesaParcelada(idDespesaParcelada)
-                .idFuncionario(idFuncionario)
-                .build();
-
-        var isDespesaJaImportada = repository.getDetalheDespesaMensalPorFiltro(filtro);
-
-        if (isNull(isDespesaJaImportada)) {
-            var request = DetalheDespesasMensaisDAO.builder()
-                    .idDespesa(idDespesa)
+        for (Integer idDespesaRef : repository.getIdDespesaProcessada(idDespesa, idFuncionario)) {
+            var filtro = DetalheDespesasMensaisDAO.builder()
+                    .idDespesa(idDespesaRef)
                     .idDetalheDespesa(idDetalheDespesa)
-                    .tpStatus(PENDENTE)
-                    .idOrdem(null)
+                    .idDespesaParcelada(idDespesaParcelada)
                     .idFuncionario(idFuncionario)
-                    .idDespesaParcelada(despesaParcelada.getIdDespesaParcelada())
-                    .idDespesaLinkRelatorio(0)
-                    .tpAnotacao("N")
-                    .tpReprocessar("N")
-                    .tpMeta("N")
-                    .tpRelatorio("N")
-                    .tpParcelaAdiada("N")
-                    .tpParcelaAmortizada("N")
-                    .tpLinhaSeparacao("N")
                     .build();
 
-            detalheDespesasServices.gravarDetalheDespesasMensais(request, false);
+            var isDespesaJaImportada = repository.getDetalheDespesaMensalPorFiltro(filtro);
 
-            log.info("Importacao realizada com sucesso.");
-        } else {
-            log.info("Despesa Parcelada ja importada na despesa anteriormente, importação não concluida!");
+            if (isNull(isDespesaJaImportada)) {
+                var request = DetalheDespesasMensaisDAO.builder()
+                        .idDespesa(idDespesaRef)
+                        .idDetalheDespesa(idDetalheDespesa)
+                        .tpStatus(PENDENTE)
+                        .idOrdem(null)
+                        .idFuncionario(idFuncionario)
+                        .idDespesaParcelada(despesaParcelada.getIdDespesaParcelada())
+                        .idDespesaLinkRelatorio(0)
+                        .tpAnotacao("N")
+                        .tpReprocessar("N")
+                        .tpMeta("N")
+                        .tpRelatorio("N")
+                        .tpParcelaAdiada("N")
+                        .tpParcelaAmortizada("N")
+                        .tpLinhaSeparacao("N")
+                        .build();
+
+                detalheDespesasServices.gravarDetalheDespesasMensais(request, false);
+
+                log.info("Importacao realizada com sucesso >> idDespesa: {} - idDetalheDespesa: {}", idDespesaRef, idDetalheDespesa);
+            } else {
+                log.info("Despesa Parcelada ja importada na despesa anteriormente, importação não concluida!  >> idDespesa: {} - idDetalheDespesa: {}", idDespesaRef, idDetalheDespesa);
+            }
         }
     }
 
@@ -302,7 +304,7 @@ public class ImportarLancamentosServices {
             throw new ErroNegocioException("Despesa parcelada não existente na base de dados, não será possivel gravar a parcela amortizada.");
         }
 
-        for (ParcelasDAO parcela: parcelas) {
+        for (ParcelasDAO parcela : parcelas) {
             var idParcela = parcela.getIdParcela();
             var idDespesaParcelada = parcela.getIdDespesaParcelada();
 

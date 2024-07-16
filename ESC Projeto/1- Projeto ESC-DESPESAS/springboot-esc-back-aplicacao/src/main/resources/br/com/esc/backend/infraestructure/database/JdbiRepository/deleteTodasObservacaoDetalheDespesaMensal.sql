@@ -2,5 +2,5 @@ DELETE FROM
     tbd_ObservacaoDetalheDespesaMensal
 WHERE
    id_Despesa = :idDespesa
-   AND id_DetalheDespesa = :idDetalheDespesa
+   AND (:idDetalheDespesa IS NULL OR id_DetalheDespesa = :idDetalheDespesa)
    AND id_Funcionario = :idFuncionario

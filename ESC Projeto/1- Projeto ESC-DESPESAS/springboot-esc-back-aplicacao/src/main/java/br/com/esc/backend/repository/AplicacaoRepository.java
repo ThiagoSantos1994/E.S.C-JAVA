@@ -167,13 +167,15 @@ public interface AplicacaoRepository {
 
     List<String> getListaAnoReferencia();
 
+    List<Integer> getIdDespesaProcessada(Integer idDespesa, Integer idFuncionario);
+
     void insertDespesaFixaTemp(Integer idDespesaTemp, Integer dsMesTemp, Integer dsAnoTemp, Integer idFuncionario);
 
     void insertDespesasFixasMensais(DespesasFixasMensaisRequest request);
 
     void insertDespesasMensais(DespesasMensaisDAO despesasMensaisDAO);
 
-    void insertDetalheDespesasMensais(DetalheDespesasMensaisDAO detalheDAO);
+    void insertDetalheDespesasMensais(List<DetalheDespesasMensaisDAO> detalheDAO);
 
     void insertObservacaoDetalheDespesaMensal(ObservacoesDetalheDespesaRequest request);
 
