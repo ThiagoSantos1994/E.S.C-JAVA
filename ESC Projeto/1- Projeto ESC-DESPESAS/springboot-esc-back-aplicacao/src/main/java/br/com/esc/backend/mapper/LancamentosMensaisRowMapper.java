@@ -31,6 +31,7 @@ public class LancamentosMensaisRowMapper implements RowMapper<LancamentosMensais
                 .tpRelatorio(rs.getString("tp_Relatorio"))
                 .tpReferenciaSaldoMesAnterior(rs.getString("tp_ReferenciaSaldoMesAnterior"))
                 .tpDespesaCompartilhada(rs.getString("tp_DespesaCompartilhada"))
+                .tpDebitoCartao(rs.getString("tp_DebitoCartao"))
                 .build();
     }
 }

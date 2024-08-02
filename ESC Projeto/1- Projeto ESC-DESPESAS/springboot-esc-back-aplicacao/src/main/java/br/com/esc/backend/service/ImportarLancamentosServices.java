@@ -178,7 +178,10 @@ public class ImportarLancamentosServices {
                 if (isDetalheComParcelaAmortizada.equalsIgnoreCase("S")) {
                     var parcelaSemAmortizacao = repository.getParcelaDisponivelSemAmortizacao(idDespesaParcelada, idFuncionario);
 
-                    if (parcelaSemAmortizacao.getIdParcela() >= parcela.getIdParcela()) {
+                    if (isNull(parcelaSemAmortizacao)) {
+                        // Ocorre quando é uma despesa com parcelas amortizadas onde a despesa foi quitada totalmente
+                        continue;
+                    } else if (parcelaSemAmortizacao.getIdParcela() >= parcela.getIdParcela()) {
                         // Somente para parcelas amortizadas, exclui a despesa parcelada para gravar novamente
                         repository.deleteDespesaParceladaImportada(idDespesa, idDetalheDespesa, idDespesaParcelada, idFuncionario);
                         parcela = parcelaSemAmortizacao;

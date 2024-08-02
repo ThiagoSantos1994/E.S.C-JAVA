@@ -5,7 +5,8 @@ SET
     vl_Total = :fixas.vlTotal,
     tp_Status = :fixas.tpStatus,
     tpFixasObrigatorias = :fixas.tpFixasObrigatorias,
-    tp_DespesaDebitoCartao = :fixas.tpDespesaDebitoCartao
+    tp_DespesaDebitoCartao = :fixas.tpDespesaDebitoCartao,
+    id_DetalheDespesaDebitoCartao = :fixas.idDetalheDespesaDebitoCartao
 WHERE
    id_Despesa = :fixas.idDespesa
    AND id_Ordem = :fixas.idOrdem

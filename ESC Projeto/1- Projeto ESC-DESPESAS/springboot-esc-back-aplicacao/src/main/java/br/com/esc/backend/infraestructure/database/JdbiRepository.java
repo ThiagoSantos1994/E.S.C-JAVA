@@ -621,6 +621,10 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlUpdate
+    void deleteDespesasFixasMensaisTipoDebito(Integer idDespesa, Integer idDetalheDespesaDebitoCartao, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
     void deleteDespesasMensaisPorFiltro(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario);
 
     @Override

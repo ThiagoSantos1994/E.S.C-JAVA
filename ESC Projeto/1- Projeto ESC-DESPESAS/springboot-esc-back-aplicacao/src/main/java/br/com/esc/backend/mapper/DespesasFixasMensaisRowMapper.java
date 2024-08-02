@@ -28,6 +28,7 @@ public class DespesasFixasMensaisRowMapper implements RowMapper<DespesasFixasMen
                 .idOrdem(rs.getInt("id_Ordem"))
                 .tpFixasObrigatorias(rs.getString("tpFixasObrigatorias"))
                 .tpDespesaDebitoCartao(rs.getString("tp_DespesaDebitoCartao"))
+                .idDetalheDespesaDebitoCartao(rs.getInt("id_DetalheDespesaDebitoCartao"))
                 .build();
     }
 }

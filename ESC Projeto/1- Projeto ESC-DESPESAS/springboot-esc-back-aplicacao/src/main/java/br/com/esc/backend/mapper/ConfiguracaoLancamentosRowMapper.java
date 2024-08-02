@@ -20,6 +20,7 @@ public class ConfiguracaoLancamentosRowMapper implements RowMapper<ConfiguracaoL
                 .mesReferencia(rs.getInt("ds_MesReferencia"))
                 .bViradaAutomatica((rs.getString("tp_ViradaAutomatica").equalsIgnoreCase("S") ? valueOf(true) : valueOf(false)))
                 .idFuncionario(rs.getInt("id_Funcionario"))
+                .qtdeAcessos(rs.getInt("qt_Acessos"))
                 .build();
     }
 }

@@ -17,5 +17,6 @@ public class ConfiguracaoLancamentosResponse {
     private boolean bViradaAutomatica;
     private Integer idFuncionario;
     private Integer qtdeLembretes;
+    private Integer qtdeAcessos;
     private List<String> anosReferenciaFiltro;
 }

@@ -8,7 +8,8 @@ SELECT
     id_Funcionario,
     id_Ordem,
     tpFixasObrigatorias,
-    tp_DespesaDebitoCartao
+    tp_DespesaDebitoCartao,
+    id_DetalheDespesaDebitoCartao
 FROM
     tbd_DespesasFixasMensais
 WHERE

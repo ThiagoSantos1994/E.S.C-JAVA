@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static br.com.esc.backend.utils.GlobalUtils.getAnoAtual;
@@ -227,11 +226,12 @@ public class DetalheDespesasServices {
 
             var despesaFixa = DespesasFixasMensaisRequest.builder()
                     .idDespesa(referencia.getIdDespesa())
+                    .idDetalheDespesaDebitoCartao(mensaisDAO.getIdDetalheDespesa())
                     .dsDescricao(TIPO_RESERVA_AUTOMATICA_DEBITO_CARTAO)
                     .vlTotal(mensaisDAO.getTpAnotacao().equalsIgnoreCase("S") ? "0,00" :
                             convertDecimalToString(repository.getCalculoValorDespesaTipoCartaoDebito(referencia.getIdDespesa(), mensaisDAO.getIdDetalheDespesa(), referencia.getIdFuncionario())))
                     .tpStatus("+")
-                    .tpFixasObrigatorias("N")
+                    .tpFixasObrigatorias("S")
                     .dsMes(referencia.getDsMes())
                     .dsAno(referencia.getDsAno())
                     .idFuncionario(referencia.getIdFuncionario())
@@ -246,6 +246,8 @@ public class DetalheDespesasServices {
             } else {
                 repository.updateDespesasFixasMensais(despesaFixa);
             }
+        } else if (isNotNull(despesaTipoDebtCart)) {
+            repository.deleteDespesasFixasMensaisTipoDebito(mensaisDAO.getIdDespesa(), mensaisDAO.getIdDetalheDespesa(), mensaisDAO.getIdFuncionario());
         }
     }
 

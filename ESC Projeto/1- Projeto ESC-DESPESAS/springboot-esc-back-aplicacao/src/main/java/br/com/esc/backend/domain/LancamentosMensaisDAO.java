@@ -34,6 +34,7 @@ public class LancamentosMensaisDAO {
     private String tpDebitoAutomatico;
     private String tpLinhaSeparacao;
     private String tpDespesaReversa;
+    private String tpDebitoCartao;
     private String tpPoupancaNegativa;
     private String tpRelatorio;
     private String tpReferenciaSaldoMesAnterior;

@@ -23,4 +23,5 @@ public class DespesasFixasMensaisDAO {
     private Integer idOrdem;
     private String tpFixasObrigatorias;
     private String tpDespesaDebitoCartao;
+    private Integer idDetalheDespesaDebitoCartao;
 }

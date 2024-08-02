@@ -9,7 +9,8 @@ INSERT INTO tbd_DespesasFixasMensais
     id_Funcionario,
     id_Ordem,
     tpFixasObrigatorias,
-    tp_DespesaDebitoCartao
+    tp_DespesaDebitoCartao,
+    id_DetalheDespesaDebitoCartao
     )
 VALUES (
     :fixas.idDespesa,
@@ -21,5 +22,6 @@ VALUES (
     :fixas.idFuncionario,
     :fixas.idOrdem,
     :fixas.tpFixasObrigatorias,
-    :fixas.tpDespesaDebitoCartao
+    :fixas.tpDespesaDebitoCartao,
+    :fixas.idDetalheDespesaDebitoCartao
 )

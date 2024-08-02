@@ -297,6 +297,8 @@ public interface AplicacaoRepository {
 
     void deleteDespesasFixasMensaisPorFiltro(Integer idDespesa, Integer idOrdem, Integer idFuncionario);
 
+    void deleteDespesasFixasMensaisTipoDebito(Integer idDespesa, Integer idDetalheDespesaDebitoCartao, Integer idFuncionario);
+
     void deleteDespesasMensaisPorFiltro(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario);
 
     void deleteDetalheDespesasMensaisPorFiltro(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario);

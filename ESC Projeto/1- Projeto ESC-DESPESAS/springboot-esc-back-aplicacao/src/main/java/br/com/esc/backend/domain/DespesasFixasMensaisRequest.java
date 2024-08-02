@@ -23,4 +23,5 @@ public class DespesasFixasMensaisRequest {
     private Integer idFuncionario;
     private String tpFixasObrigatorias;
     private String tpDespesaDebitoCartao;
+    private Integer idDetalheDespesaDebitoCartao;
 }
