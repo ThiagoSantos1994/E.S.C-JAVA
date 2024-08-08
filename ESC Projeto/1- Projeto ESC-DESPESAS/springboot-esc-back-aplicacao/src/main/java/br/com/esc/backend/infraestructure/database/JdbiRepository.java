@@ -31,6 +31,11 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlQuery
+    @UseRowMapper(CategoriaDespesaRowMapper.class)
+    List<CategoriaDespesasDAO> getSubTotalCategoriaDespesa(Integer idDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
     @UseRowMapper(LancamentosMensaisRowMapper.class)
     List<LancamentosMensaisDAO> getLancamentosMensais(Integer idDespesa, Integer idFuncionario);
 
@@ -67,6 +72,10 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlQuery
     BigDecimal getCalculoReceitaNegativaMES(Integer idDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
+    BigDecimal getCalculoDespesaTipoPoupanca(Integer idDespesa, Integer idFuncionario);
 
     @Override
     @SqlQuery

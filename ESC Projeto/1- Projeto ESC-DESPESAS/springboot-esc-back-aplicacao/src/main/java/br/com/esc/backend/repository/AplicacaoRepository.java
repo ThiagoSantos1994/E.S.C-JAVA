@@ -15,6 +15,8 @@ public interface AplicacaoRepository {
 
     DespesasFixasMensaisDAO getDespesaFixaMensalPorFiltro(Integer idDespesa, Integer idOrdem, Integer idFuncionario);
 
+    List<CategoriaDespesasDAO> getSubTotalCategoriaDespesa(Integer idDespesa, Integer idFuncionario);
+
     List<LancamentosMensaisDAO> getLancamentosMensais(Integer idDespesa, Integer idFuncionario);
 
     List<DespesasMensaisDAO> getDespesasMensais(Integer idDespesa, Integer idFuncionario, Integer idDetalheDespesa);
@@ -32,6 +34,8 @@ public interface AplicacaoRepository {
     List<BigDecimal> getCalculoReceitaPositivaMES(Integer idDespesa, Integer idFuncionario);
 
     BigDecimal getCalculoReceitaNegativaMES(Integer idDespesa, Integer idFuncionario);
+
+    BigDecimal getCalculoDespesaTipoPoupanca(Integer idDespesa, Integer idFuncionario);
 
     BigDecimal getCalculoReceitaPendentePgtoMES(Integer idDespesa, Integer idFuncionario);
 

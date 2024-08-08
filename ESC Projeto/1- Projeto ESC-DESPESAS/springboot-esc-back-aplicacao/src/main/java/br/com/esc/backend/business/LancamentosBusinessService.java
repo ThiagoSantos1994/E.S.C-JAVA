@@ -395,6 +395,11 @@ public class LancamentosBusinessService {
         return despesasParceladasServices.obterDespesaParceladaPorFiltros(null, nomeDespesaParcelada, idFuncionario);
     }
 
+    public List<CategoriaDespesasDAO> obterSubTotalCategoriaDespesa (Integer idDespesa, Integer idFuncionario) {
+        log.info("Consultando subTotal categorias despesa >>> idDespesa = {} - idFuncionario= {}", idDespesa, idFuncionario);
+        return detalheDespesasServices.getSubTotalCategoriaDespesa(idDespesa, idFuncionario);
+    }
+
     public DetalheDespesasParceladasResponse obterDespesaParceladaPorID(Integer idDespesaParcelada, Integer idFuncionario) {
         log.info("Consultando detalhe despesa parcelada por filtros >>> idDespesaParcelada= {} - idFuncionario= {}", idDespesaParcelada, idFuncionario);
         return despesasParceladasServices.obterDespesaParceladaPorFiltros(idDespesaParcelada, null, idFuncionario);

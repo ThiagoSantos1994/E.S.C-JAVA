@@ -33,4 +33,5 @@ public class DetalheDespesasMensaisRequest {
     private String tpParcelaAdiada;
     private String tpParcelaAmortizada;
     private String tpMeta;
+    private String dsObservacoesEditorValores;
 }

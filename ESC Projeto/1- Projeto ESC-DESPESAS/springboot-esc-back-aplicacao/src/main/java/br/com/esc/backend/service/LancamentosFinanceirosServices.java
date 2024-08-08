@@ -44,8 +44,10 @@ public class LancamentosFinanceirosServices {
         var saldoInicialMes = repository.getCalculoSaldoInicialMES(idDespesa, idFuncionario);
         var receita = calcularReceitaPositivaMes(repository.getCalculoReceitaPositivaMES(idDespesa, idFuncionario));
         var despesa = repository.getCalculoReceitaNegativaMES(idDespesa, idFuncionario);
+        var despesaPoupancaPositiva = repository.getCalculoDespesaTipoPoupanca(idDespesa, idFuncionario);
         var pendente = repository.getCalculoReceitaPendentePgtoMES(idDespesa, idFuncionario);
-        var saldoDisponivelMes = receita.subtract(despesa);
+        // subtrai do saldo disponivel (só para exibição) a soma da despesa tipo poupanca positiva enquanto estiver pendente de pagamento - 07/08/2024
+        var saldoDisponivelMes = receita.subtract(despesa).subtract(despesaPoupancaPositiva);
 
         dto.setIdDespesa(idDespesa);
         dto.setDsMesReferencia(dsMes);

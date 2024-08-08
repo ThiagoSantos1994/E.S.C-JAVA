@@ -26,6 +26,7 @@ public class DetalheDespesasServices {
 
     private final AplicacaoRepository repository;
     private final DespesasParceladasServices despesasParceladasServices;
+    private StringBuilder observacoes;
 
     public DetalheDespesasMensaisDTO obterDetalheDespesaMensal(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem) {
         var despesaMensal = repository.getDespesasMensais(idDespesa, idFuncionario, idDetalheDespesa);
@@ -113,6 +114,25 @@ public class DetalheDespesasServices {
 
             this.ordenarRegistrosAtualizacao(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdFuncionario(), "prazo");
         }
+
+        //Valida se existem observacoes inseridas pelo editor de valores, caso sim, concatena com as observações existentes na base.
+        if (!isEmpty(detalheDAO.getDsObservacoesEditorValores())) {
+            var observacoesBase = this.getObservacoesDetalheDespesa(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdOrdem(), detalheDAO.getIdFuncionario()).getObservacoes();
+
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append((isEmpty(observacoesBase) ? "" : observacoesBase));
+            stringBuilder.append(detalheDAO.getDsObservacoesEditorValores().replace("\\n", "\n"));
+
+            var request = ObservacoesDetalheDespesaRequest.builder()
+                    .idDespesa(detalheDAO.getIdDespesa())
+                    .idDetalheDespesa(detalheDAO.getIdDetalheDespesa())
+                    .idFuncionario(detalheDAO.getIdFuncionario())
+                    .idOrdem(detalheDAO.getIdOrdem())
+                    .dsObservacoes(stringBuilder.toString())
+                    .build();
+
+            this.gravarObservacoesDetalheDespesa(request);
+        }
     }
 
     public void ordenarRegistrosAtualizacao(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem) {
@@ -142,6 +162,10 @@ public class DetalheDespesasServices {
 
         log.info("Incluindo todos os registros com a nova ordenacao");
         repository.insertDetalheDespesasMensais(listDespesasOrdenadas);
+    }
+
+    public List<CategoriaDespesasDAO> getSubTotalCategoriaDespesa(Integer idDespesa, Integer idFuncionario) {
+        return repository.getSubTotalCategoriaDespesa(idDespesa, idFuncionario);
     }
 
     public void gravarDespesasMensais(DespesasMensaisDAO mensaisDAO) {

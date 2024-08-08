@@ -35,4 +35,5 @@ public class DetalheDespesasMensaisDAO {
     private String tpLinhaSeparacao;
     private String tpParcelaAdiada;
     private String tpParcelaAmortizada;
+    private String dsObservacoesEditorValores;
 }
