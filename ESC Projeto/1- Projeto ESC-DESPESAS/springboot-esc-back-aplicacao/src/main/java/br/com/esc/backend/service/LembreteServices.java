@@ -3,7 +3,6 @@ package br.com.esc.backend.service;
 import br.com.esc.backend.domain.LembretesDAO;
 import br.com.esc.backend.domain.TituloLembretesDAO;
 import br.com.esc.backend.repository.AplicacaoRepository;
-import br.com.esc.backend.utils.DataUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
@@ -15,6 +14,7 @@ import java.util.List;
 
 import static br.com.esc.backend.utils.DataUtils.*;
 import static br.com.esc.backend.utils.ObjectUtils.isNull;
+import static br.com.esc.backend.utils.VariaveisGlobais.*;
 import static java.lang.String.valueOf;
 
 @Service
@@ -72,11 +72,11 @@ public class LembreteServices {
     private String validarNovaDataBaixa(TituloLembretesDAO lembrete, String tipoBaixa) throws ParseException {
         var dataLembrete = aplicacaoRepository.getLembreteDetalhe(lembrete.getIdLembrete(), lembrete.getIdFuncionario()).getDataInicial();
 
-        if (tipoBaixa.equals("semana")) {
+        if (tipoBaixa.equals(SEMANA)) {
             return retornaDataPersonalizadaEmDias(dataLembrete, 7);
-        } else if (tipoBaixa.equals("mes")) {
+        } else if (tipoBaixa.equals(MES)) {
             return formatarDataEUA(retornaDataPersonalizada(formatarDataBR(dataLembrete), 1));
-        } else if (tipoBaixa.equals("ano")) {
+        } else if (tipoBaixa.equals(ANO)) {
             return formatarDataEUA(retornaDataPersonalizada(formatarDataBR(dataLembrete), 12));
         } else {
             //Quando for baixa, retorna null
@@ -134,19 +134,19 @@ public class LembreteServices {
         var diaSemana = aplicacaoRepository.getDiaSemana();
 
         switch (diaSemana) {
-            case "SEG":
+            case SEGUNDA:
                 return "tp_Segunda = 'S'";
-            case "TER":
+            case TERCA:
                 return "tp_Terca = 'S'";
-            case "QUA":
+            case QUARTA:
                 return "tp_Quarta = 'S'";
-            case "QUI":
+            case QUINTA:
                 return "tp_Quinta = 'S'";
-            case "SEX":
+            case SEXTA:
                 return "tp_Sexta = 'S'";
-            case "SAB":
+            case SABADO:
                 return "tp_Sabado = 'S'";
-            case "DOM":
+            case DOMINGO:
                 return "tp_Domingo = 'S'";
             default:
                 return null;

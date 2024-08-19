@@ -26,7 +26,6 @@ public class DetalheDespesasServices {
 
     private final AplicacaoRepository repository;
     private final DespesasParceladasServices despesasParceladasServices;
-    private StringBuilder observacoes;
 
     public DetalheDespesasMensaisDTO obterDetalheDespesaMensal(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem) {
         var despesaMensal = repository.getDespesasMensais(idDespesa, idFuncionario, idDetalheDespesa);
@@ -115,12 +114,17 @@ public class DetalheDespesasServices {
             this.ordenarRegistrosAtualizacao(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdFuncionario(), "prazo");
         }
 
+        // Grava o log somente das despesas alteradas com status PENDENTE
+        if (detalheDAO.getTpStatus().equalsIgnoreCase(PENDENTE)) {
+            repository.insertDetalheDespesasMensaisLogs(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdOrdem(), detalheDAO.getIdFuncionario(), detalheDAO.getVlTotal());
+        }
+
         //Valida se existem observacoes inseridas pelo editor de valores, caso sim, concatena com as observações existentes na base.
         if (!isEmpty(detalheDAO.getDsObservacoesEditorValores())) {
-            var observacoesBase = this.getObservacoesDetalheDespesa(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdOrdem(), detalheDAO.getIdFuncionario()).getObservacoes();
+            var observacoesDAO = this.getObservacoesDetalheDespesa(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdOrdem(), detalheDAO.getIdFuncionario()).getObservacoes();
 
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append((isEmpty(observacoesBase) ? "" : observacoesBase));
+            stringBuilder.append((isEmpty(observacoesDAO) ? "" : observacoesDAO));
             stringBuilder.append(detalheDAO.getDsObservacoesEditorValores().replace("\\n", "\n"));
 
             var request = ObservacoesDetalheDespesaRequest.builder()
@@ -145,14 +149,20 @@ public class DetalheDespesasServices {
         }
     }
 
-    public void ordenarListaDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem) throws Exception {
+    public void ordenarListaDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem) {
         Integer iOrdemNova = 1;
         List<DetalheDespesasMensaisDAO> listDespesasOrdenadas = new ArrayList<>();
+
+        log.info("Excluindo todos os logs anteriores para nova gravacao...");
+        repository.deleteDetalheDespesasMensaisLogs(idDespesa, idDetalheDespesa, idFuncionario);
 
         for (DetalheDespesasMensaisDAO detalheDespesas : repository.getDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario, parserOrdem(ordem))) {
             log.info("Mapeando registros para ordenar: ordenarPor: {} >> idDespesa = {}, idDetalheDespesa = {}, idOrdemAntiga = {}, idOrdemNova = {}", ordem, detalheDespesas.getIdDespesa(), detalheDespesas.getIdDetalheDespesa(), detalheDespesas.getIdOrdem(), iOrdemNova);
             detalheDespesas.setIdOrdem(iOrdemNova);
             listDespesasOrdenadas.add(detalheDespesas);
+
+            log.info("Incluindo log detalheDespesasMensaisLogs - request: {}", detalheDespesas);
+            repository.insertDetalheDespesasMensaisLogs(detalheDespesas.getIdDespesa(), detalheDespesas.getIdDetalheDespesa(), detalheDespesas.getIdOrdem(), detalheDespesas.getIdFuncionario(), detalheDespesas.getVlTotal());
             iOrdemNova++;
         }
 
@@ -203,9 +213,11 @@ public class DetalheDespesasServices {
 
         if (isNull(idOrdem) || idOrdem == -1) {
             repository.deleteDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario);
+            repository.deleteDetalheDespesasMensaisLogs(idDespesa, idDetalheDespesa, idFuncionario);
             repository.deleteTodasObservacaoDetalheDespesaMensal(idDespesa, idDetalheDespesa, idFuncionario);
         } else {
             repository.deleteDetalheDespesasMensaisPorFiltro(idDespesa, idDetalheDespesa, idOrdem, idFuncionario);
+            repository.deleteDetalheDespesasMensaisLogsPorFiltro(idDespesa, idDetalheDespesa, idOrdem, idFuncionario);
             repository.deleteObservacaoDetalheDespesasMensais(idDespesa, idDetalheDespesa, idOrdem, idFuncionario);
         }
 
@@ -222,9 +234,9 @@ public class DetalheDespesasServices {
     }
 
     public void gravarObservacoesDetalheDespesa(ObservacoesDetalheDespesaRequest request) {
-        var isObservacaoExistente = repository.getObservacoesDetalheDespesa(request.getIdDespesa(), request.getIdDetalheDespesa(), request.getIdOrdem(), request.getIdFuncionario());
+        var qtdeObservacoes = repository.getQuantidadeObservacoesDetalheDespesa(request.getIdDespesa(), request.getIdDetalheDespesa(), request.getIdOrdem(), request.getIdFuncionario());
 
-        if (isEmpty(isObservacaoExistente)) {
+        if (qtdeObservacoes == 0) {
             repository.insertObservacaoDetalheDespesaMensal(request);
         } else {
             repository.updateObservacaoDetalheDespesaMensal(request);
@@ -329,6 +341,9 @@ public class DetalheDespesasServices {
         repository.updateDetalheDespesasMensaisOrdenacao(idDespesa, idDetalheDespesa, null, iOrdemTemp1, iOrdemNova, idFuncionario);
         repository.updateDetalheDespesasMensaisOrdenacao(idDespesa, idDetalheDespesa, null, iOrdemTemp2, iOrdemAtual, idFuncionario);
 
+        //Altera a ordem dos registros de LOGs
+        this.alterarOrdemRegistroDetalheDespesasLogs(idDespesa, idDetalheDespesa, iOrdemAtual, iOrdemNova, idFuncionario);
+
         //Se houver observacoes altera a ordem do registro
         if (!isEmpty(repository.getObservacoesDetalheDespesa(idDespesa, idDetalheDespesa, iOrdemAtual, idFuncionario))) {
             this.alterarOrdemRegistroObservacoesDetalheDespesas(idDespesa, idDetalheDespesa, iOrdemAtual, iOrdemNova, idFuncionario);
@@ -348,6 +363,21 @@ public class DetalheDespesasServices {
         /*Nesta etapa realiza a alteração da posição fazendo o DE x PARA com base nos ID's temporarios*/
         repository.updateObservacaoDetalheDespesasMensaisOrdenacao(idDespesa, idDetalheDespesa, iOrdemTemp1, iOrdemNova, idFuncionario);
         repository.updateObservacaoDetalheDespesasMensaisOrdenacao(idDespesa, idDetalheDespesa, iOrdemTemp2, iOrdemAtual, idFuncionario);
+    }
+
+    private void alterarOrdemRegistroDetalheDespesasLogs(Integer idDespesa, Integer idDetalheDespesa, Integer iOrdemAtual, Integer iOrdemNova, Integer idFuncionario) {
+        var iOrdemTemp1 = 9998;
+        var iOrdemTemp2 = 9999;
+
+        //Substitui o ID da despesa POSICAO ATUAL
+        repository.updateDetalheDespesasMensaisLogsOrdenacao(idDespesa, idDetalheDespesa, iOrdemAtual, iOrdemTemp1, idFuncionario);
+
+        //Substitui o ID da despesa POSICAO NOVA
+        repository.updateDetalheDespesasMensaisLogsOrdenacao(idDespesa, idDetalheDespesa, iOrdemNova, iOrdemTemp2, idFuncionario);
+
+        /*Nesta etapa realiza a alteração da posição fazendo o DE x PARA com base nos ID's temporarios*/
+        repository.updateDetalheDespesasMensaisLogsOrdenacao(idDespesa, idDetalheDespesa, iOrdemTemp1, iOrdemNova, idFuncionario);
+        repository.updateDetalheDespesasMensaisLogsOrdenacao(idDespesa, idDetalheDespesa, iOrdemTemp2, iOrdemAtual, idFuncionario);
     }
 
     public StringResponse obterSubTotalDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem) {

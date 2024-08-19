@@ -93,7 +93,7 @@ public class ImportarLancamentosServices {
     public DespesaFixaTemporariaResponse gerarTemporariamenteDespesasMensais(Integer sMes, Integer sAno, Integer idFuncionario) throws Exception {
         Integer idDespesaReferencia;
         Integer iMesReferencia = ((sMes + 1) > 12) ? 1 : (sMes + 1);
-        Integer iAnoReferencia = ((sMes + 1) > 12) ? sAno + 1 : sAno;
+        Integer iAnoReferencia = ((sMes + 1) > 12) ? (sAno + 1) : sAno;
 
         var idDespesaTemp = repository.getMaxIdDespesaTemp(idFuncionario);
         idDespesaReferencia = isNull(idDespesaTemp) ? repository.getMaxIdDespesa(idFuncionario) : idDespesaTemp;

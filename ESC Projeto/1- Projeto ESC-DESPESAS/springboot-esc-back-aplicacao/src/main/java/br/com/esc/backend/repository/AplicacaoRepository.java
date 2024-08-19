@@ -111,6 +111,8 @@ public interface AplicacaoRepository {
 
     String getObservacoesDetalheDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario);
 
+    Integer getQuantidadeObservacoesDetalheDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario);
+
     ExtratoDespesasDAO getExtratoDespesasMes(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 
     ExtratoDespesasDAO getExtratoDespesasParceladasMes(String dsMes, String dsAno, Integer idFuncionario);
@@ -191,6 +193,8 @@ public interface AplicacaoRepository {
 
     void insertDataConfiguracoesLancamentosNovo(Integer idFuncionario);
 
+    void insertDetalheDespesasMensaisLogs(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario, String valorCampo);
+
     void updateLembrete(LembretesDAO lembretesDAO);
 
     void updateObservacaoDetalheDespesaMensal(ObservacoesDetalheDespesaRequest request);
@@ -224,6 +228,8 @@ public interface AplicacaoRepository {
     void updateDetalheDespesasMensaisOrdenacao(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idOrdem, Integer idNovaOrdem, Integer idFuncionario);
 
     void updateObservacaoDetalheDespesasMensaisOrdenacao(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idNovaOrdem, Integer idFuncionario);
+
+    void updateDetalheDespesasMensaisLogsOrdenacao(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idNovaOrdem, Integer idFuncionario);
 
     void updateDespesasMensaisOrdenacao(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idNovaOrdem, Integer idFuncionario);
 
@@ -308,6 +314,10 @@ public interface AplicacaoRepository {
     void deleteDetalheDespesasMensaisPorFiltro(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario);
 
     void deleteDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+
+    void deleteDetalheDespesasMensaisLogs(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+
+    void deleteDetalheDespesasMensaisLogsPorFiltro(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario);
 
     void deleteObservacaoDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario);
 

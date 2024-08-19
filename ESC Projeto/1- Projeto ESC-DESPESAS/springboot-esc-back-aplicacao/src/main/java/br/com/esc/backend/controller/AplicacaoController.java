@@ -34,7 +34,7 @@ public class AplicacaoController {
     }
 
     @GetMapping(path = "/lancamentosFinanceiros/categoriaDespesa/subTotal/{idDespesa}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<CategoriaDespesasDAO>> obterSubTotalCategoriaDespesa(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idFuncionario") Integer idFuncionario) {
+    public ResponseEntity<CategoriaDespesasResponse> obterSubTotalCategoriaDespesa(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idFuncionario") Integer idFuncionario) {
         var response = service.obterSubTotalCategoriaDespesa(idDespesa, idFuncionario);
         return ResponseEntity.ok(response);
     }

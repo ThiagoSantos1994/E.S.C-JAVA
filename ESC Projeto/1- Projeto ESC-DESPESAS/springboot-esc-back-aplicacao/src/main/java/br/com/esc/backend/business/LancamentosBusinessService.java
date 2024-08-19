@@ -395,9 +395,12 @@ public class LancamentosBusinessService {
         return despesasParceladasServices.obterDespesaParceladaPorFiltros(null, nomeDespesaParcelada, idFuncionario);
     }
 
-    public List<CategoriaDespesasDAO> obterSubTotalCategoriaDespesa (Integer idDespesa, Integer idFuncionario) {
+    public CategoriaDespesasResponse obterSubTotalCategoriaDespesa(Integer idDespesa, Integer idFuncionario) {
         log.info("Consultando subTotal categorias despesa >>> idDespesa = {} - idFuncionario= {}", idDespesa, idFuncionario);
-        return detalheDespesasServices.getSubTotalCategoriaDespesa(idDespesa, idFuncionario);
+        return CategoriaDespesasResponse.builder()
+                .mesAnoReferencia(repository.getMesAnoPorID(idDespesa, idFuncionario))
+                .categorias(detalheDespesasServices.getSubTotalCategoriaDespesa(idDespesa, idFuncionario))
+                .build();
     }
 
     public DetalheDespesasParceladasResponse obterDespesaParceladaPorID(Integer idDespesaParcelada, Integer idFuncionario) {

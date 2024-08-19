@@ -10,4 +10,5 @@ WHERE
     AND a.tp_Status = 'Pendente'
     AND a.tp_Relatorio = 'N'
     AND a.tp_LinhaSeparacao = 'N'
+    AND a.tp_Anotacao = 'N'
 

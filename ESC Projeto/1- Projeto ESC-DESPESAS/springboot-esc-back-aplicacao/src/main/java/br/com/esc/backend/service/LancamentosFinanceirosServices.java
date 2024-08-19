@@ -14,8 +14,7 @@ import java.util.List;
 
 import static br.com.esc.backend.utils.GlobalUtils.getAnoAtual;
 import static br.com.esc.backend.utils.MotorCalculoUtils.*;
-import static br.com.esc.backend.utils.ObjectUtils.isEmpty;
-import static br.com.esc.backend.utils.ObjectUtils.isNull;
+import static br.com.esc.backend.utils.ObjectUtils.*;
 import static br.com.esc.backend.utils.VariaveisGlobais.*;
 
 @Service
@@ -34,7 +33,7 @@ public class LancamentosFinanceirosServices {
             dto.setVlTotalDespesas(VALOR_ZERO);
             dto.setVlTotalPendentePagamento(VALOR_ZERO);
             dto.setVlSaldoDisponivelMes(VALOR_ZERO);
-            dto.setStatusSaldoMes("Positivo");
+            dto.setStatusSaldoMes(POSITIVO);
             return dto;
         }
 
@@ -174,7 +173,7 @@ public class LancamentosFinanceirosServices {
         if (isNull(result)) {
             result = repository.getMesAnoPorIDTemp(idDespesa, idFuncionario);
             if (isNull(result)) {
-                result = "ERRO";
+                result = ERRO;
             }
         }
 
@@ -201,7 +200,7 @@ public class LancamentosFinanceirosServices {
 
     public String validaDespesaExistenteDebitoCartao(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario) {
         var despesa = repository.getValidaDespesaExistenteDebitoCartao(idDespesa, idFuncionario);
-        var mensagem = "OK";
+        var mensagem = OK;
 
         if (isNull(despesa)) {
             return mensagem;
@@ -217,7 +216,7 @@ public class LancamentosFinanceirosServices {
 
     public String validarAlteracaoTituloDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String novoNomeDespesa) {
         var validaDespesaExistente = validaDespesaExistente(idDespesa, idDetalheDespesa, idFuncionario);
-        if (!validaDespesaExistente.equalsIgnoreCase("OK")) {
+        if (!validaDespesaExistente.equalsIgnoreCase(OK)) {
             return validaDespesaExistente;
         }
 
@@ -231,7 +230,7 @@ public class LancamentosFinanceirosServices {
         repository.updateDespesaMensalTituloReuso(idDespesa, idDetalheDespesa, idDetalheDespesaTemp, novoNomeDespesa, idFuncionario);
         repository.updateDetalheDespesasMensaisID(idDespesa, idDetalheDespesa, idDetalheDespesaTemp, idFuncionario);
 
-        return "OK";
+        return OK;
     }
 
     public void alterarTituloDespesa(Integer idDetalheDespesa, Integer idFuncionario, String dsNomeDespesa) {
@@ -245,7 +244,7 @@ public class LancamentosFinanceirosServices {
             return TITULO_DESPESA_DUPLICADO;
         }
 
-        return "OK";
+        return OK;
     }
 
     public TituloDespesaResponse getTituloDespesa(Integer idFuncionario) {
@@ -293,10 +292,7 @@ public class LancamentosFinanceirosServices {
 
     private Boolean isDespesaFixaExistente(DespesasFixasMensaisRequest request) {
         var despesaFixaMensal = repository.getDespesaFixaMensalPorFiltro(request.getIdDespesa(), request.getIdOrdem(), request.getIdFuncionario());
-        if (isNull(despesaFixaMensal)) {
-            return false;
-        }
-        return true;
+        return isNotNull(despesaFixaMensal);
     }
 
     private String validaDespesaExistente(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario) {
@@ -306,22 +302,22 @@ public class LancamentosFinanceirosServices {
             return VALIDACAO_DESPESA_INEXISTENTE;
         }
 
-        return "OK";
+        return OK;
     }
 
     private String validarPercentualUtilizacao(BigDecimal porcentagem) {
         var percentual = Integer.parseInt(new DecimalFormat("0").format(porcentagem));
 
         if (percentual >= 0 && percentual <= 25) {
-            return "Baixo";
+            return PERC_BAIXO;
         } else if (percentual >= 26 && percentual <= 50) {
-            return "Medio";
+            return PERC_MEDIO;
         } else if (percentual >= 51 && percentual <= 80) {
-            return "Alto";
+            return PERC_ALTO;
         } else if (percentual >= 81) {
-            return "Altissimo";
+            return PERC_ALTISSIMO;
         }
 
-        return "erro";
+        return ERRO;
     }
 }
