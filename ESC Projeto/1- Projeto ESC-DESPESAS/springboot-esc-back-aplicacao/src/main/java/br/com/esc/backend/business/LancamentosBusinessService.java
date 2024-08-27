@@ -240,16 +240,20 @@ public class LancamentosBusinessService {
 
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
-    public void adiantarFluxoParcelas(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario) {
-        log.info("Processando adiantamento fluxo de parcelas - Filtros: idDespesa = {}, idDetalheDespesa = {}, idDespesaParcelada = {}, idParcela = {}, idFuncionario = {}", idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, idFuncionario);
-        despesasParceladasServices.adiantarFluxoParcelas(idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, idFuncionario);
+    public void adiantarFluxoParcelas(List<DetalheDespesasMensaisRequest> request) {
+        for (DetalheDespesasMensaisRequest despesa : request) {
+            log.info("Processando adiantamento fluxo de parcelas - request: {}, idDetalheDespesa = {}, idDespesaParcelada = {}, idParcela = {}, idFuncionario = {}", despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdDespesaParcelada(), despesa.getIdParcela(), despesa.getIdFuncionario());
+            despesasParceladasServices.adiantarFluxoParcelas(despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdDespesaParcelada(), despesa.getIdParcela(), despesa.getIdFuncionario());
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
-    public void desfazerAdiantamentoFluxoParcelas(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario) {
-        log.info("Processando fluxo para desfazer o adiantamento de parcelas - Filtros: idDespesa = {}, idDetalheDespesa = {}, idDespesaParcelada = {}, idParcela = {}, idFuncionario = {}", idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, idFuncionario);
-        despesasParceladasServices.desfazerAdiantamentoFluxoParcelas(idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, idFuncionario);
+    public void desfazerAdiantamentoFluxoParcelas(List<DetalheDespesasMensaisRequest> request) {
+        for (DetalheDespesasMensaisRequest despesa : request) {
+            log.info("Processando fluxo para desfazer o adiantamento de parcelas - Filtros: idDespesa = {}, idDetalheDespesa = {}, idDespesaParcelada = {}, idParcela = {}, idFuncionario = {}", despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdDespesaParcelada(), despesa.getIdParcela(), despesa.getIdFuncionario());
+            despesasParceladasServices.desfazerAdiantamentoFluxoParcelas(despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdDespesaParcelada(), despesa.getIdParcela(), despesa.getIdFuncionario());
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)

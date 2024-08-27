@@ -153,8 +153,8 @@ public class DetalheDespesasServices {
         Integer iOrdemNova = 1;
         List<DetalheDespesasMensaisDAO> listDespesasOrdenadas = new ArrayList<>();
 
-        log.info("Excluindo todos os logs anteriores para nova gravacao...");
-        repository.deleteDetalheDespesasMensaisLogs(idDespesa, idDetalheDespesa, idFuncionario);
+        //log.info("Excluindo todos os logs anteriores para nova gravacao...");
+        //repository.deleteDetalheDespesasMensaisLogs(idDespesa, idDetalheDespesa, idFuncionario);
 
         for (DetalheDespesasMensaisDAO detalheDespesas : repository.getDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario, parserOrdem(ordem))) {
             log.info("Mapeando registros para ordenar: ordenarPor: {} >> idDespesa = {}, idDetalheDespesa = {}, idOrdemAntiga = {}, idOrdemNova = {}", ordem, detalheDespesas.getIdDespesa(), detalheDespesas.getIdDetalheDespesa(), detalheDespesas.getIdOrdem(), iOrdemNova);

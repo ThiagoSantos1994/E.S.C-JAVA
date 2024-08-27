@@ -373,15 +373,15 @@ public class AplicacaoController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping(path = "/lancamentosFinanceiros/parcelas/adiantarFluxoParcelas/{idDespesa}/{idDetalheDespesa}/{idDespesaParcelada}/{idParcela}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> adiantarFluxoParcelas(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idDespesaParcelada") Integer idDespesaParcelada, @PathVariable("idParcela") Integer idParcela, @PathVariable("idFuncionario") Integer idFuncionario) {
-        service.adiantarFluxoParcelas(idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, idFuncionario);
+    @PostMapping(path = "/lancamentosFinanceiros/parcelas/adiantarFluxoParcelas", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> adiantarFluxoParcelas(@RequestBody List<DetalheDespesasMensaisRequest> request) {
+        service.adiantarFluxoParcelas(request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping(path = "/lancamentosFinanceiros/parcelas/desfazerAdiantamentoFluxoParcelas/{idDespesa}/{idDetalheDespesa}/{idDespesaParcelada}/{idParcela}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> desfazerAdiantamentoFluxoParcelas(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idDespesaParcelada") Integer idDespesaParcelada, @PathVariable("idParcela") Integer idParcela, @PathVariable("idFuncionario") Integer idFuncionario) {
-        service.desfazerAdiantamentoFluxoParcelas(idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, idFuncionario);
+    @PostMapping(path = "/lancamentosFinanceiros/parcelas/desfazerAdiantamentoFluxoParcelas", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> desfazerAdiantamentoFluxoParcelas(@RequestBody List<DetalheDespesasMensaisRequest> request) {
+        service.desfazerAdiantamentoFluxoParcelas(request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
