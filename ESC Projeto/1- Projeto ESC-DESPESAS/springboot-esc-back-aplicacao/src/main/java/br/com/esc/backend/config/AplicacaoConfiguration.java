@@ -17,14 +17,14 @@ public class AplicacaoConfiguration {
     LancamentosBusinessService lancamentosFinanceirosService(AplicacaoRepository repository, ImportarLancamentosServices importacaoBusiness,
                                                              LancamentosFinanceirosServices lancamentosBusiness, DetalheDespesasServices detalheDespesasServices,
                                                              DespesasParceladasServices despesasParceladasServices, BackupServices backupServices, AutenticacaoServices autenticacaoServices,
-                                                             LembreteServices lembreteServices) {
-        return new LancamentosBusinessService(repository, importacaoBusiness, lancamentosBusiness, detalheDespesasServices, despesasParceladasServices, backupServices, autenticacaoServices, lembreteServices);
+                                                             LembreteServices lembreteServices, ConsolidacaoService consolidacaoService) {
+        return new LancamentosBusinessService(repository, importacaoBusiness, lancamentosBusiness, detalheDespesasServices, despesasParceladasServices, backupServices, autenticacaoServices, lembreteServices, consolidacaoService);
     }
 
     @Bean
     @Primary
-    ImportarLancamentosServices importarLancamentosBusiness(AplicacaoRepository repository, DetalheDespesasServices detalheDespesasServices) {
-        return new ImportarLancamentosServices(repository, detalheDespesasServices);
+    ImportarLancamentosServices importarLancamentosBusiness(AplicacaoRepository repository, DetalheDespesasServices detalheDespesasServices, ConsolidacaoService consolidacaoService) {
+        return new ImportarLancamentosServices(repository, detalheDespesasServices, consolidacaoService);
     }
 
     @Bean
@@ -35,8 +35,8 @@ public class AplicacaoConfiguration {
 
     @Bean
     @Primary
-    DetalheDespesasServices detalheDespesasBusiness(AplicacaoRepository repository, DespesasParceladasServices despesasParceladasServices) {
-        return new DetalheDespesasServices(repository, despesasParceladasServices);
+    DetalheDespesasServices detalheDespesasBusiness(AplicacaoRepository repository, DespesasParceladasServices despesasParceladasServices, ConsolidacaoService consolidacaoService) {
+        return new DetalheDespesasServices(repository, despesasParceladasServices, consolidacaoService);
     }
 
     @Bean
@@ -61,5 +61,11 @@ public class AplicacaoConfiguration {
     @Primary
     LembreteServices lembreteServices(AplicacaoRepository repository) {
         return new LembreteServices(repository);
+    }
+
+    @Bean
+    @Primary
+    ConsolidacaoService consolidacaoService(AplicacaoRepository repository) {
+        return new ConsolidacaoService(repository);
     }
 }

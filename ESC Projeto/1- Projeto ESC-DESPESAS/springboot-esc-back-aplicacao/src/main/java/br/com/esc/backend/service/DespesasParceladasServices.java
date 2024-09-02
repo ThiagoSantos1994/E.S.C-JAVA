@@ -241,8 +241,28 @@ public class DespesasParceladasServices {
 
         if (tipo.equalsIgnoreCase("ativas")) {
             listaDespesas = repository.getNomeDespesasParceladasParaImportacao(idFuncionario);
+
+            for (TituloConsolidacao consolidacao : repository.getNomeConsolidacoesParaImportacao(idFuncionario)) {
+                var tituloDespesa = TituloDespesa.builder()
+                        .idDespesa(- consolidacao.getIdConsolidacao()) // para consolidacao foi necessario adicionar o - para tratar no frontend
+                        .idConsolidacao(consolidacao.getIdConsolidacao())
+                        .tituloDespesa(consolidacao.getTituloConsolidacao())
+                        .build();
+
+                listaDespesas.add(tituloDespesa);
+            }
         } else {
             listaDespesas = repository.getNomeDespesasParceladas(idFuncionario);
+
+            for (TituloConsolidacao consolidacao : repository.getNomeConsolidacoes(idFuncionario)) {
+                var tituloDespesa = TituloDespesa.builder()
+                        .idDespesa(- consolidacao.getIdConsolidacao()) // para consolidacao foi necessario adicionar o - para tratar no frontend
+                        .idConsolidacao(consolidacao.getIdConsolidacao())
+                        .tituloDespesa(consolidacao.getTituloConsolidacao())
+                        .build();
+
+                listaDespesas.add(tituloDespesa);
+            }
         }
 
         List<String> listTituloDespesa = new ArrayList<>();
@@ -250,7 +270,7 @@ public class DespesasParceladasServices {
             listTituloDespesa.add(despesas.getTituloDespesa());
         }
 
-        log.info("ListaNomesDespesasParceladas: {}", listaDespesas);
+        log.info("ListaNomesDespesasParceladas e Consolidacoes: {}", listaDespesas);
         return TituloDespesaResponse.builder()
                 .despesas(listaDespesas)
                 .sizeTituloDespesaVB(listaDespesas.size())

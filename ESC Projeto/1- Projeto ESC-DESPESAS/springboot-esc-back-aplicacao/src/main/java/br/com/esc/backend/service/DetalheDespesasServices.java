@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static br.com.esc.backend.utils.GlobalUtils.getAnoAtual;
 import static br.com.esc.backend.utils.GlobalUtils.getMesAtual;
@@ -26,6 +27,7 @@ public class DetalheDespesasServices {
 
     private final AplicacaoRepository repository;
     private final DespesasParceladasServices despesasParceladasServices;
+    private final ConsolidacaoService consolidacaoService;
 
     public DetalheDespesasMensaisDTO obterDetalheDespesaMensal(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem) {
         var despesaMensal = repository.getDespesasMensais(idDespesa, idFuncionario, idDetalheDespesa);
@@ -46,7 +48,34 @@ public class DetalheDespesasServices {
             despesaMensal.get(0).setDsExtratoDespesa(this.obterExtratoDespesasMes(idDespesa, idDetalheDespesa, idFuncionario, "detalheDespesas").getMensagem());
         }
 
-        var detalheDespesasMensaisList = repository.getDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario, parserOrdem(ordem));
+        var detalheDespesasMensaisList = repository.getDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario, parserOrdem(ordem)).stream()
+                .filter(d -> isNull(d.getIdDespesaConsolidacao()) || d.getIdDespesaConsolidacao() == 0)
+                .collect(Collectors.toList());
+
+        var isContemDespesasConsolidadas = detalheDespesasMensaisList.stream()
+                .filter(d -> isNotNull(d.getIdConsolidacao()) && d.getIdConsolidacao() > 0)
+                .filter(d -> d.getTpLinhaSeparacao().equals("N"))
+                .collect(Collectors.toList())
+                .size();
+
+        if (isContemDespesasConsolidadas > 0) {
+            List<DetalheDespesasMensaisDAO> newDetalheDespesasMensaisList = new ArrayList<>();
+            for (DetalheDespesasMensaisDAO detalheDespesas : detalheDespesasMensaisList) {
+                if ((isNotNull(detalheDespesas.getIdConsolidacao()) && detalheDespesas.getIdConsolidacao() > 0) && detalheDespesas.getTpLinhaSeparacao().equals("N")) {
+                    var valorTotalDespesa = repository.getCalculoTotalDespesaConsolidada(detalheDespesas.getIdDespesa(), detalheDespesas.getIdDetalheDespesa(), detalheDespesas.getIdConsolidacao(), detalheDespesas.getIdFuncionario());
+                    var valorTotalDespesaPaga = repository.getCalculoTotalDespesaConsolidadaPaga(detalheDespesas.getIdDespesa(), detalheDespesas.getIdDetalheDespesa(), detalheDespesas.getIdConsolidacao(), detalheDespesas.getIdFuncionario());
+
+                    detalheDespesas.setVlTotal(convertDecimalToString(valorTotalDespesa));
+                    detalheDespesas.setVlTotalPago(convertDecimalToString(valorTotalDespesaPaga));
+                }
+
+                newDetalheDespesasMensaisList.add(detalheDespesas);
+            }
+            detalheDespesasMensaisList.clear();
+            detalheDespesasMensaisList.addAll(newDetalheDespesasMensaisList);
+        }
+
+
         return DetalheDespesasMensaisDTO.builder()
                 .sizeDetalheDespesaMensalVB(detalheDespesasMensaisList.size())
                 .despesaMensal(despesaMensal.get(0))
@@ -307,6 +336,34 @@ public class DetalheDespesasServices {
         repository.updateStatusBaixaLinhaSeparacao(request.getIdDespesa(), request.getIdFuncionario());
     }
 
+    public void baixarPagamentoDespesasConsolidadas(PagamentoDespesasRequest request) throws Exception {
+        if (isNotNull(request.getIdConsolidacao()) && request.getIdConsolidacao() > 0 && request.getTpStatus().equals(PENDENTE)) {
+            var listDespesasConsolidadas = consolidacaoService.obterListDetalheDespesasConsolidadas(request.getIdDespesa(), request.getIdDetalheDespesa(), request.getIdConsolidacao(), request.getIdFuncionario());
+
+            for (DetalheDespesasMensaisDAO despesa : listDespesasConsolidadas) {
+                log.info("Processando pagamento detalhe despesa consolidada - {}", despesa);
+
+                var requestBaixa = PagamentoDespesasRequest.builder()
+                        .idDespesa(despesa.getIdDespesa())
+                        .idDetalheDespesa(despesa.getIdDetalheDespesa())
+                        .idDespesaParcelada(despesa.getIdDespesaParcelada())
+                        .idConsolidacao(despesa.getIdConsolidacao())
+                        .idParcela(despesa.getIdParcela())
+                        .idOrdem(despesa.getIdOrdem())
+                        .idFuncionario(despesa.getIdFuncionario())
+                        .vlTotal(despesa.getVlTotal())
+                        .vlTotalPago(despesa.getVlTotal())
+                        .tpStatus(despesa.getTpStatus())
+                        .dsObservacoes(request.getDsObservacoes())
+                        .dsObservacoesComplementar(request.getDsObservacoesComplementar())
+                        .isProcessamentoAdiantamentoParcelas(false)
+                        .build();
+
+                this.baixarPagamentoDespesas(requestBaixa);
+            }
+        }
+    }
+
     public void desfazerBaixaPagamentoDespesas(PagamentoDespesasRequest request) throws Exception {
         if (request.getTpStatus().equalsIgnoreCase(PAGO)) {
             var bProcessamentoAdiantamentoParcelas = request.getIsProcessamentoAdiantamentoParcelas();
@@ -325,6 +382,33 @@ public class DetalheDespesasServices {
 
         /*Atualiza o stts pagamento para as linhas de separacao*/
         repository.updateStatusBaixaLinhaSeparacao(request.getIdDespesa(), request.getIdFuncionario());
+    }
+
+    public void desfazerBaixaPagamentoDespesasConsolidadas(PagamentoDespesasRequest request) throws Exception {
+        if (request.getIdConsolidacao() > 0) {
+            var listDespesasConsolidadas = consolidacaoService.obterListDetalheDespesasConsolidadas(request.getIdDespesa(), request.getIdDetalheDespesa(), request.getIdConsolidacao(), request.getIdFuncionario());
+
+            for (DetalheDespesasMensaisDAO detalhe : listDespesasConsolidadas) {
+                log.info("Desfazendo pagamento detalhe despesa consolidada - {}", detalhe);
+
+                request = PagamentoDespesasRequest.builder()
+                        .idDespesa(detalhe.getIdDespesa())
+                        .idDetalheDespesa(detalhe.getIdDetalheDespesa())
+                        .idDespesaParcelada(detalhe.getIdDespesaParcelada())
+                        .idConsolidacao(detalhe.getIdConsolidacao())
+                        .idParcela(detalhe.getIdParcela())
+                        .idOrdem(detalhe.getIdOrdem())
+                        .idFuncionario(detalhe.getIdFuncionario())
+                        .vlTotal(detalhe.getVlTotal())
+                        .vlTotalPago(VALOR_ZERO)
+                        .tpStatus(detalhe.getTpStatus())
+                        .dsObservacoes("")
+                        .isProcessamentoAdiantamentoParcelas(false)
+                        .build();
+
+                this.desfazerBaixaPagamentoDespesas(request);
+            }
+        }
     }
 
     public void alterarOrdemRegistroDetalheDespesas(Integer idDespesa, Integer idDetalheDespesa, Integer iOrdemAtual, Integer iOrdemNova, Integer idFuncionario) {
@@ -488,7 +572,7 @@ public class DetalheDespesasServices {
     }
 
 
-    private String parserOrdem(String ordem) {
+    public static String parserOrdem(String ordem) {
         if (ObjectUtils.isEmpty(ordem)) {
             return "a.id_Ordem";
         }

@@ -1,11 +1,16 @@
 SELECT
     a.id_Despesa,
     a.id_DetalheDespesa,
-    UPPER(LTRIM(RTRIM(CASE a.ds_Descricao WHEN '*PRC' THEN b.ds_TituloDespesaParcelada + ' - ' + c.nr_Parcela + '/' + (SELECT CASE COUNT(tp_ParcelaAdiada) WHEN 0 THEN CAST(b.nr_TotalParcelas AS VarChar(10)) ELSE CAST((b.nr_TotalParcelas + COUNT(tp_ParcelaAdiada)) AS VarChar(10)) + '*' END FROM tbd_Parcelas WHERE tp_ParcelaAdiada = 'S' AND id_DespesaParcelada = a.id_DespesaParcelada) ELSE a.ds_Descricao END))) AS ds_TituloDespesa,
+    UPPER(LTRIM(RTRIM(CASE a.ds_Descricao
+        WHEN '*PRC' THEN b.ds_TituloDespesaParcelada + ' - ' + c.nr_Parcela + '/' + (SELECT CASE COUNT(tp_ParcelaAdiada) WHEN 0 THEN CAST(b.nr_TotalParcelas AS VarChar(10)) ELSE CAST((b.nr_TotalParcelas + COUNT(tp_ParcelaAdiada)) AS VarChar(10)) + '*' END FROM tbd_Parcelas WHERE tp_ParcelaAdiada = 'S' AND id_DespesaParcelada = a.id_DespesaParcelada)
+        WHEN '*CONS' THEN cons.ds_TituloConsolidacao ELSE a.ds_Descricao
+    END))) AS ds_TituloDespesa,
     UPPER(LTRIM(RTRIM(a.ds_Descricao))) AS ds_Descricao,
     a.id_Ordem,
     a.id_Parcela,
     a.id_DespesaParcelada,
+    a.id_Consolidacao,
+    a.id_DespesaConsolidacao,
     a.id_Funcionario,
     a.id_DespesaLinkRelatorio,
     a.vl_Total,
@@ -25,7 +30,8 @@ FROM
     tbd_DetalheDespesasMensais a
     LEFT JOIN tbd_DespesasParceladas b on b.id_DespesaParcelada = a.id_DespesaParcelada
     LEFT JOIN tbd_Parcelas c on c.id_DespesaParcelada = b.id_DespesaParcelada and c.id_Parcelas = a.id_Parcela
-    LEFT JOIN tbd_DespesaMensal desp on desp.id_Despesa = a.id_Despesa AND desp.id_DetalheDespesa = :idDetalheDespesa
+    LEFT JOIN tbd_DespesaMensal desp on desp.id_Despesa = a.id_Despesa AND desp.id_DetalheDespesa = a.id_DetalheDespesa
+    LEFT JOIN tbd_Consolidacao cons on cons.id_Consolidacao = a.id_Consolidacao
 WHERE
     a.id_Despesa = :idDespesa
     AND a.id_Funcionario = :idFuncionario

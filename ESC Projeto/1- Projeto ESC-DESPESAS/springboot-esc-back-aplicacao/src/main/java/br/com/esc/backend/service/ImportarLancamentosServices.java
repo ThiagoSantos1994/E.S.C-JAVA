@@ -26,6 +26,7 @@ public class ImportarLancamentosServices {
 
     private final AplicacaoRepository repository;
     private final DetalheDespesasServices detalheDespesasServices;
+    private final ConsolidacaoService consolidacaoService;
     private boolean bDespesaComStatusPago;
     private boolean bDespesaComParcelaAdiantada;
     private boolean bProcessamentoTemporario;
@@ -258,7 +259,7 @@ public class ImportarLancamentosServices {
         return true;
     }
 
-    public void processarImportacaoDespesaParcelada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idFuncionario) throws Exception {
+    public void processarImportacaoDespesaParcelada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idConsolidacao, Integer idFuncionario) throws Exception {
         var despesaParcelada = repository.getDespesaParcelada(idDespesaParcelada, null, idFuncionario);
         if (isEmpty(despesaParcelada)) {
             throw new ErroNegocioException("Despesa parcelada não existente na base de dados, não será possivel realizar a importação.");
@@ -283,6 +284,8 @@ public class ImportarLancamentosServices {
                         .idFuncionario(idFuncionario)
                         .idDespesaParcelada(despesaParcelada.getIdDespesaParcelada())
                         .idDespesaLinkRelatorio(0)
+                        .idConsolidacao(0)
+                        .idDespesaConsolidacao(0)
                         .tpAnotacao("N")
                         .tpReprocessar("N")
                         .tpMeta("N")
@@ -297,6 +300,58 @@ public class ImportarLancamentosServices {
                 log.info("Importacao realizada com sucesso >> idDespesa: {} - idDetalheDespesa: {}", idDespesaRef, idDetalheDespesa);
             } else {
                 log.info("Despesa Parcelada ja importada na despesa anteriormente, importação não concluida!  >> idDespesa: {} - idDetalheDespesa: {}", idDespesaRef, idDetalheDespesa);
+            }
+        }
+    }
+
+    public void processarImportacaoConsolidacao(Integer idDespesa, Integer idDetalheDespesa, Integer idConsolidacao, Integer idFuncionario) throws Exception {
+        var consolidacao = repository.getConsolidacao(idConsolidacao, idFuncionario);
+        if (isEmpty(consolidacao)) {
+            throw new ErroNegocioException("Consolidacao não existente na base de dados, não será possivel realizar a importação.");
+        }
+
+        for (Integer idDespesaRef : repository.getIdDespesaProcessada(idDespesa, idFuncionario)) {
+            var filtro = DetalheDespesasMensaisDAO.builder()
+                    .idDespesa(idDespesaRef)
+                    .idDetalheDespesa(idDetalheDespesa)
+                    .idConsolidacao(idConsolidacao)
+                    .idFuncionario(idFuncionario)
+                    .build();
+
+            var isConsolidacaoJaImportada = repository.getDetalheDespesaMensalPorFiltro(filtro);
+
+            if (isNull(isConsolidacaoJaImportada)) {
+                var request = DetalheDespesasMensaisDAO.builder()
+                        .idDespesa(idDespesaRef)
+                        .idDetalheDespesa(idDetalheDespesa)
+                        .dsTituloDespesa(consolidacao.getDsTituloConsolidacao())
+                        .dsDescricao(DESCRICAO_DESPESA_CONSOLIDACAO)
+                        .tpStatus(PENDENTE)
+                        .idOrdem(null)
+                        .idFuncionario(idFuncionario)
+                        .idDespesaParcelada(0)
+                        .idParcela(0)
+                        .idConsolidacao(consolidacao.getIdConsolidacao())
+                        .idDespesaConsolidacao(0)
+                        .idDespesaLinkRelatorio(0)
+                        .vlTotal(VALOR_ZERO)
+                        .vlTotalPago(VALOR_ZERO)
+                        .tpAnotacao("N")
+                        .tpReprocessar("N")
+                        .tpMeta("N")
+                        .tpRelatorio("N")
+                        .tpParcelaAdiada("N")
+                        .tpParcelaAmortizada("N")
+                        .tpLinhaSeparacao("N")
+                        .build();
+
+                detalheDespesasServices.gravarDetalheDespesasMensais(request, false);
+
+                consolidacaoService.associarConsolidacaoDetalheDespesaMensal(idDespesaRef, idDetalheDespesa, idConsolidacao, idFuncionario);
+
+                log.info("Consolidacao importada com sucesso >> idDespesa: {} - idDetalheDespesa: {} - idConsolidacao: {}", idDespesaRef, idDetalheDespesa, idConsolidacao);
+            } else {
+                log.info("Consolidacao importada na despesa anteriormente, importação não concluida!  >> idDespesa: {} - idDetalheDespesa: {} - idConsolidacao: {}", idDespesaRef, idDetalheDespesa, idConsolidacao);
             }
         }
     }

@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TituloDespesa {
-    private Integer idDespesa;
+public class TituloConsolidacao {
     private Integer idConsolidacao;
-    private String tituloDespesa;
+    private String tituloConsolidacao;
 }

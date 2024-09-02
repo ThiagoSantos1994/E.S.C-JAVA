@@ -63,6 +63,14 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlQuery
+    BigDecimal getCalculoTotalDespesaConsolidada(Integer idDespesa, Integer idDetalheDespesa, Integer idConsolidacao, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
+    BigDecimal getCalculoTotalDespesaConsolidadaPaga(Integer idDespesa, Integer idDetalheDespesa, Integer idConsolidacao, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
     BigDecimal getCalculoDespesaTipoRelatorio(Integer idDespesa, Integer idDespesaLinkRelatorio, Integer idFuncionario);
 
     @Override
@@ -187,6 +195,10 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlQuery
+    String getValidaDetalheDespesaComConsolidacao(Integer idConsolidacao, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
     Integer getMaxOrdemDespesasFixasMensais(Integer idDespesa, Integer idFuncionario);
 
     @Override
@@ -303,6 +315,16 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlQuery
+    @UseRowMapper(TituloConsolidacaoRowMapper.class)
+    List<TituloConsolidacao> getNomeConsolidacoes(Integer idFuncionario);
+
+    @Override
+    @SqlQuery
+    @UseRowMapper(TituloConsolidacaoRowMapper.class)
+    List<TituloConsolidacao> getNomeConsolidacoesParaImportacao(Integer idFuncionario);
+
+    @Override
+    @SqlQuery
     @UseRowMapper(TituloDespesaRowMapper.class)
     List<TituloDespesa> getNomeDespesaRelatorio(Integer idDespesa, Integer idFuncionario);
 
@@ -357,6 +379,21 @@ public interface JdbiRepository extends AplicacaoRepository {
     @SqlQuery
     @UseRowMapper(TituloLembretesRowMapper.class)
     List<TituloLembretesDAO> getTituloLembretes(Integer idFuncionario, String tpBaixado);
+
+    @Override
+    @SqlQuery
+    @UseRowMapper(TituloConsolidacaoRowMapper.class)
+    List<TituloConsolidacao> getTituloConsolidacao(Integer idFuncionario, String tpBaixado);
+
+    @Override
+    @SqlQuery
+    @UseRowMapper(ConsolidacaoRowMapper.class)
+    ConsolidacaoDAO getConsolidacao(Integer idConsolidacao, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
+    @UseRowMapper(DetalheConsolidacaoRowMapper.class)
+    List<ConsolidacaoDespesasDAO> getDetalhesConsolidacao(Integer idConsolidacao, Integer idFuncionario);
 
     @Override
     @SqlQuery
@@ -415,6 +452,38 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlUpdate
     void insertDetalheDespesasMensaisLogs(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario, String valorCampo);
+
+    @Override
+    @SqlUpdate
+    void insertConsolidacao(@BindBean("consolidacao") ConsolidacaoDAO consolidacaoDAO);
+
+    @Override
+    @SqlUpdate
+    void deleteConsolidacao(@BindBean("consolidacao")ConsolidacaoDAO consolidacaoDAO);
+
+    @Override
+    @SqlUpdate
+    void deleteDetalhesConsolidacao(@BindBean("consolidacao") ConsolidacaoDAO consolidacaoDAO);
+
+    @Override
+    @SqlUpdate
+    void updateConsolidacao(@BindBean("consolidacao") ConsolidacaoDAO consolidacaoDAO);
+
+    @Override
+    @SqlUpdate
+    void updateConsolidacaoDetalheDespesa(Integer idConsolidacao, Integer idDetalheDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void updateDespesasParceladasAssociacao(Integer idDespesaParcelada, Integer idConsolidacao, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void associarDespesaConsolidacao(@BindBean("despesa") ConsolidacaoDespesasDAO despesas);
+
+    @Override
+    @SqlUpdate
+    void desassociarDespesaConsolidacao(@BindBean("despesa") ConsolidacaoDespesasDAO despesas);
 
     @Override
     @SqlUpdate
@@ -503,6 +572,10 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlUpdate
     void updateDetalheDespesasMensais(@BindBean("detalhe") DetalheDespesasMensaisDAO detalheDespesasMensais);
+
+    @Override
+    @SqlUpdate
+    void updateDetalheDespesasMensaisConsolidacao(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idConsolidacao, Integer idFuncionario);
 
     @Override
     @SqlUpdate

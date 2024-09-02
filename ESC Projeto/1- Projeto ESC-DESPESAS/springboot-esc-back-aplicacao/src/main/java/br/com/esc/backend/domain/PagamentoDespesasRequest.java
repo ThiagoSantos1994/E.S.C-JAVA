@@ -13,6 +13,7 @@ public class PagamentoDespesasRequest {
     private Integer idDespesa;
     private Integer idDetalheDespesa;
     private Integer idDespesaParcelada;
+    private Integer idConsolidacao;
     private Integer idParcela;
     private Integer idOrdem;
     private Integer idFuncionario;

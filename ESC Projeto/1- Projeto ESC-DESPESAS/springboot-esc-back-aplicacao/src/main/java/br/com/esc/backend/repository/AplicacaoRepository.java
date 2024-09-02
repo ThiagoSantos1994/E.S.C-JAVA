@@ -1,6 +1,7 @@
 package br.com.esc.backend.repository;
 
 import br.com.esc.backend.domain.*;
+import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -28,6 +29,10 @@ public interface AplicacaoRepository {
     BigDecimal getCalculoTotalDespesaPendente(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 
     BigDecimal getCalculoTotalDespesaPaga(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+
+    BigDecimal getCalculoTotalDespesaConsolidada(Integer idDespesa, Integer idDetalheDespesa, Integer idConsolidacao, Integer idFuncionario);
+
+    BigDecimal getCalculoTotalDespesaConsolidadaPaga(Integer idDespesa, Integer idDetalheDespesa, Integer idConsolidacao, Integer idFuncionario);
 
     BigDecimal getCalculoDespesaTipoRelatorio(Integer idDespesa, Integer idDespesaLinkRelatorio, Integer idFuncionario);
 
@@ -72,6 +77,8 @@ public interface AplicacaoRepository {
     String getValidaDetalheDespesaComParcelaAmortizada(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 
     String getValidaDetalheDespesaParceladaAdiantada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idFuncionario);
+
+    String getValidaDetalheDespesaComConsolidacao(Integer idConsolidacao, Integer idFuncionario);
 
     String getDespesaParceladaVinculada(Integer idDespesaParcelada, Integer idFuncionario);
 
@@ -131,6 +138,10 @@ public interface AplicacaoRepository {
 
     List<TituloDespesa> getNomeDespesasParceladasParaImportacao(Integer idFuncionario);
 
+    List<TituloConsolidacao> getNomeConsolidacoes(Integer idFuncionario);
+
+    List<TituloConsolidacao> getNomeConsolidacoesParaImportacao(Integer idFuncionario);
+
     List<TituloDespesa> getNomeDespesaRelatorio(Integer idDespesa, Integer idFuncionario);
 
     List<String> getTituloDespesaEmprestimoAReceber(Integer idFuncionario);
@@ -167,6 +178,12 @@ public interface AplicacaoRepository {
 
     List<TituloLembretesDAO> getTituloLembretes(Integer idFuncionario, String tpBaixado);
 
+    List<TituloConsolidacao> getTituloConsolidacao(Integer idFuncionario, String tpBaixado);
+
+    ConsolidacaoDAO getConsolidacao(Integer idConsolidacao, Integer idFuncionario);
+
+    List<ConsolidacaoDespesasDAO> getDetalhesConsolidacao(Integer idConsolidacao, Integer idFuncionario);
+
     LembretesDAO getLembreteDetalhe(Integer idLembrete, Integer idFuncionario);
 
     String getDiaSemana();
@@ -194,6 +211,22 @@ public interface AplicacaoRepository {
     void insertDataConfiguracoesLancamentosNovo(Integer idFuncionario);
 
     void insertDetalheDespesasMensaisLogs(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario, String valorCampo);
+
+    void insertConsolidacao(ConsolidacaoDAO consolidacaoDAO);
+
+    void deleteConsolidacao(ConsolidacaoDAO consolidacaoDAO);
+
+    void deleteDetalhesConsolidacao(ConsolidacaoDAO consolidacaoDAO);
+
+    void updateConsolidacao(ConsolidacaoDAO consolidacaoDAO);
+
+    void updateConsolidacaoDetalheDespesa(Integer idConsolidacao, Integer idDetalheDespesa, Integer idFuncionario);
+
+    void updateDespesasParceladasAssociacao(Integer idDespesaParcelada, Integer idConsolidacao, Integer idFuncionario);
+
+    void associarDespesaConsolidacao(ConsolidacaoDespesasDAO despesas);
+
+    void desassociarDespesaConsolidacao(ConsolidacaoDespesasDAO despesas);
 
     void updateLembrete(LembretesDAO lembretesDAO);
 
@@ -224,6 +257,8 @@ public interface AplicacaoRepository {
     void updateDetalheDespesasMensaisImportacao(DetalheDespesasMensaisDAO detalheDespesasMensais);
 
     void updateDetalheDespesasMensais(DetalheDespesasMensaisDAO detalheDespesasMensais);
+
+    void updateDetalheDespesasMensaisConsolidacao(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idConsolidacao, Integer idFuncionario);
 
     void updateDetalheDespesasMensaisOrdenacao(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idOrdem, Integer idNovaOrdem, Integer idFuncionario);
 

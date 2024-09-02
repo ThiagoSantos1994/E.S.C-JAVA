@@ -10,3 +10,5 @@ WHERE
     AND a.tp_Anotacao = 'N'
     AND a.tp_LinhaSeparacao = 'N'
     AND b.tp_DebitoCartao = 'S'
+    AND a.id_Consolidacao = 0
+

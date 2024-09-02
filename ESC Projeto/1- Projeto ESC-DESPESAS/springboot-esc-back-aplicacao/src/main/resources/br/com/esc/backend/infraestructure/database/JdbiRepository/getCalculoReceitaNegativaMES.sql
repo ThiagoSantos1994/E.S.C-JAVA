@@ -14,3 +14,4 @@ WHERE
     AND b.tp_Poupanca = 'N'
     AND b.tp_PoupancaNegativa = 'N'
     AND b.tp_Relatorio = 'N'
+    AND a.id_Consolidacao = 0

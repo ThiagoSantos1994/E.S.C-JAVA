@@ -8,3 +8,4 @@ WHERE
     AND id_DespesaLinkRelatorio = :idDespesaLinkRelatorio
     AND tp_Relatorio = 'S'
     AND tp_LinhaSeparacao = 'N'
+    AND id_Consolidacao = 0

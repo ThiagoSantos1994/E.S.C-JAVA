@@ -8,3 +8,4 @@ WHERE
     AND tp_LinhaSeparacao = 'N'
     AND (tp_Anotacao = 'N' OR tp_Anotacao = 'S' AND tp_ParcelaAdiada = 'S')
     AND ((id_Parcela > 1 AND id_DespesaParcelada IS NOT NULL) OR tp_Reprocessar = 'S')
+    AND id_Consolidacao = 0

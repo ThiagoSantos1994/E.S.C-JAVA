@@ -17,9 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+import static br.com.esc.backend.service.DetalheDespesasServices.parserOrdem;
 import static br.com.esc.backend.utils.DataUtils.AnoSeguinte;
-import static br.com.esc.backend.utils.ObjectUtils.isEmpty;
-import static br.com.esc.backend.utils.ObjectUtils.isNull;
+import static br.com.esc.backend.utils.ObjectUtils.*;
+import static br.com.esc.backend.utils.VariaveisGlobais.PENDENTE;
 import static br.com.esc.backend.utils.VariaveisGlobais.VALOR_ZERO;
 
 
@@ -36,6 +37,7 @@ public class LancamentosBusinessService {
     private final BackupServices backupServices;
     private final AutenticacaoServices autenticacaoServices;
     private final LembreteServices lembreteServices;
+    private final ConsolidacaoService consolidacaoService;
 
     @SneakyThrows
     public LancamentosFinanceirosDTO obterLancamentosFinanceiros(String dsMes, String dsAno, Integer idFuncionario) {
@@ -99,6 +101,11 @@ public class LancamentosBusinessService {
         for (DetalheDespesasMensaisRequest detalhe : request) {
             log.info("Excluindo detalhe despesa mensal - request: {}", detalhe);
             detalheDespesasServices.deleteDetalheDespesasMensais(detalhe.getIdDespesa(), detalhe.getIdDetalheDespesa(), detalhe.getIdOrdem(), detalhe.getIdFuncionario());
+
+            if (isNotNull(detalhe.getIdConsolidacao()) && detalhe.getIdConsolidacao() > 0) {
+                log.info("Removendo a consolidacao das despesas parceladas importadas que foram consolidadas.. idConsolidacao: {}", detalhe.getIdConsolidacao());
+                consolidacaoService.excluirConsolidacaoDetalheDespesaMensal(detalhe.getIdDespesa(), detalhe.getIdDetalheDespesa(), detalhe.getIdConsolidacao(), detalhe.getIdFuncionario());
+            }
         }
 
         var detalheRequest = request.get(0);
@@ -123,6 +130,8 @@ public class LancamentosBusinessService {
         log.info("Atualizando status das parcelas comuns e amortizadas para Pendente - request: idDespesa= {} - idFuncionario= {}", idDespesa, idFuncionario);
         repository.updateParcelaStatusPendenteDespesasExcluidas(idDespesa, idFuncionario);
 
+        //TODO implementar a exclusao da consolidacao na despesa geral
+
         log.info("Atualizando status das despesas parceladas para Em Aberto - request: idFuncionario= {}", idFuncionario);
         this.atualizaStatusDespesasParceladasEmAberto(idFuncionario);
     }
@@ -145,9 +154,15 @@ public class LancamentosBusinessService {
 
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
-    public void processarImportacaoDespesaParcelada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idFuncionario) {
-        log.info("Iniciando processamento importacao despesa parcelada - Filtros: idDespesa= {} - idDetalheDespesa= {} - idDespesaParcelada= {} - idFuncionario= {}", idDespesa, idDetalheDespesa, idDespesaParcelada, idFuncionario);
-        importacaoServices.processarImportacaoDespesaParcelada(idDespesa, idDetalheDespesa, idDespesaParcelada, idFuncionario);
+    public void processarImportacaoDespesaParcelada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idConsolidacao, Integer idFuncionario) {
+        if (isNull(idConsolidacao)) {
+            log.info("Iniciando processamento importacao despesa parcelada - Filtros: idDespesa= {} - idDetalheDespesa= {} - idDespesaParcelada= {} - idFuncionario= {}", idDespesa, idDetalheDespesa, idDespesaParcelada, idFuncionario);
+            importacaoServices.processarImportacaoDespesaParcelada(idDespesa, idDetalheDespesa, idDespesaParcelada, null, idFuncionario);
+        } else {
+            log.info("Iniciando processamento importacao consolidacao - Filtros: idDespesa= {} - idDetalheDespesa= {} - idDespesaParcelada= {} - idConsolidacao= {} - idFuncionario= {}", idDespesa, idDetalheDespesa, idDespesaParcelada, idConsolidacao, idFuncionario);
+            importacaoServices.processarImportacaoConsolidacao(idDespesa, idDetalheDespesa, idConsolidacao, idFuncionario);
+        }
+
         this.atualizaStatusDespesasParceladasEmAberto(idFuncionario);
     }
 
@@ -177,6 +192,19 @@ public class LancamentosBusinessService {
         DetalheDespesasMensaisDAO detalheDAO = new DetalheDespesasMensaisDAO();
         BeanUtils.copyProperties(detalheDAO, request);
         detalheDespesasServices.gravarDetalheDespesasMensais(detalheDAO, false);
+
+        if (isNotNull(request.getIdConsolidacao()) && request.getIdConsolidacao() > 0) {
+            var listDespesasConsolidadas = consolidacaoService.obterListDetalheDespesasConsolidadas(request.getIdDespesa(), request.getIdDetalheDespesa(), request.getIdConsolidacao(), request.getIdFuncionario());
+
+            for (DetalheDespesasMensaisDAO despesa : listDespesasConsolidadas) {
+                despesa.setTpStatus(PENDENTE);
+                despesa.setVlTotalPago(VALOR_ZERO);
+                despesa.setDsObservacao(null);
+
+                log.info("Gravando detalhe despesas parceladas consolidadas - request: {}", despesa);
+                detalheDespesasServices.gravarDetalheDespesasMensais(despesa, false);
+            }
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -184,6 +212,7 @@ public class LancamentosBusinessService {
     public void processarPagamentoDetalheDespesa(PagamentoDespesasRequest request) {
         log.info("Processando pagamento detalhe despesa mensal - Filtros: {}", request.toString());
         detalheDespesasServices.baixarPagamentoDespesas(request);
+        detalheDespesasServices.baixarPagamentoDespesasConsolidadas(request);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -198,6 +227,7 @@ public class LancamentosBusinessService {
                     .idDespesa(despesa.getIdDespesa())
                     .idDetalheDespesa(despesa.getIdDetalheDespesa())
                     .idDespesaParcelada(isNull(despesa.getIdDespesaParcelada()) ? 0 : despesa.getIdDespesaParcelada())
+                    .idConsolidacao(despesa.getIdConsolidacao())
                     .idParcela(isNull(despesa.getIdParcela()) ? 0 : despesa.getIdParcela())
                     .idOrdem(despesa.getIdOrdem())
                     .idFuncionario(despesa.getIdFuncionario())
@@ -208,7 +238,7 @@ public class LancamentosBusinessService {
                     .isProcessamentoAdiantamentoParcelas(false)
                     .build();
 
-            detalheDespesasServices.baixarPagamentoDespesas(request);
+            this.processarPagamentoDetalheDespesa(request);
         }
     }
 
@@ -216,15 +246,17 @@ public class LancamentosBusinessService {
     @SneakyThrows
     public void desfazerPagamentoDespesas(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario) {
         log.info("Desfazendo pagamento despesa mensal - Filtros: idDespesa: {} - idDetalheDespesa: {} - idFuncionario: {}", idDespesa, idDetalheDespesa, idFuncionario);
-        var detalheDespesas = detalheDespesasServices.obterDetalheDespesaMensal(idDespesa, idDetalheDespesa, idFuncionario, null)
-                .getDetalheDespesaMensal();
+        var detalheDespesas = repository.getDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario, parserOrdem(null));
 
         for (DetalheDespesasMensaisDAO despesa : detalheDespesas) {
-            var request = PagamentoDespesasRequest.builder()
+            PagamentoDespesasRequest request;
+
+            request = PagamentoDespesasRequest.builder()
                     .idDespesa(despesa.getIdDespesa())
                     .idDetalheDespesa(despesa.getIdDetalheDespesa())
                     .idDespesaParcelada(isNull(despesa.getIdDespesaParcelada()) ? 0 : despesa.getIdDespesaParcelada())
                     .idParcela(isNull(despesa.getIdParcela()) ? 0 : despesa.getIdParcela())
+                    .idConsolidacao(despesa.getIdConsolidacao())
                     .idOrdem(despesa.getIdOrdem())
                     .idFuncionario(despesa.getIdFuncionario())
                     .vlTotal(despesa.getVlTotal())
@@ -235,8 +267,11 @@ public class LancamentosBusinessService {
                     .build();
 
             detalheDespesasServices.desfazerBaixaPagamentoDespesas(request);
+            detalheDespesasServices.desfazerBaixaPagamentoDespesasConsolidadas(request);
         }
     }
+
+
 
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
@@ -557,11 +592,44 @@ public class LancamentosBusinessService {
         return lembreteServices.getLembreteDetalhe(idLembrete, idFuncionario);
     }
 
+    public ConsolidacaoDAO obterDetalheConsolidacao(Integer idConsolidacao, Integer idFuncionario) {
+        log.info("Obtendo detalhes consolidacao id = {}", idConsolidacao);
+        return consolidacaoService.getDetalheConsolidacao(idConsolidacao, idFuncionario);
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
     public void baixarLembretesMonitor(List<TituloLembretesDAO> request, String tipoBaixa) {
         log.info("Realizando a baixa de lembretes >>> tipoBaixa: {} - request: {}", request, tipoBaixa);
         lembreteServices.baixarLembretesMonitor(request, tipoBaixa);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
+    public void gravarConsolidacao(ConsolidacaoDAO request) {
+        log.info("Gravando consolidacao >>> request: {}", request);
+        consolidacaoService.gravarConsolidacao(request);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
+    public void excluirConsolidacao(ConsolidacaoDAO request) {
+        log.info("Excluindo consolidacao >>> request: {}", request);
+        consolidacaoService.excluirConsolidacao(request);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
+    public void associarDespesasConsolidacao(ConsolidacaoDespesasDAO request) {
+        log.info("Associando despesa a consolidacao >>> request: {}", request);
+        consolidacaoService.associarDespesa(request);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
+    public void desassociarDespesasConsolidacao(List<ConsolidacaoDespesasDAO> request) {
+        log.info("Desassociando despesa a consolidacao >>> request: {}", request);
+        consolidacaoService.desassociarDespesa(request);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -596,6 +664,11 @@ public class LancamentosBusinessService {
 
     public StringResponse validaSessaoUsuario(Integer idFuncionario) {
         return autenticacaoServices.validarSessaoUsuario(idFuncionario);
+    }
+
+    public List<TituloConsolidacao> obterTituloConsolidacoes(Integer idFuncionario, Boolean tpBaixado) {
+        log.info("Obtendo lista de consolidacoes");
+        return consolidacaoService.getListaNomesConsolidacoes(idFuncionario, tpBaixado);
     }
 
     @Transactional(rollbackFor = Exception.class)

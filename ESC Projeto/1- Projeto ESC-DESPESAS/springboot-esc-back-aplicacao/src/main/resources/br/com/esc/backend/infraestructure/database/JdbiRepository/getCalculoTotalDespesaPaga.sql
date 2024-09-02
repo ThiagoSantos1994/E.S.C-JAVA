@@ -9,3 +9,4 @@ WHERE
     AND tp_Anotacao = 'N'
     AND tp_LinhaSeparacao = 'N'
     AND tp_Status = 'Pago'
+    AND id_Consolidacao = 0

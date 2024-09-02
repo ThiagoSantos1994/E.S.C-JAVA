@@ -8,3 +8,4 @@ WHERE
     AND id_Funcionario = :idFuncionario
     AND tp_Anotacao = 'N'
     AND tp_LinhaSeparacao = 'N'
+    AND id_Consolidacao = 0

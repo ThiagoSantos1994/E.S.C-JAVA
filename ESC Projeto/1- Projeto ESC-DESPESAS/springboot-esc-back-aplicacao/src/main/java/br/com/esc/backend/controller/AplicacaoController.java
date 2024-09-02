@@ -201,6 +201,42 @@ public class AplicacaoController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping(path = "/consolidacao/obterTituloConsolidacoes/{idFuncionario}/{tpBaixado}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<TituloConsolidacao>> obterTituloConsolidacoes(@PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("tpBaixado") Boolean tpBaixado) {
+        var response = service.obterTituloConsolidacoes(idFuncionario, tpBaixado);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(path = "/consolidacao/consultar/{idConsolidacao}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ConsolidacaoDAO> obterDetalhesConsolidacao(@PathVariable("idConsolidacao") Integer idConsolidacao, @PathVariable("idFuncionario") Integer idFuncionario) {
+        var response = service.obterDetalheConsolidacao(idConsolidacao, idFuncionario);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(path = "/consolidacao/gravar", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> gravarConsolidacao(@RequestBody ConsolidacaoDAO request) {
+        service.gravarConsolidacao(request);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping(path = "/consolidacao/excluir", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> excluirConsolidacao(@RequestBody ConsolidacaoDAO request) {
+        service.excluirConsolidacao(request);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping(path = "/consolidacao/despesa/associar", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> associarDespesaConsolidacao(@RequestBody ConsolidacaoDespesasDAO request) {
+        service.associarDespesasConsolidacao(request);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping(path = "/consolidacao/despesas/desassociar", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> desassociarDespesaConsolidacao(@RequestBody List<ConsolidacaoDespesasDAO> request) {
+        service.desassociarDespesasConsolidacao(request);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @PostMapping(path = "/lancamentosFinanceiros/detalheDespesasMensais/observacoes/gravar", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> gravarObservacoesDetalheDespesa(@RequestBody ObservacoesDetalheDespesaRequest request) {
         service.gravarObservacoesDetalheDespesa(request);
@@ -361,9 +397,9 @@ public class AplicacaoController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping(path = "/lancamentosFinanceiros/importacao/despesaParcelada/{idDespesa}/{idDetalheDespesa}/{idDespesaParcelada}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> processarImportacaoDespesaParcelada(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idDespesaParcelada") Integer idDespesaParcelada, @PathVariable("idFuncionario") Integer idFuncionario) {
-        service.processarImportacaoDespesaParcelada(idDespesa, idDetalheDespesa, idDespesaParcelada, idFuncionario);
+    @PostMapping(path = "/lancamentosFinanceiros/importacao/despesaParcelada/{idDespesa}/{idDetalheDespesa}/{idDespesaParcelada}/{idConsolidacao}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> processarImportacaoDespesaParcelada(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idDespesaParcelada") Integer idDespesaParcelada, @PathVariable("idConsolidacao") Integer idConsolidacao, @PathVariable("idFuncionario") Integer idFuncionario) {
+        service.processarImportacaoDespesaParcelada(idDespesa, idDetalheDespesa, idDespesaParcelada, idConsolidacao, idFuncionario);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

@@ -15,3 +15,4 @@ WHERE
     AND b.tp_PoupancaNegativa = 'N'
     AND a.tp_Status = 'Pendente'
     AND b.tp_Relatorio = 'N'
+    AND a.id_Consolidacao = 0

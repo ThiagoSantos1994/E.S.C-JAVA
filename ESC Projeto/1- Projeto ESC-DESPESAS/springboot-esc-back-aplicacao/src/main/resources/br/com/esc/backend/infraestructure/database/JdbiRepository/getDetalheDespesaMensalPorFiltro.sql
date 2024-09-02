@@ -6,6 +6,8 @@ SELECT
     a.id_Ordem,
     a.id_Parcela,
     a.id_DespesaParcelada,
+    a.id_Consolidacao,
+    a.id_DespesaConsolidacao,
     a.id_Funcionario,
     a.id_DespesaLinkRelatorio,
     a.vl_Total,
@@ -27,6 +29,8 @@ WHERE
     (:detalhe.idDespesa IS NULL OR a.id_Despesa = :detalhe.idDespesa)
     AND (:detalhe.idDetalheDespesa IS NULL OR a.id_DetalheDespesa = :detalhe.idDetalheDespesa)
     AND (:detalhe.idDespesaParcelada IS NULL OR a.id_DespesaParcelada = :detalhe.idDespesaParcelada)
+    AND (:detalhe.idConsolidacao IS NULL OR a.id_Consolidacao = :detalhe.idConsolidacao)
+    AND (:detalhe.idDespesaConsolidacao IS NULL OR a.id_DespesaConsolidacao = :detalhe.idDespesaConsolidacao)
     AND (:detalhe.dsDescricao IS NULL OR a.ds_Descricao = :detalhe.dsDescricao)
     AND (:detalhe.idFuncionario IS NULL OR a.id_Funcionario = :detalhe.idFuncionario)
     AND (:detalhe.tpReprocessar IS NULL OR a.tp_Reprocessar = :detalhe.tpReprocessar)

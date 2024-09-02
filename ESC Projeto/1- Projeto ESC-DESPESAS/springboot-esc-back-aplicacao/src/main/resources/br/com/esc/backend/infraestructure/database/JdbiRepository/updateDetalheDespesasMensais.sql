@@ -5,6 +5,8 @@ SET
     id_Ordem = :detalhe.idOrdem,
     id_DespesaParcelada = :detalhe.idDespesaParcelada,
     id_DespesaLinkRelatorio = :detalhe.idDespesaLinkRelatorio,
+    id_Consolidacao = :detalhe.idConsolidacao,
+    id_DespesaConsolidacao = :detalhe.idDespesaConsolidacao,
     id_Parcela = :detalhe.idParcela,
     vl_Total = :detalhe.vlTotal,
     vl_TotalPago = :detalhe.vlTotalPago,
