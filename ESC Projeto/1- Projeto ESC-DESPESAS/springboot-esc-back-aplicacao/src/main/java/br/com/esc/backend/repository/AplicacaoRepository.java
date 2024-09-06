@@ -1,7 +1,6 @@
 package br.com.esc.backend.repository;
 
 import br.com.esc.backend.domain.*;
-import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -89,6 +88,8 @@ public interface AplicacaoRepository {
     Integer getMaxOrdemDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 
     Integer getMaxOrdemDetalheDespesasTipoRelatorio(Integer idDespesa, Integer idFuncionario);
+
+    List<Integer> getDespesasParceladasConsolidadas (Integer idConsolidacao, Integer idFuncionario);
 
     DespesasFixasMensaisDAO getDespesasFixasTipoDebitoCartao(Integer idDespesa, Integer idFuncionario);
 
@@ -182,7 +183,7 @@ public interface AplicacaoRepository {
 
     ConsolidacaoDAO getConsolidacao(Integer idConsolidacao, Integer idFuncionario);
 
-    List<ConsolidacaoDespesasDAO> getDetalhesConsolidacao(Integer idConsolidacao, Integer idFuncionario);
+    List<ConsolidacaoDespesasResponse> getDetalhesConsolidacao(Integer idConsolidacao, Integer idFuncionario);
 
     LembretesDAO getLembreteDetalhe(Integer idLembrete, Integer idFuncionario);
 
@@ -220,13 +221,15 @@ public interface AplicacaoRepository {
 
     void updateConsolidacao(ConsolidacaoDAO consolidacaoDAO);
 
-    void updateConsolidacaoDetalheDespesa(Integer idConsolidacao, Integer idDetalheDespesa, Integer idFuncionario);
+    void updateConsolidacaoDespesa(Integer idConsolidacao, Integer idDetalheDespesa, Integer idFuncionario);
 
-    void updateDespesasParceladasAssociacao(Integer idDespesaParcelada, Integer idConsolidacao, Integer idFuncionario);
+    void updateDespesasParceladasConsolidacao(Integer idDespesaParcelada, Integer idConsolidacao, Integer idFuncionario);
 
-    void associarDespesaConsolidacao(ConsolidacaoDespesasDAO despesas);
+    void updateDetalheDespesasMensaisDesassociacao(Integer idConsolidacao, Integer idDespesaParcelada,Integer idFuncionario);
 
-    void desassociarDespesaConsolidacao(ConsolidacaoDespesasDAO despesas);
+    void insertDespesaConsolidacao(ConsolidacaoDespesasRequest despesas);
+
+    void deleteDespesaConsolidacao(ConsolidacaoDespesasRequest despesas);
 
     void updateLembrete(LembretesDAO lembretesDAO);
 
@@ -331,6 +334,8 @@ public interface AplicacaoRepository {
     void deleteDespesasMensaisTemp(Integer idFuncionario);
 
     void deleteDetalheDespesasMensaisTemp(Integer idFuncionario);
+
+    void deleteDetalheDespesasMensaisConsolidacao(Integer idConsolidacao, Integer idFuncionario);
 
     void deleteDespesasFixasMensaisTemp(Integer idFuncionario);
 

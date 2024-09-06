@@ -61,12 +61,17 @@ public class DetalheDespesasServices {
         if (isContemDespesasConsolidadas > 0) {
             List<DetalheDespesasMensaisDAO> newDetalheDespesasMensaisList = new ArrayList<>();
             for (DetalheDespesasMensaisDAO detalheDespesas : detalheDespesasMensaisList) {
-                if ((isNotNull(detalheDespesas.getIdConsolidacao()) && detalheDespesas.getIdConsolidacao() > 0) && detalheDespesas.getTpLinhaSeparacao().equals("N")) {
+                if (detalheDespesas.getIdConsolidacao() > 0 && detalheDespesas.getTpLinhaSeparacao().equals("N")) {
                     var valorTotalDespesa = repository.getCalculoTotalDespesaConsolidada(detalheDespesas.getIdDespesa(), detalheDespesas.getIdDetalheDespesa(), detalheDespesas.getIdConsolidacao(), detalheDespesas.getIdFuncionario());
                     var valorTotalDespesaPaga = repository.getCalculoTotalDespesaConsolidadaPaga(detalheDespesas.getIdDespesa(), detalheDespesas.getIdDetalheDespesa(), detalheDespesas.getIdConsolidacao(), detalheDespesas.getIdFuncionario());
 
                     detalheDespesas.setVlTotal(convertDecimalToString(valorTotalDespesa));
                     detalheDespesas.setVlTotalPago(convertDecimalToString(valorTotalDespesaPaga));
+
+                    //Adiciona a quantidade de despesas associadas a consolidação no nome da despesa
+                    var qtdeDespesasConsolidadas = repository.getDespesasParceladasConsolidadas(detalheDespesas.getIdConsolidacao(), detalheDespesas.getIdFuncionario()).size();
+                    var tituloDespesaConsolidada = detalheDespesas.getDsTituloDespesa().concat(" (" + qtdeDespesasConsolidadas + ")");
+                    detalheDespesas.setDsTituloDespesa(tituloDespesaConsolidada);
                 }
 
                 newDetalheDespesasMensaisList.add(detalheDespesas);
@@ -117,9 +122,15 @@ public class DetalheDespesasServices {
             detalheDAO.setTpParcelaAdiada(isEmpty(detalheDAO.getTpParcelaAdiada()) ? "N" : detalheDAO.getTpParcelaAdiada());
         }
 
-        //Retira os espaços em branco recebido na request pelo frontend
-        detalheDAO.setVlTotal(this.removeNBSP_html(detalheDAO.getVlTotal()));
-        detalheDAO.setVlTotalPago(this.removeNBSP_html(detalheDAO.getVlTotalPago()));
+        if (detalheDAO.getIdConsolidacao() > 0) {
+            detalheDAO.setVlTotal(VALOR_ZERO);
+            detalheDAO.setVlTotalPago(VALOR_ZERO);
+            detalheDAO.setDsDescricao(DESCRICAO_DESPESA_CONSOLIDACAO);
+        } else {
+            //Retira os espaços em branco recebido na request pelo frontend
+            detalheDAO.setVlTotal(this.removeNBSP_html(detalheDAO.getVlTotal()));
+            detalheDAO.setVlTotalPago(this.removeNBSP_html(detalheDAO.getVlTotalPago()));
+        }
 
         if (isNotNull(detalheDAO.getIdOrdem()) && this.isDetalheDespesaExistente(detalheDAO)) {
             log.info("Atualizando DetalheDespesaMensal: request = {}", detalheDAO);
@@ -318,6 +329,12 @@ public class DetalheDespesasServices {
 
     public void baixarPagamentoDespesas(PagamentoDespesasRequest request) throws Exception {
         if (request.getTpStatus().equalsIgnoreCase(PENDENTE)) {
+            var isDespesaConsolidada = (request.getIdConsolidacao() > 0);
+            if (isDespesaConsolidada) {
+                request.setVlTotal(VALOR_ZERO);
+                request.setVlTotalPago(VALOR_ZERO);
+            }
+
             var bProcessamentoAdiantamentoParcelas = request.getIsProcessamentoAdiantamentoParcelas();
 
             if ((bProcessamentoAdiantamentoParcelas.equals(true) && request.getIdDetalheDespesa() > 0) || bProcessamentoAdiantamentoParcelas.equals(false)) {
@@ -330,6 +347,7 @@ public class DetalheDespesasServices {
             if (bProcessamentoAdiantamentoParcelas.equals(false)) {
                 despesasParceladasServices.validaStatusDespesaParcelada(request.getIdDespesa(), request.getIdDetalheDespesa(), request.getIdDespesaParcelada(), request.getIdParcela(), request.getIdFuncionario(), PAGO, false);
             }
+            log.info("Baixa pagamento realizada com sucesso!");
         }
 
         /*Atualiza o stts pagamento para as linhas de separacao*/
@@ -337,11 +355,13 @@ public class DetalheDespesasServices {
     }
 
     public void baixarPagamentoDespesasConsolidadas(PagamentoDespesasRequest request) throws Exception {
-        if (isNotNull(request.getIdConsolidacao()) && request.getIdConsolidacao() > 0 && request.getTpStatus().equals(PENDENTE)) {
+        if (request.getIdConsolidacao() > 0 && request.getTpStatus().equals(PENDENTE)) {
+            log.info("Processando pagamento detalhe despesa consolidada - idConsolidacao: {}", request.getIdConsolidacao());
+
             var listDespesasConsolidadas = consolidacaoService.obterListDetalheDespesasConsolidadas(request.getIdDespesa(), request.getIdDetalheDespesa(), request.getIdConsolidacao(), request.getIdFuncionario());
 
             for (DetalheDespesasMensaisDAO despesa : listDespesasConsolidadas) {
-                log.info("Processando pagamento detalhe despesa consolidada - {}", despesa);
+                log.info("Processando pagamento despesa consolidada - {}", despesa);
 
                 var requestBaixa = PagamentoDespesasRequest.builder()
                         .idDespesa(despesa.getIdDespesa())
@@ -389,7 +409,7 @@ public class DetalheDespesasServices {
             var listDespesasConsolidadas = consolidacaoService.obterListDetalheDespesasConsolidadas(request.getIdDespesa(), request.getIdDetalheDespesa(), request.getIdConsolidacao(), request.getIdFuncionario());
 
             for (DetalheDespesasMensaisDAO detalhe : listDespesasConsolidadas) {
-                log.info("Desfazendo pagamento detalhe despesa consolidada - {}", detalhe);
+                log.info("Desfazendo pagamento detalhe despesa consolidada request - {}", detalhe);
 
                 request = PagamentoDespesasRequest.builder()
                         .idDespesa(detalhe.getIdDespesa())
@@ -528,6 +548,25 @@ public class DetalheDespesasServices {
         return extrato;
     }
 
+    public DetalheDespesasMensaisDAO parserToDetalheDespesasConsolidadas(DetalheDespesasMensaisRequest request, DetalheDespesasMensaisDAO despesa) {
+        // Parser realizado para gravar as despesas parceladas amortizadas com a atualização do request
+
+        despesa.setIdDespesaLinkRelatorio(request.getIdDespesaLinkRelatorio());
+        despesa.setTpStatus(request.getTpStatus());
+        despesa.setVlTotalPago(request.getVlTotalPago());
+        despesa.setTpAnotacao(request.getTpAnotacao());
+        despesa.setTpMeta(request.getTpMeta());
+        despesa.setTpCategoriaDespesa(request.getTpCategoriaDespesa());
+        despesa.setTpReprocessar(request.getTpReprocessar());
+        despesa.setTpRelatorio(request.getTpRelatorio());
+        despesa.setDsObservacao(request.getDsObservacao());
+        despesa.setDsObservacao2(request.getDsObservacao2());
+        despesa.setTpParcelaAdiada(request.getTpParcelaAdiada());
+        despesa.setTpParcelaAmortizada(request.getTpParcelaAmortizada());
+
+        return despesa;
+    }
+
     private Boolean isDetalheDespesaExistente(DetalheDespesasMensaisDAO detalhe) {
         var filtro = DetalheDespesasMensaisDAO.builder()
                 .idDespesa(detalhe.getIdDespesa())
@@ -570,7 +609,6 @@ public class DetalheDespesasServices {
     private DespesasFixasMensaisDAO obterReferenciaMesProcessamento(Integer idDespesa, Integer idFuncionario) {
         return repository.getDespesaFixaMensalPorFiltro(idDespesa, 1, idFuncionario);
     }
-
 
     public static String parserOrdem(String ordem) {
         if (ObjectUtils.isEmpty(ordem)) {

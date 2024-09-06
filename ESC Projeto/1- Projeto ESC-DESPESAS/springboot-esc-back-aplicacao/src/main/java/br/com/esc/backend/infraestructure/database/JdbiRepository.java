@@ -232,6 +232,10 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlQuery
+    List<Integer> getDespesasParceladasConsolidadas (Integer idConsolidacao, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
     BigDecimal getCalculoValorDespesaTipoCartaoDebito(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 
     @Override
@@ -393,7 +397,7 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlQuery
     @UseRowMapper(DetalheConsolidacaoRowMapper.class)
-    List<ConsolidacaoDespesasDAO> getDetalhesConsolidacao(Integer idConsolidacao, Integer idFuncionario);
+    List<ConsolidacaoDespesasResponse> getDetalhesConsolidacao(Integer idConsolidacao, Integer idFuncionario);
 
     @Override
     @SqlQuery
@@ -471,19 +475,23 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlUpdate
-    void updateConsolidacaoDetalheDespesa(Integer idConsolidacao, Integer idDetalheDespesa, Integer idFuncionario);
+    void updateConsolidacaoDespesa(Integer idConsolidacao, Integer idDetalheDespesa, Integer idFuncionario);
 
     @Override
     @SqlUpdate
-    void updateDespesasParceladasAssociacao(Integer idDespesaParcelada, Integer idConsolidacao, Integer idFuncionario);
+    void updateDespesasParceladasConsolidacao(Integer idDespesaParcelada, Integer idConsolidacao, Integer idFuncionario);
 
     @Override
     @SqlUpdate
-    void associarDespesaConsolidacao(@BindBean("despesa") ConsolidacaoDespesasDAO despesas);
+    void updateDetalheDespesasMensaisDesassociacao(Integer idConsolidacao, Integer idDespesaParcelada,Integer idFuncionario);
 
     @Override
     @SqlUpdate
-    void desassociarDespesaConsolidacao(@BindBean("despesa") ConsolidacaoDespesasDAO despesas);
+    void insertDespesaConsolidacao(@BindBean("despesa") ConsolidacaoDespesasRequest despesas);
+
+    @Override
+    @SqlUpdate
+    void deleteDespesaConsolidacao(@BindBean("despesa") ConsolidacaoDespesasRequest despesas);
 
     @Override
     @SqlUpdate
@@ -692,6 +700,10 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlUpdate
     void deleteDetalheDespesasMensaisTemp(Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void deleteDetalheDespesasMensaisConsolidacao(Integer idConsolidacao, Integer idFuncionario);
 
     @Override
     @SqlUpdate

@@ -5,17 +5,17 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ConsolidacaoDAO {
+public class ConsolidacaoDespesasResponse {
     private Integer idConsolidacao;
-    private String dsTituloConsolidacao;
-    private String tpBaixado;
-    private String dataCadastro;
+    private Integer idDespesaParcelada;
+    private String dsNomeDespesa;
+    private String valorDespesa;
+    private Integer nrParcelasAdiantadas;
+    private String statusDespesa;
     private Integer idFuncionario;
-    private List<ConsolidacaoDespesasResponse> despesasConsolidadas;
+    private String dataAssociacao;
 }

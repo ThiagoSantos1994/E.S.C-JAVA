@@ -1,15 +1,13 @@
 package br.com.esc.backend.service;
 
-import br.com.esc.backend.domain.ConsolidacaoDAO;
-import br.com.esc.backend.domain.ConsolidacaoDespesasDAO;
-import br.com.esc.backend.domain.DetalheDespesasMensaisDAO;
-import br.com.esc.backend.domain.TituloConsolidacao;
+import br.com.esc.backend.domain.*;
 import br.com.esc.backend.repository.AplicacaoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,46 +51,57 @@ public class ConsolidacaoService {
     }
 
     public void excluirConsolidacao(ConsolidacaoDAO consolidacaoDAO) {
-        log.info("Excluindo a consolidacao...");
-        aplicacaoRepository.deleteConsolidacao(consolidacaoDAO);
+        for (ConsolidacaoDespesasResponse despesa : aplicacaoRepository.getDetalhesConsolidacao(consolidacaoDAO.getIdConsolidacao(), consolidacaoDAO.getIdFuncionario())) {
+            log.info("Desassociando a consolidacao da despesa parcelada... >> {} ", despesa);
+            aplicacaoRepository.updateDespesasParceladasConsolidacao(despesa.getIdDespesaParcelada(), 0, despesa.getIdFuncionario());
+        }
+
+        log.info("Excluindo despesa consolidada dos detalheDespesasMensais...");
+        aplicacaoRepository.deleteDetalheDespesasMensaisConsolidacao(consolidacaoDAO.getIdConsolidacao(), consolidacaoDAO.getIdFuncionario());
+
+        log.info("Desassociando detalheDespesasMensais consolidadas...");
+        aplicacaoRepository.updateDetalheDespesasMensaisDesassociacao(consolidacaoDAO.getIdConsolidacao(), null, consolidacaoDAO.getIdFuncionario());
 
         log.info("Excluindo detalhes da consolidacao...");
         aplicacaoRepository.deleteDetalhesConsolidacao(consolidacaoDAO);
 
-        for (ConsolidacaoDespesasDAO despesa : aplicacaoRepository.getDetalhesConsolidacao(consolidacaoDAO.getIdConsolidacao(), consolidacaoDAO.getIdFuncionario())) {
-            log.info("Realizando update despesas parceladas consolidadas... >> {} ", despesa);
-            aplicacaoRepository.updateDespesasParceladasAssociacao(despesa.getIdDespesaParcelada(), 0, despesa.getIdFuncionario());
-        }
-    }
-
-    public void associarDespesa(ConsolidacaoDespesasDAO despesas) {
-        aplicacaoRepository.associarDespesaConsolidacao(despesas);
-    }
-
-    public void desassociarDespesa(List<ConsolidacaoDespesasDAO> despesas) {
-        for (ConsolidacaoDespesasDAO despesa : despesas) {
-            aplicacaoRepository.updateDespesasParceladasAssociacao(despesa.getIdDespesaParcelada(), null, despesa.getIdFuncionario());
-            aplicacaoRepository.desassociarDespesaConsolidacao(despesa);
-        }
+        log.info("Excluindo a consolidacao...");
+        aplicacaoRepository.deleteConsolidacao(consolidacaoDAO);
     }
 
     public void associarConsolidacaoDetalheDespesaMensal(Integer idDespesa, Integer idDetalheDespesa, Integer idConsolidacao, Integer idFuncionario) {
-        for (ConsolidacaoDespesasDAO despesaConsolidada : aplicacaoRepository.getDetalhesConsolidacao(idConsolidacao, idFuncionario)) {
+        for (ConsolidacaoDespesasResponse despesaConsolidada : aplicacaoRepository.getDetalhesConsolidacao(idConsolidacao, idFuncionario)) {
             var idDespesaParcelada = despesaConsolidada.getIdDespesaParcelada();
+            //Atualiza com o ID da consolidacacao a despesa atual e das seguintes que ja estão importadas
             aplicacaoRepository.updateDetalheDespesasMensaisConsolidacao(idDespesa, idDetalheDespesa, idDespesaParcelada, idConsolidacao, idFuncionario);
         }
 
-        aplicacaoRepository.updateConsolidacaoDetalheDespesa(idConsolidacao, idDetalheDespesa, idFuncionario);
+        aplicacaoRepository.updateConsolidacaoDespesa(idConsolidacao, idDetalheDespesa, idFuncionario);
+    }
+
+    public void associarDespesa(List<ConsolidacaoDespesasRequest> despesas) {
+        for (ConsolidacaoDespesasRequest despesa : despesas) {
+            aplicacaoRepository.insertDespesaConsolidacao(despesa);
+            aplicacaoRepository.updateDespesasParceladasConsolidacao(despesa.getIdDespesaParcelada(), despesa.getIdConsolidacao(), despesa.getIdFuncionario());
+        }
+    }
+
+    public void desassociarDespesa(List<ConsolidacaoDespesasRequest> despesas) {
+        for (ConsolidacaoDespesasRequest despesa : despesas) {
+            aplicacaoRepository.deleteDespesaConsolidacao(despesa);
+            aplicacaoRepository.updateDespesasParceladasConsolidacao(despesa.getIdDespesaParcelada(), null, despesa.getIdFuncionario());
+            aplicacaoRepository.updateDetalheDespesasMensaisDesassociacao(despesa.getIdConsolidacao(), despesa.getIdDespesaParcelada(), despesa.getIdFuncionario());
+        }
     }
 
     public void excluirConsolidacaoDetalheDespesaMensal(Integer idDespesa, Integer idDetalheDespesa, Integer idConsolidacao, Integer idFuncionario) {
-        for (ConsolidacaoDespesasDAO despesaConsolidada : aplicacaoRepository.getDetalhesConsolidacao(idConsolidacao, idFuncionario)) {
+        for (ConsolidacaoDespesasResponse despesaConsolidada : aplicacaoRepository.getDetalhesConsolidacao(idConsolidacao, idFuncionario)) {
             var idDespesaParcelada = despesaConsolidada.getIdDespesaParcelada();
             aplicacaoRepository.updateDetalheDespesasMensaisConsolidacao(idDespesa, idDetalheDespesa, idDespesaParcelada, 0, idFuncionario);
         }
 
         if (aplicacaoRepository.getValidaDetalheDespesaComConsolidacao(idConsolidacao, idFuncionario).equals("N")) {
-            aplicacaoRepository.updateConsolidacaoDetalheDespesa(idConsolidacao, null, idFuncionario);
+            aplicacaoRepository.updateConsolidacaoDespesa(idConsolidacao, null, idFuncionario);
         }
     }
 

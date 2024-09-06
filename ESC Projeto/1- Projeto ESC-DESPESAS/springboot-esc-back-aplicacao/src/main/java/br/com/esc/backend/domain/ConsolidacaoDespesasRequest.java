@@ -9,13 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ConsolidacaoDespesasDAO {
+public class ConsolidacaoDespesasRequest {
     private Integer idConsolidacao;
     private Integer idDespesaParcelada;
-    private String dsNomeDespesa;
-    private String valorDespesa;
-    private Integer nrParcelasAdiantadas;
-    private String statusDespesa;
     private Integer idFuncionario;
-    private String dataAssociacao;
 }

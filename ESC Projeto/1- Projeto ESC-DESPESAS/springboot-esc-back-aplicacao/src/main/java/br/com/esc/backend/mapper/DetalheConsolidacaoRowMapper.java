@@ -1,6 +1,6 @@
 package br.com.esc.backend.mapper;
 
-import br.com.esc.backend.domain.ConsolidacaoDespesasDAO;
+import br.com.esc.backend.domain.ConsolidacaoDespesasResponse;
 import br.com.esc.backend.service.DespesasParceladasServices;
 import lombok.extern.slf4j.Slf4j;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -11,13 +11,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @Slf4j
-public class DetalheConsolidacaoRowMapper implements RowMapper<ConsolidacaoDespesasDAO> {
+public class DetalheConsolidacaoRowMapper implements RowMapper<ConsolidacaoDespesasResponse> {
     @Autowired
     DespesasParceladasServices services;
 
     @Override
-    public ConsolidacaoDespesasDAO map(ResultSet rs, StatementContext ctx) throws SQLException {
-        return ConsolidacaoDespesasDAO.builder()
+    public ConsolidacaoDespesasResponse map(ResultSet rs, StatementContext ctx) throws SQLException {
+        return ConsolidacaoDespesasResponse.builder()
                 .idConsolidacao(rs.getInt("id_Consolidacao"))
                 .idFuncionario(rs.getInt("id_Funcionario"))
                 .idDespesaParcelada(rs.getInt("id_DespesaParcelada"))

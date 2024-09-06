@@ -278,6 +278,44 @@ public class DespesasParceladasServices {
                 .build();
     }
 
+    public TituloDespesaResponse getNomeConsolidacaoParaAssociacao(Integer idFuncionario, String tipo) {
+        List<TituloDespesa> listaConsolidacoes = new ArrayList<>();
+
+        if (tipo.equalsIgnoreCase("ativas")) {
+            for (TituloConsolidacao consolidacao : repository.getNomeConsolidacoesParaImportacao(idFuncionario)) {
+                var tituloDespesa = TituloDespesa.builder()
+                        .idDespesa(- consolidacao.getIdConsolidacao()) // para consolidacao foi necessario adicionar o - para tratar no frontend
+                        .idConsolidacao(consolidacao.getIdConsolidacao())
+                        .tituloDespesa(consolidacao.getTituloConsolidacao())
+                        .build();
+
+                listaConsolidacoes.add(tituloDespesa);
+            }
+        } else {
+            for (TituloConsolidacao consolidacao : repository.getNomeConsolidacoes(idFuncionario)) {
+                var tituloDespesa = TituloDespesa.builder()
+                        .idDespesa(- consolidacao.getIdConsolidacao()) // para consolidacao foi necessario adicionar o - para tratar no frontend
+                        .idConsolidacao(consolidacao.getIdConsolidacao())
+                        .tituloDespesa(consolidacao.getTituloConsolidacao())
+                        .build();
+
+                listaConsolidacoes.add(tituloDespesa);
+            }
+        }
+
+        List<String> listTituloDespesa = new ArrayList<>();
+        for (TituloDespesa despesas : listaConsolidacoes) {
+            listTituloDespesa.add(despesas.getTituloDespesa());
+        }
+
+        log.info("ListaConsolidacoesParaAssociacao: {}", listaConsolidacoes);
+        return TituloDespesaResponse.builder()
+                .despesas(listaConsolidacoes)
+                .sizeTituloDespesaVB(listaConsolidacoes.size())
+                .tituloDespesa(listTituloDespesa)
+                .build();
+    }
+
     public StringResponse validarTituloDespesaParceladaExistente(String dsTituloDespesaParcelada, Integer idDespesaParcelada, Integer idFuncionario) {
         var response = repository.getValidaTituloDespesaParceladaExistente(dsTituloDespesaParcelada, idDespesaParcelada, idFuncionario).compareTo(0) == 0 ? false : true;
         return StringResponse.builder()

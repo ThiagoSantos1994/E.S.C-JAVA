@@ -135,6 +135,12 @@ public class AplicacaoController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping(path = "/consolidacao/importacao/consultarConsolidacoes/{idFuncionario}/{tipo}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TituloDespesaResponse> consultarConsolidacoesParaAssociacao(@PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("tipo") String tipo) {
+        var response = service.consultarConsolidacoesParaAssociacao(idFuncionario, tipo);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping(path = "/despesasParceladas/validarTituloDespesaParceladaExistente/{dsTituloDespesaParcelada}/{idDespesaParcelada}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StringResponse> validarTituloDespesaParceladaExistente(@PathVariable("dsTituloDespesaParcelada") String dsTituloDespesaParcelada, @PathVariable("idDespesaParcelada") Integer idDespesaParcelada, @PathVariable("idFuncionario") Integer idFuncionario) {
         var response = service.validarTituloDespesaParceladaExistente(dsTituloDespesaParcelada, idDespesaParcelada, idFuncionario);
@@ -225,15 +231,15 @@ public class AplicacaoController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping(path = "/consolidacao/despesa/associar", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> associarDespesaConsolidacao(@RequestBody ConsolidacaoDespesasDAO request) {
-        service.associarDespesasConsolidacao(request);
+    @PostMapping(path = "/consolidacao/despesas/desassociar", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> desassociarDespesaConsolidacao(@RequestBody List<ConsolidacaoDespesasRequest> request) {
+        service.desassociarDespesasConsolidacao(request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping(path = "/consolidacao/despesas/desassociar", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> desassociarDespesaConsolidacao(@RequestBody List<ConsolidacaoDespesasDAO> request) {
-        service.desassociarDespesasConsolidacao(request);
+    @PostMapping(path = "/lancamentosFinanceiros/detalheDespesasMensais/consolidacao/associar/{idConsolidacao}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> associarDetalheDespesasConsolidacao(@PathVariable("idConsolidacao") Integer idConsolidacao, @RequestBody List<DetalheDespesasMensaisRequest> request) {
+        service.associarDespesaDetalheDespesasConsolidacao(idConsolidacao, request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

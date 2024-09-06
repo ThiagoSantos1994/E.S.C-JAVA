@@ -77,6 +77,16 @@ public class ImportarLancamentosServices {
                     repository.updateValorDetalheDespesasMensais(detalheDespesa);
                 }
             } else {
+                var idConsolidacao = detalheDespesa.getIdConsolidacao();
+                if (idConsolidacao > 0) {
+                    var isDespesaParceladaConsolidada = repository.getDespesasParceladasConsolidadas(idConsolidacao, idFuncionario).size();
+                    if (isDespesaParceladaConsolidada == 0) {
+                        // Caso a despesa consolidação não tenha mais nenhuma despesa parcelada em aberto, não inclui adiciona a despesa.
+                        log.info("Identificado despesa consolidada porem sem despesas parceladas em aberto, não foi adicionada a despesa. - idConsolidacao: {}", idConsolidacao);
+                        continue;
+                    }
+                }
+
                 log.info("Inserindo detalhe despesas mensais >>>  {}", detalheDespesa);
                 repository.insertDetalheDespesasMensais(asList(detalheDespesa));
 
@@ -165,6 +175,7 @@ public class ImportarLancamentosServices {
         List<DetalheDespesasMensaisDAO> detalheDespesasList = new ArrayList<>();
         for (DetalheDespesasMensaisDAO dao : repository.getDetalheDespesasMensais(idDespesaAnterior, idDetalheDespesa, idFuncionario, "a.id_Ordem")) {
             var idDespesaParcelada = dao.getIdDespesaParcelada();
+
             if (isNotNull(idDespesaParcelada) && idDespesaParcelada > 0) {
                 var dataVencimento = (dsMes + "/" + dsAno);
                 ParcelasDAO parcela = repository.getParcelaPorDataVencimento(idDespesaParcelada, dataVencimento, idFuncionario);
@@ -215,6 +226,8 @@ public class ImportarLancamentosServices {
             dao.setDsObservacao("");
             dao.setDsObservacao2("");
             dao.setIdDespesa(idDespesa);
+            dao.setIdConsolidacao(dao.getIdConsolidacao());
+            dao.setIdDespesaConsolidacao(dao.getIdDespesaConsolidacao());
 
             detalheDespesasList.add(dao);
         }
@@ -235,6 +248,8 @@ public class ImportarLancamentosServices {
                 .idFuncionario(detalhe.getIdFuncionario())
                 .idOrdem(detalhe.getTpLinhaSeparacao().equalsIgnoreCase("S") ? detalhe.getIdOrdem() : null)
                 .tpLinhaSeparacao(detalhe.getTpLinhaSeparacao())
+                .idConsolidacao(detalhe.getIdConsolidacao())
+                .idDespesaConsolidacao(detalhe.getIdDespesaConsolidacao())
                 .build();
 
         var detalheDespesasMensais = repository.getDetalheDespesaMensalPorFiltro(filtro);
@@ -378,6 +393,8 @@ public class ImportarLancamentosServices {
                     .idDespesaParcelada(idDespesaParcelada)
                     .idParcela(idParcela)
                     .idDespesaLinkRelatorio(0)
+                    .idConsolidacao(0)
+                    .idDespesaConsolidacao(0)
                     .tpAnotacao("N")
                     .tpReprocessar("N")
                     .tpMeta("N")

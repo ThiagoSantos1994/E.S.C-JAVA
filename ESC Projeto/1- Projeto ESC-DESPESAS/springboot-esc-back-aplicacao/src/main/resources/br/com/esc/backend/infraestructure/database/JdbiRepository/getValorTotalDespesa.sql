@@ -7,3 +7,4 @@ WHERE
     AND b.id_DetalheDespesa = :idDetalheDespesa
     AND b.id_Funcionario = :idFuncionario
     AND b.tp_Anotacao = 'N' AND b.tp_LinhaSeparacao = 'N'
+    AND b.id_Consolidacao = 0

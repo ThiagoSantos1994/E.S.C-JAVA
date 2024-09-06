@@ -24,6 +24,7 @@ FROM
 WHERE
     a.id_Despesa = :idDespesa
     AND a.id_Funcionario = :idFuncionario
+    AND (b.id_Consolidacao = 0 OR b.id_Consolidacao IS NULL)
 GROUP BY
     (CASE WHEN a.ds_NomeDespesa = '*EMP' THEN emp.ds_TituloEmprestimo  ELSE a.ds_NomeDespesa END),a.vl_Limite, a.id_DetalheDespesa,a.tp_Emprestimo,a.id_Emprestimo,a.tp_Poupanca,a.tp_Anotacao,a.ds_NomeDespesa,a.tp_DebitoAutomatico,a.id_OrdemExibicao,a.tp_LinhaSeparacao,a.tp_DespesaReversa,a.tp_PoupancaNegativa,a.tp_Relatorio,a.tp_ReferenciaSaldoMesAnterior,a.tp_DespesaCompartilhada, a.tp_DebitoCartao
 ORDER BY
