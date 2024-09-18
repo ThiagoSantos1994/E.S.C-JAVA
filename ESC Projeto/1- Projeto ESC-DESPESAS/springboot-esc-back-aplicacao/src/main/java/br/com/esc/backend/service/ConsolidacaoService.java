@@ -22,7 +22,7 @@ public class ConsolidacaoService {
     private final AplicacaoRepository aplicacaoRepository;
 
     public List<TituloConsolidacao> getListaNomesConsolidacoes(Integer idFuncionario, Boolean tpBaixado) {
-        return aplicacaoRepository.getTituloConsolidacao(idFuncionario, (tpBaixado.equals(true) ? "S" : null));
+        return aplicacaoRepository.getTituloConsolidacao(idFuncionario, (tpBaixado.equals(true) ? "tp_Baixado = 'S'" : "tp_Baixado = 'N'"));
     }
 
     public ConsolidacaoDAO getDetalheConsolidacao(Integer idConsolidacao, Integer idFuncionario) {
@@ -103,6 +103,23 @@ public class ConsolidacaoService {
         if (aplicacaoRepository.getValidaDetalheDespesaComConsolidacao(idConsolidacao, idFuncionario).equals("N")) {
             aplicacaoRepository.updateConsolidacaoDespesa(idConsolidacao, null, idFuncionario);
         }
+    }
+
+    public StringResponse obterRelatorioDespesasParceladasConsolidadas(Integer idDespesa, Integer idDetalheDespesa, Integer idConsolidacao, Integer idFuncionario) {
+        var listDespesas = this.obterListDetalheDespesasConsolidadas(idDespesa, idDetalheDespesa, idConsolidacao, idFuncionario);
+        StringBuffer buffer = new StringBuffer();
+
+        for (DetalheDespesasMensaisDAO dao : listDespesas) {
+            StringBuilder builder = new StringBuilder();
+            builder.append(dao.getVlTotal().concat("R$ - ").concat(dao.getDsTituloDespesa()));
+            builder.append(System.lineSeparator());
+
+            buffer.append(builder);
+        }
+
+        return StringResponse.builder()
+                .nomeDespesaParcelada(buffer.toString())
+                .build();
     }
 
     public List<DetalheDespesasMensaisDAO> obterListDetalheDespesasConsolidadas(Integer idDespesa, Integer idDetalheDespesa, Integer idConsolidacao, Integer idFuncionario) {

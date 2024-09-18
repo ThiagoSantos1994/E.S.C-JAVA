@@ -57,6 +57,8 @@ public interface AplicacaoRepository {
 
     ParcelasDAO getParcelaPorDataVencimento(Integer idDespesaParcelada, String dataVencimento, Integer idFuncionario);
 
+    String getStatusDespesaParcelada(Integer idDespesaParcelada, Integer idFuncionario);
+
     ParcelasDAO getParcelaDisponivelSemAmortizacao(Integer idDespesaParcelada, Integer idFuncionario);
 
     ParcelasDAO getUltimaParcelaDespesaParcelada(Integer idDespesaParcelada, Integer idFuncionario);
@@ -89,7 +91,9 @@ public interface AplicacaoRepository {
 
     Integer getMaxOrdemDetalheDespesasTipoRelatorio(Integer idDespesa, Integer idFuncionario);
 
-    List<Integer> getDespesasParceladasConsolidadas (Integer idConsolidacao, Integer idFuncionario);
+    List<Integer> getDespesasParceladasConsolidadas (Integer idDespesa, Integer idDetalheDespesa, Integer idConsolidacao, Integer idFuncionario);
+
+    List<Integer> getDespesasParceladasConsolidadasImportacao (Integer idConsolidacao, Integer idFuncionario);
 
     DespesasFixasMensaisDAO getDespesasFixasTipoDebitoCartao(Integer idDespesa, Integer idFuncionario);
 
@@ -179,7 +183,7 @@ public interface AplicacaoRepository {
 
     List<TituloLembretesDAO> getTituloLembretes(Integer idFuncionario, String tpBaixado);
 
-    List<TituloConsolidacao> getTituloConsolidacao(Integer idFuncionario, String tpBaixado);
+    List<TituloConsolidacao> getTituloConsolidacao(Integer idFuncionario, String status);
 
     ConsolidacaoDAO getConsolidacao(Integer idConsolidacao, Integer idFuncionario);
 
@@ -303,6 +307,10 @@ public interface AplicacaoRepository {
 
     void updateDetalheDespesasMensaisParcelaAdiada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, String dsObservacoes, String dsObservacoes2, String vlTotalParcelaAdiantada, Integer idFuncionario);
 
+    void updateDetalheDespesasMensaisDespesaConsolidadaAdiada(Integer idDespesa, Integer idDetalheDespesa, Integer idConsolidacao, String vlTotalParcelaAdiantada, Integer idFuncionario);
+
+    void updateDetalheDespesasMensaisDespesaConsolidadaAdiadaDesfazer(Integer idDespesa, Integer idDetalheDespesa, Integer idConsolidacao, Integer idFuncionario);
+
     void updateDetalheDespesasMensaisSemRelatorio(Integer idDespesa, Integer idDespesaLinkRelatorio, Integer idFuncionario);
 
     void updateDetalheDespesasMensaisDesfazerAdiantamento(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, String vlTotal, Integer idFuncionario);
@@ -365,7 +373,7 @@ public interface AplicacaoRepository {
 
     void deleteParcela(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
 
-    void deleteParcelaDetalheDespesasMensaisAdiantada(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
+    void deleteParcelaDetalheDespesasMensais(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
 
     void deleteLembrete(Integer idLembrete, Integer idFuncionario);
 }

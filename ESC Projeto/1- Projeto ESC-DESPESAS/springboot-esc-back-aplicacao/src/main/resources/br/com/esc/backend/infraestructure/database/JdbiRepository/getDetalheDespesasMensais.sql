@@ -2,7 +2,10 @@ SELECT
     a.id_Despesa,
     a.id_DetalheDespesa,
     UPPER(LTRIM(RTRIM(CASE a.ds_Descricao
-        WHEN '*PRC' THEN b.ds_TituloDespesaParcelada + ' - ' + c.nr_Parcela + '/' + (SELECT CASE COUNT(tp_ParcelaAdiada) WHEN 0 THEN CAST(b.nr_TotalParcelas AS VarChar(10)) ELSE CAST((b.nr_TotalParcelas + COUNT(tp_ParcelaAdiada)) AS VarChar(10)) + '*' END FROM tbd_Parcelas WHERE tp_ParcelaAdiada = 'S' AND id_DespesaParcelada = a.id_DespesaParcelada)
+        WHEN '*PRC' THEN b.ds_TituloDespesaParcelada + ' - ' + c.nr_Parcela + '/' +
+        (CASE c.tp_Quitado WHEN 'S' THEN '# [BAIXA-TOTAL] #' ELSE
+        (SELECT CASE COUNT(tp_ParcelaAdiada) WHEN 0 THEN CAST(b.nr_TotalParcelas AS VarChar(10)) ELSE CAST((b.nr_TotalParcelas + COUNT(tp_ParcelaAdiada)) AS VarChar(10)) + '*' END FROM tbd_Parcelas WHERE tp_ParcelaAdiada = 'S' AND id_DespesaParcelada = a.id_DespesaParcelada)
+        END)
         WHEN '*CONS' THEN cons.ds_TituloConsolidacao ELSE a.ds_Descricao
     END))) AS ds_TituloDespesa,
     UPPER(LTRIM(RTRIM(a.ds_Descricao))) AS ds_Descricao,

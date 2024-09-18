@@ -9,6 +9,7 @@ WHERE
 	a.id_Despesa = :idDespesa
 	AND a.id_Funcionario = :idFuncionario
 	AND (:idDetalheDespesa IS NULL OR a.id_DetalheDespesa = :idDetalheDespesa)
-	AND CAST(c.nr_Parcela AS INTEGER) = CAST((b.nr_TotalParcelas + b.nr_ParcelasAdiantadas) AS INTEGER)
+	AND (CAST(c.nr_Parcela AS INTEGER) = CAST((b.nr_TotalParcelas + b.nr_ParcelasAdiantadas) AS INTEGER)
+	    OR (b.tp_Baixado = 'S' AND c.tp_Quitado = 'S'))
 GROUP BY
 	b.ds_TituloDespesaParcelada

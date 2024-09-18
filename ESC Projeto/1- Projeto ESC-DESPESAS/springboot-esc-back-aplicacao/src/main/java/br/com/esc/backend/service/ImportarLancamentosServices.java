@@ -79,7 +79,7 @@ public class ImportarLancamentosServices {
             } else {
                 var idConsolidacao = detalheDespesa.getIdConsolidacao();
                 if (idConsolidacao > 0) {
-                    var isDespesaParceladaConsolidada = repository.getDespesasParceladasConsolidadas(idConsolidacao, idFuncionario).size();
+                    var isDespesaParceladaConsolidada = repository.getDespesasParceladasConsolidadasImportacao(idConsolidacao, idFuncionario).size();
                     if (isDespesaParceladaConsolidada == 0) {
                         // Caso a despesa consolidação não tenha mais nenhuma despesa parcelada em aberto, não inclui adiciona a despesa.
                         log.info("Identificado despesa consolidada porem sem despesas parceladas em aberto, não foi adicionada a despesa. - idConsolidacao: {}", idConsolidacao);
@@ -177,9 +177,14 @@ public class ImportarLancamentosServices {
             var idDespesaParcelada = dao.getIdDespesaParcelada();
 
             if (isNotNull(idDespesaParcelada) && idDespesaParcelada > 0) {
+                var isDespesaBaixada = repository.getStatusDespesaParcelada(idDespesaParcelada, idFuncionario).equalsIgnoreCase("S");
+                if (isDespesaBaixada) {
+                    log.info("Despesa parcelada baixada, não será adicionada a despesa mensal..");
+                    continue;
+                }
+
                 var dataVencimento = (dsMes + "/" + dsAno);
                 ParcelasDAO parcela = repository.getParcelaPorDataVencimento(idDespesaParcelada, dataVencimento, idFuncionario);
-
                 if (isNull(parcela)) {
                     //Em caso de reprocessamento, exclui a parcela da despesa se nao existir no fluxo de parcelas
                     repository.deleteDespesaParceladaImportada(idDespesa, idDetalheDespesa, idDespesaParcelada, idFuncionario);

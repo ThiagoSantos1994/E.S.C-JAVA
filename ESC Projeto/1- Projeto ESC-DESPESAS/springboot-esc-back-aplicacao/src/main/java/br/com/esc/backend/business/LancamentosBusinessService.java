@@ -104,7 +104,7 @@ public class LancamentosBusinessService {
             log.info("Excluindo detalhe despesa mensal - request: {}", detalhe);
             detalheDespesasServices.deleteDetalheDespesasMensais(detalhe.getIdDespesa(), detalhe.getIdDetalheDespesa(), detalhe.getIdOrdem(), detalhe.getIdFuncionario());
 
-            if (isNotNull(detalhe.getIdConsolidacao()) && detalhe.getIdConsolidacao() > 0) {
+            if (detalhe.getIdConsolidacao() > 0) {
                 log.info("Removendo a consolidacao das despesas parceladas importadas que foram consolidadas.. idConsolidacao: {}", detalhe.getIdConsolidacao());
                 consolidacaoService.excluirConsolidacaoDetalheDespesaMensal(detalhe.getIdDespesa(), detalhe.getIdDetalheDespesa(), detalhe.getIdConsolidacao(), detalhe.getIdFuncionario());
             }
@@ -272,8 +272,17 @@ public class LancamentosBusinessService {
     @SneakyThrows
     public void adiantarFluxoParcelas(List<DetalheDespesasMensaisRequest> request) {
         for (DetalheDespesasMensaisRequest despesa : request) {
-            log.info("Processando adiantamento fluxo de parcelas - request: {}, idDetalheDespesa = {}, idDespesaParcelada = {}, idParcela = {}, idFuncionario = {}", despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdDespesaParcelada(), despesa.getIdParcela(), despesa.getIdFuncionario());
-            despesasParceladasServices.adiantarFluxoParcelas(despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdDespesaParcelada(), despesa.getIdParcela(), despesa.getIdFuncionario());
+            if (despesa.getIdConsolidacao() == 0) {
+                log.info("Processando adiantamento fluxo de parcelas - request: = idDespesa: {}, idDetalheDespesa = {}, idDespesaParcelada = {}, idParcela = {}, idFuncionario = {}", despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdDespesaParcelada(), despesa.getIdParcela(), despesa.getIdFuncionario());
+                despesasParceladasServices.adiantarFluxoParcelas(despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdDespesaParcelada(), despesa.getIdParcela(), despesa.getIdFuncionario());
+            } else if (despesa.getIdConsolidacao() > 0) {
+                for (DetalheDespesasMensaisDAO consolidacao : consolidacaoService.obterListDetalheDespesasConsolidadas(despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdConsolidacao(), despesa.getIdFuncionario())) {
+                    log.info("Processando adiantamento fluxo de parcelas (Despesas Consolidadas) - request = idDespesa: {}, idDetalheDespesa = {}, idDespesaParcelada = {}, idParcela = {}, idDespesaConsolidacao = {}, idFuncionario = {}", consolidacao.getIdDespesa(), consolidacao.getIdDetalheDespesa(), consolidacao.getIdDespesaParcelada(), consolidacao.getIdParcela(), consolidacao.getIdDespesaConsolidacao(), consolidacao.getIdFuncionario());
+                    despesasParceladasServices.adiantarFluxoParcelas(consolidacao.getIdDespesa(), consolidacao.getIdDetalheDespesa(), consolidacao.getIdDespesaParcelada(), consolidacao.getIdParcela(), consolidacao.getIdFuncionario());
+                }
+                /*Altera a flag de ParcelaAdiada no detalhe das despesas mensais tipo consolidacao e baixa o pagamento e marca como despesa de anotacao*/
+                repository.updateDetalheDespesasMensaisDespesaConsolidadaAdiada(despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdConsolidacao(), despesa.getVlTotal(), despesa.getIdFuncionario());
+            }
         }
     }
 
@@ -281,8 +290,17 @@ public class LancamentosBusinessService {
     @SneakyThrows
     public void desfazerAdiantamentoFluxoParcelas(List<DetalheDespesasMensaisRequest> request) {
         for (DetalheDespesasMensaisRequest despesa : request) {
-            log.info("Processando fluxo para desfazer o adiantamento de parcelas - Filtros: idDespesa = {}, idDetalheDespesa = {}, idDespesaParcelada = {}, idParcela = {}, idFuncionario = {}", despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdDespesaParcelada(), despesa.getIdParcela(), despesa.getIdFuncionario());
-            despesasParceladasServices.desfazerAdiantamentoFluxoParcelas(despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdDespesaParcelada(), despesa.getIdParcela(), despesa.getIdFuncionario());
+            if (despesa.getIdConsolidacao() == 0) {
+                log.info("Processando fluxo para DESFAZER** o adiantamento fluxo de parcelas - request: idDespesa = {}, idDetalheDespesa = {}, idDespesaParcelada = {}, idParcela = {}, idFuncionario = {}", despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdDespesaParcelada(), despesa.getIdParcela(), despesa.getIdFuncionario());
+                despesasParceladasServices.desfazerAdiantamentoFluxoParcelas(despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdDespesaParcelada(), despesa.getIdParcela(), despesa.getIdFuncionario());
+            } else if (despesa.getIdConsolidacao() > 0) {
+                for (DetalheDespesasMensaisDAO consolidacao : consolidacaoService.obterListDetalheDespesasConsolidadas(despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdConsolidacao(), despesa.getIdFuncionario())) {
+                    log.info("Processando fluxo para DESFAZER** o adiantamento fluxo de parcelas (Despesas Consolidadas) - request = idDespesa: {}, idDetalheDespesa = {}, idDespesaParcelada = {}, idParcela = {}, idDespesaConsolidacao = {}, idFuncionario = {}", consolidacao.getIdDespesa(), consolidacao.getIdDetalheDespesa(), consolidacao.getIdDespesaParcelada(), consolidacao.getIdParcela(), consolidacao.getIdDespesaConsolidacao(), consolidacao.getIdFuncionario());
+                    despesasParceladasServices.desfazerAdiantamentoFluxoParcelas(consolidacao.getIdDespesa(), consolidacao.getIdDetalheDespesa(), consolidacao.getIdDespesaParcelada(), consolidacao.getIdParcela(), consolidacao.getIdFuncionario());
+                }
+                /*Altera a flag de ParcelaAdiada no detalhe das despesas mensais tipo consolidacao, desfaz a baixa o pagamento e desmarca como despesa de anotacao*/
+                repository.updateDetalheDespesasMensaisDespesaConsolidadaAdiadaDesfazer(despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdConsolidacao(), despesa.getIdFuncionario());
+            }
         }
     }
 
@@ -504,8 +522,8 @@ public class LancamentosBusinessService {
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
     public void quitarDespesaParcelada(Integer idDespesaParcelada, Integer idFuncionario, String valorQuitacao) {
-        log.info("Realizando a baixa total da despesa parcelada - idDespesaParcelada: {} - valorQuitacao: {}", idDespesaParcelada, valorQuitacao);
-        despesasParceladasServices.quitarDespesaParcelada(idDespesaParcelada, idFuncionario, valorQuitacao);
+        log.info("Realizando a quitação total da despesa parcelada - idDespesaParcelada: {} - valorQuitacao: {}", idDespesaParcelada, valorQuitacao);
+        despesasParceladasServices.quitarTotalmenteDespesaParcelada(idDespesaParcelada, idFuncionario, valorQuitacao);
     }
 
     @SneakyThrows
@@ -534,8 +552,14 @@ public class LancamentosBusinessService {
 
     @SneakyThrows
     public StringResponse obterRelatorioDespesasParceladasQuitacao(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario) {
-        log.info("Obtendo relatorio despesas parceladas que serão quitadas - idDespesa: {} - idDetalheDespesa: {}- idFuncionario: {}", idDespesa, idDetalheDespesa, idFuncionario);
+        log.info("Obtendo relatorio despesas parceladas que serão quitadas - idDespesa: {} - idDetalheDespesa: {} - idFuncionario: {}", idDespesa, idDetalheDespesa, idFuncionario);
         return despesasParceladasServices.obterRelatorioDespesasParceladasQuitacao(idDespesa, idDetalheDespesa, idFuncionario);
+    }
+
+    @SneakyThrows
+    public StringResponse obterRelatorioDespesasParceladasConsolidadas(Integer idDespesa, Integer idDetalheDespesa, Integer idConsolidacao, Integer idFuncionario) {
+        log.info("Obtendo relatorio despesas parceladas consolidadas - idDespesa: {} - idDetalheDespesa: {} - idConsolidacao: {} - idFuncionario: {}", idDespesa, idDetalheDespesa, idConsolidacao, idFuncionario);
+        return consolidacaoService.obterRelatorioDespesasParceladasConsolidadas(idDespesa, idDetalheDespesa, idConsolidacao, idFuncionario);
     }
 
     public StringResponse processarBackupBaseDados() {
@@ -681,7 +705,7 @@ public class LancamentosBusinessService {
     }
 
     public List<TituloConsolidacao> obterTituloConsolidacoes(Integer idFuncionario, Boolean tpBaixado) {
-        log.info("Obtendo lista de consolidacoes");
+        log.info("Obtendo lista de consolidacoes - baixado : {}", tpBaixado);
         return consolidacaoService.getListaNomesConsolidacoes(idFuncionario, tpBaixado);
     }
 

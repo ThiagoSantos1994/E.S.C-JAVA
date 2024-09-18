@@ -69,7 +69,7 @@ public class DetalheDespesasServices {
                     detalheDespesas.setVlTotalPago(convertDecimalToString(valorTotalDespesaPaga));
 
                     //Adiciona a quantidade de despesas associadas a consolidação no nome da despesa
-                    var qtdeDespesasConsolidadas = repository.getDespesasParceladasConsolidadas(detalheDespesas.getIdConsolidacao(), detalheDespesas.getIdFuncionario()).size();
+                    var qtdeDespesasConsolidadas = repository.getDespesasParceladasConsolidadas(idDespesa, idDetalheDespesa, detalheDespesas.getIdConsolidacao(), idFuncionario).size();
                     var tituloDespesaConsolidada = detalheDespesas.getDsTituloDespesa().concat(" (" + qtdeDespesasConsolidadas + ")");
                     detalheDespesas.setDsTituloDespesa(tituloDespesaConsolidada);
                 }

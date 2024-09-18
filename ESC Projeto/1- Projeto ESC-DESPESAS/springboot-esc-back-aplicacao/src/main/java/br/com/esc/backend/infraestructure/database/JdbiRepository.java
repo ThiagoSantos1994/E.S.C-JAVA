@@ -123,6 +123,10 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlQuery
+    String getStatusDespesaParcelada(Integer idDespesaParcelada, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
     @UseRowMapper(ParcelasRowMapper.class)
     List<ParcelasDAO> getParcelasPorFiltro(Integer idDespesaParcelada, Integer idParcela, String tpBaixado, Integer idFuncionario);
 
@@ -232,7 +236,11 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlQuery
-    List<Integer> getDespesasParceladasConsolidadas (Integer idConsolidacao, Integer idFuncionario);
+    List<Integer> getDespesasParceladasConsolidadas (Integer idDespesa, Integer idDetalheDespesa, Integer idConsolidacao, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
+    List<Integer> getDespesasParceladasConsolidadasImportacao (Integer idConsolidacao, Integer idFuncionario);
 
     @Override
     @SqlQuery
@@ -387,7 +395,7 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlQuery
     @UseRowMapper(TituloConsolidacaoRowMapper.class)
-    List<TituloConsolidacao> getTituloConsolidacao(Integer idFuncionario, String tpBaixado);
+    List<TituloConsolidacao> getTituloConsolidacao(Integer idFuncionario, @Define("status") String status);
 
     @Override
     @SqlQuery
@@ -623,6 +631,14 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlUpdate
+    void updateDetalheDespesasMensaisDespesaConsolidadaAdiada(Integer idDespesa, Integer idDetalheDespesa, Integer idConsolidacao, String vlTotalParcelaAdiantada, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void updateDetalheDespesasMensaisDespesaConsolidadaAdiadaDesfazer(Integer idDespesa, Integer idDetalheDespesa, Integer idConsolidacao, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
     void updateDetalheDespesasMensaisSemRelatorio(Integer idDespesa, Integer idDespesaLinkRelatorio, Integer idFuncionario);
 
     @Override
@@ -763,7 +779,7 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlUpdate
-    void deleteParcelaDetalheDespesasMensaisAdiantada(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
+    void deleteParcelaDetalheDespesasMensais(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
 
     @Override
     @SqlUpdate

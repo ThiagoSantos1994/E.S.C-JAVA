@@ -162,13 +162,18 @@ public class DespesasParceladasServices {
         var isValidaAdiantamentoMes = repository.getValidaDetalheDespesaParceladaAdiantada(idDespesa, idDetalheDespesa, idDespesaParcelada, idFuncionario);
 
         if (isValidaAdiantamentoMes.equalsIgnoreCase("N")) {
-            var parcelaAtual = repository.getParcelasPorFiltro(idDespesaParcelada, idParcela, null, idFuncionario);
-            if (parcelaAtual.get(0).getTpBaixado().equalsIgnoreCase("S")) {
-                throw new ErroNegocioException("Não é possivel adiantar uma parcela que ja foi paga.");
+            var parcelaAtual = repository.getParcelasPorFiltro(idDespesaParcelada, idParcela, null, idFuncionario).get(0);
+            if (parcelaAtual.getTpBaixado().equalsIgnoreCase("S")) {
+                log.error("Não é possivel adiantar uma parcela que ja foi paga anteriormente...");
+                return;
             }
 
             var parcela = repository.getUltimaParcelaDespesaParcelada(idDespesaParcelada, idFuncionario);
             var novaParcelaRequest = this.parserToNovaParcelaAdiantamento(parcela);
+
+            if (convertStringToDecimal(novaParcelaRequest.getVlParcela()).compareTo(convertStringToDecimal(parcelaAtual.getVlParcela())) != 0) {
+                novaParcelaRequest.setVlParcela(parcelaAtual.getVlParcela());
+            }
 
             /*Grava a nova parcela adiantada*/
             log.info("Gravando nova parcela adiantamento >>> " + novaParcelaRequest);
@@ -202,7 +207,7 @@ public class DespesasParceladasServices {
             repository.deleteParcela(parcela.getIdDespesaParcelada(), parcela.getIdParcela(), parcela.getIdFuncionario());
 
             /*Exclui a parcela adiantada do detalhe despesas mensais (caso tenha sido importada)*/
-            repository.deleteParcelaDetalheDespesasMensaisAdiantada(parcela.getIdDespesaParcelada(), parcela.getIdParcela(), idFuncionario);
+            repository.deleteParcelaDetalheDespesasMensais(parcela.getIdDespesaParcelada(), parcela.getIdParcela(), idFuncionario);
 
             /*Desfaz a baixa da parcela com amortizacao e volta o stts para PENDENTE*/
             repository.updateParcelaStatusPendenteParcelaAdiada(idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, valorParcelaAdiantada, idFuncionario);
@@ -244,7 +249,7 @@ public class DespesasParceladasServices {
 
             for (TituloConsolidacao consolidacao : repository.getNomeConsolidacoesParaImportacao(idFuncionario)) {
                 var tituloDespesa = TituloDespesa.builder()
-                        .idDespesa(- consolidacao.getIdConsolidacao()) // para consolidacao foi necessario adicionar o - para tratar no frontend
+                        .idDespesa(-consolidacao.getIdConsolidacao()) // para consolidacao foi necessario adicionar o - para tratar no frontend
                         .idConsolidacao(consolidacao.getIdConsolidacao())
                         .tituloDespesa(consolidacao.getTituloConsolidacao())
                         .build();
@@ -256,7 +261,7 @@ public class DespesasParceladasServices {
 
             for (TituloConsolidacao consolidacao : repository.getNomeConsolidacoes(idFuncionario)) {
                 var tituloDespesa = TituloDespesa.builder()
-                        .idDespesa(- consolidacao.getIdConsolidacao()) // para consolidacao foi necessario adicionar o - para tratar no frontend
+                        .idDespesa(-consolidacao.getIdConsolidacao()) // para consolidacao foi necessario adicionar o - para tratar no frontend
                         .idConsolidacao(consolidacao.getIdConsolidacao())
                         .tituloDespesa(consolidacao.getTituloConsolidacao())
                         .build();
@@ -284,7 +289,7 @@ public class DespesasParceladasServices {
         if (tipo.equalsIgnoreCase("ativas")) {
             for (TituloConsolidacao consolidacao : repository.getNomeConsolidacoesParaImportacao(idFuncionario)) {
                 var tituloDespesa = TituloDespesa.builder()
-                        .idDespesa(- consolidacao.getIdConsolidacao()) // para consolidacao foi necessario adicionar o - para tratar no frontend
+                        .idDespesa(-consolidacao.getIdConsolidacao()) // para consolidacao foi necessario adicionar o - para tratar no frontend
                         .idConsolidacao(consolidacao.getIdConsolidacao())
                         .tituloDespesa(consolidacao.getTituloConsolidacao())
                         .build();
@@ -294,7 +299,7 @@ public class DespesasParceladasServices {
         } else {
             for (TituloConsolidacao consolidacao : repository.getNomeConsolidacoes(idFuncionario)) {
                 var tituloDespesa = TituloDespesa.builder()
-                        .idDespesa(- consolidacao.getIdConsolidacao()) // para consolidacao foi necessario adicionar o - para tratar no frontend
+                        .idDespesa(-consolidacao.getIdConsolidacao()) // para consolidacao foi necessario adicionar o - para tratar no frontend
                         .idConsolidacao(consolidacao.getIdConsolidacao())
                         .tituloDespesa(consolidacao.getTituloConsolidacao())
                         .build();
@@ -323,7 +328,7 @@ public class DespesasParceladasServices {
                 .build();
     }
 
-    public void quitarDespesaParcelada(Integer idDespesaParcelada, Integer idFuncionario, String valorQuitacao) {
+    public void quitarTotalmenteDespesaParcelada(Integer idDespesaParcelada, Integer idFuncionario, String valorQuitacao) {
         var bDespesaPagaComOuSemDesconto = true;
         BigDecimal valorTotalDespesa = convertStringToDecimal(repository.getValorTotalDespesaParceladaPendente(idDespesaParcelada, idFuncionario));
         BigDecimal valorDesconto = valorTotalDespesa.subtract(convertStringToDecimal(valorQuitacao));
@@ -334,10 +339,7 @@ public class DespesasParceladasServices {
             var idParcela = parcela.getIdParcela();
 
             if (bDespesaPagaComOuSemDesconto) {
-                log.info("Quitacao parcelas >> {}", observacoes);
-                repository.updateParcelaStatusQuitado(observacoes, idDespesaParcelada, idParcela, valorQuitacao, idFuncionario);
-
-                log.info("Buscando parcela importada e realizando a baixa do pagamento...");
+                log.info("Buscando despesa parcelada importada atual (Em Aberto) para realizar a baixa do pagamento...");
                 DetalheDespesasMensaisDAO filtro = DetalheDespesasMensaisDAO.builder()
                         .idDespesaParcelada(idDespesaParcelada)
                         .idParcela(idParcela)
@@ -347,13 +349,20 @@ public class DespesasParceladasServices {
                 var detalheDespesaMensalParcela = repository.getDetalheDespesaMensalPorFiltro(filtro);
                 repository.updateStatusPagamentoDetalheDespesa(valorQuitacao, valorQuitacao, PAGO, observacoes, "Baixa Automatica - Quitacao TOTAL", detalheDespesaMensalParcela.getIdDespesa(), detalheDespesaMensalParcela.getIdDetalheDespesa(), detalheDespesaMensalParcela.getIdOrdem(), idFuncionario);
 
+                log.info("Baixando pagamento da parcela.. >> {}", parcela);
+                repository.updateParcelaStatusQuitado(observacoes, idDespesaParcelada, idParcela, valorQuitacao, idFuncionario);
+
                 bDespesaPagaComOuSemDesconto = false;
                 continue;
             }
 
             observacoes = STATUS_BAIXA_REALIZADA_PELO_SISTEMA.concat(" #" + idParcela + "#");
-            log.info("Quitacao parcelas >> {}", observacoes);
+
+            log.info("Baixando pagamento da parcela.. >> {}", parcela);
             repository.updateParcelaStatusQuitado(observacoes, idDespesaParcelada, idParcela, VALOR_ZERO, idFuncionario);
+
+            log.info("Excluindo despesa parcelada importada das demais despesas mensais...");
+            repository.deleteParcelaDetalheDespesasMensais(idDespesaParcelada, idParcela, idFuncionario);
         }
 
         validarBaixaCadastroDespesaParcelada(idDespesaParcelada, idFuncionario);
@@ -374,7 +383,7 @@ public class DespesasParceladasServices {
         if (idParcela > 0 && isEmpty(mesAnoReferencia)) {
             sWhere = "id_DespesaParcelada = " + idDespesaParcelada + " AND id_Parcelas = " + idParcela + " AND id_Funcionario = " + idFuncionario;
         } else if (idParcela == 0 && !isEmpty(mesAnoReferencia)) {
-            sWhere = "id_DespesaParcelada = " + idDespesaParcelada + " AND id_Funcionario = " + idFuncionario + " AND ds_DataVencimento = '" + mesAnoReferencia + "'";
+            sWhere = "id_DespesaParcelada = " + idDespesaParcelada + " AND id_Funcionario = " + idFuncionario + " AND ((ds_DataVencimento = '" + mesAnoReferencia + "' AND tp_ParcelaAdiada = 'N') OR tp_ParcelaAdiada = 'N')";
         }
         valorDespesa = repository.getValorParcelaPorFiltro(sWhere);
 
@@ -421,7 +430,7 @@ public class DespesasParceladasServices {
     }
 
     public void gravarParcela(ParcelasDAO parcela) {
-        var listParcelas = repository.getParcelasPorFiltro(parcela.getIdDespesaParcelada(), parcela.getIdParcela(), null, parcela.getIdFuncionario());
+        var listParcelas = repository.getParcelasPorFiltro(parcela.getIdDespesaParcelada(), parcela.getIdParcela(), null, parcela.getIdFuncionario()).get(0);
 
         if (isEmpty(listParcelas)) {
             log.info("Gravando Nova Parcela >> Request: {}", parcela);
@@ -430,10 +439,9 @@ public class DespesasParceladasServices {
             log.info("Atualizando Parcela >> Request: {}", parcela);
             repository.updateParcela(parcela);
 
-            if (listParcelas.get(0).getVlParcela().equalsIgnoreCase(parcela.getVlParcela())) {
-                /*Se nao houver alteracao no valor da parcela, atualiza o valor independente do status do pagamento.*/
-                repository.updateValorTotalDetalheDespesasMensaisParcelas(parcela.getVlParcela(), parcela.getIdDespesaParcelada(), parcela.getIdParcela(), parcela.getIdFuncionario(), null);
-            } else {
+            var valorParcelaAtual = listParcelas.getVlParcela();
+
+            if (convertStringToDecimal(valorParcelaAtual).compareTo(convertStringToDecimal(parcela.getVlParcela())) != 0) {
                 repository.updateValorTotalDetalheDespesasMensaisParcelas(parcela.getVlParcela(), parcela.getIdDespesaParcelada(), parcela.getIdParcela(), parcela.getIdFuncionario(), PENDENTE);
             }
         }

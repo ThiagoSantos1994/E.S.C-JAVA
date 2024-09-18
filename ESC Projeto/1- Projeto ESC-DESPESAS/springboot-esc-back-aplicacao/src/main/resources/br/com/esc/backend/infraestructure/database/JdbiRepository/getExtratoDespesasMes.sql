@@ -10,4 +10,5 @@ WHERE
     AND a.id_DetalheDespesa = :idDetalheDespesa
     AND a.id_Funcionario = :idFuncionario
     AND a.tp_Anotacao = 'N'
-    AND CAST(c.nr_Parcela AS INTEGER) = CAST((b.nr_TotalParcelas + b.nr_ParcelasAdiantadas) AS INTEGER)
+    AND (CAST(c.nr_Parcela AS INTEGER) = CAST((b.nr_TotalParcelas + b.nr_ParcelasAdiantadas) AS INTEGER)
+        	    OR (b.tp_Baixado = 'S' AND c.tp_Quitado = 'S'))

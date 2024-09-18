@@ -5,4 +5,4 @@ SET
     tp_Baixado = :consolidacao.tpBaixado
 WHERE
     id_Consolidacao = :consolidacao.idConsolidacao
-    id_Funcionario = :consolidacao.idFuncionario
+    AND id_Funcionario = :consolidacao.idFuncionario

@@ -4,7 +4,7 @@ SELECT
 FROM
 	tbd_Consolidacao
 WHERE
-    (:tpBaixado IS NULL OR tp_Baixado = :tpBaixado)
+    <status>
     AND id_Funcionario = :idFuncionario
 ORDER BY
     ds_TituloConsolidacao ASC

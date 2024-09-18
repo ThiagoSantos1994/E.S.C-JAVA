@@ -29,6 +29,7 @@ WHERE
     (:detalhe.idDespesa IS NULL OR a.id_Despesa = :detalhe.idDespesa)
     AND (:detalhe.idDetalheDespesa IS NULL OR a.id_DetalheDespesa = :detalhe.idDetalheDespesa)
     AND (:detalhe.idDespesaParcelada IS NULL OR a.id_DespesaParcelada = :detalhe.idDespesaParcelada)
+    AND (:detalhe.idParcela IS NULL OR a.id_Parcela = :detalhe.idParcela)
     AND (:detalhe.idConsolidacao IS NULL OR a.id_Consolidacao = :detalhe.idConsolidacao)
     AND (:detalhe.idDespesaConsolidacao IS NULL OR a.id_DespesaConsolidacao = :detalhe.idDespesaConsolidacao)
     AND (:detalhe.dsDescricao IS NULL OR a.ds_Descricao = :detalhe.dsDescricao)

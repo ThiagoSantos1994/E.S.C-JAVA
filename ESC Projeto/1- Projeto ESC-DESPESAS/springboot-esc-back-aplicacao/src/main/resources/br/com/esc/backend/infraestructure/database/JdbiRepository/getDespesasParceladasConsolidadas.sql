@@ -1,10 +1,14 @@
 SELECT
-    id_DespesaParcelada
+	a.id_DespesaParcelada
 FROM
-    tbd_DespesasParceladas
+	tbd_DetalheDespesasMensais a
+	INNER JOIN tbd_ConsolidacaoDespesasParceladas b ON b.id_DespesaParcelada = a.id_DespesaParcelada
+	INNER JOIN tbd_Consolidacao c ON c.id_Consolidacao = b.id_Consolidacao
+	INNER JOIN tbd_Parcelas d ON d.id_DespesaParcelada = b.id_DespesaParcelada AND d.id_Parcelas = a.id_Parcela
 WHERE
-    id_Consolidacao = :idConsolidacao
-    AND id_Funcionario = :idFuncionario
-    AND tp_Baixado = 'N'
+	a.id_Despesa = :idDespesa
+	AND a.id_DetalheDespesa = :idDetalheDespesa
+	AND a.id_Funcionario = :idFuncionario
+	AND a.id_DespesaConsolidacao = :idConsolidacao
 ORDER BY
-    id_DespesaParcelada
+    a.id_DespesaParcelada

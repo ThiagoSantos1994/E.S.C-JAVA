@@ -171,6 +171,12 @@ public class AplicacaoController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping(path = "/detalheDespesas/consolidacao/obterRelatorioDespesasParceladas/{idDespesa}/{idDetalheDespesa}/{idConsolidacao}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StringResponse> obterRelatorioDespesasParceladasConsolidadas(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idConsolidacao") Integer idConsolidacao, @PathVariable("idFuncionario") Integer idFuncionario) {
+        var response = service.obterRelatorioDespesasParceladasConsolidadas(idDespesa, idDetalheDespesa, idConsolidacao, idFuncionario);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping(path = "/parametros/obterConfiguracaoLancamentos/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ConfiguracaoLancamentosResponse> obterConfiguracaoLancamentos(@PathVariable("idFuncionario") Integer idFuncionario) {
         var response = service.obterConfiguracaoLancamentos(idFuncionario);
