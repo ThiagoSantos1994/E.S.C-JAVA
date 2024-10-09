@@ -27,7 +27,7 @@ public class VariaveisGlobais {
     public static final String DESCRICAO_DESPESA_PARCELADA = "*PRC";
     public static final String DESCRICAO_DESPESA_EMPRESTIMO = "*EMP";
     public static final String DESCRICAO_DESPESA_CONSOLIDACAO = "*CONS";
-    public static final String PARCELA_ADIANTADA_DESTE_MES_PARA = "<!> Parcela adiantada deste mes para ->> ";
+    public static final String PARCELA_ADIADA_DESTE_MES_PARA = "<!> Parcela adiada deste mes para ->> ";
     public static final String NESTE_MES_SERA_QUITADO = "Neste mês será quitado ";
     public static final String SEM_DESPESA_MENSAGEM_PADRAO = "Ops! Não existe lançamentos de despesas para este mês, clique em Criar Nova Receita para começar ou realize a importação.";
     public static final String VALIDACAO_DESPESA_DEBITO_CARTAO_EXISTENTE = "ATENÇÃO: Ja existe uma despesa classificada como DÉBITO CARTÃO, não será permitido aplicar esta categoria nesta despesa.";

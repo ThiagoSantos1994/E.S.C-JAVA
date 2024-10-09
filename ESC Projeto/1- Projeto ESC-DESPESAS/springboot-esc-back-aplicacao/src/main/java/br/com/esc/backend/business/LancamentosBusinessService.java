@@ -21,8 +21,8 @@ import java.util.stream.Collectors;
 
 import static br.com.esc.backend.service.DetalheDespesasServices.parserOrdem;
 import static br.com.esc.backend.utils.DataUtils.AnoSeguinte;
-import static br.com.esc.backend.utils.ObjectUtils.*;
-import static br.com.esc.backend.utils.VariaveisGlobais.PENDENTE;
+import static br.com.esc.backend.utils.ObjectUtils.isEmpty;
+import static br.com.esc.backend.utils.ObjectUtils.isNull;
 import static br.com.esc.backend.utils.VariaveisGlobais.VALOR_ZERO;
 
 
@@ -123,6 +123,14 @@ public class LancamentosBusinessService {
         log.info("Excluindo todas despesas mensais - request: idDespesa= {} - idFuncionario= {}", idDespesa, idFuncionario);
         repository.deleteTodasDespesasMensais(idDespesa, idFuncionario);
 
+        var listDespesasParceladas = repository.getDespesasParceladasDetalheDespesasMensais(idDespesa, idFuncionario).stream()
+                .filter(d -> d.getTpParcelaAmortizada().equalsIgnoreCase("S"))
+                .collect(Collectors.toList());
+
+        for (DetalheDespesasMensaisDAO detalhe : listDespesasParceladas) {
+            despesasParceladasServices.validaStatusDespesaParcelada(detalhe.getIdDespesa(), detalhe.getIdDetalheDespesa(), detalhe.getIdDespesaParcelada(), detalhe.getIdParcela(), detalhe.getIdFuncionario(), detalhe.getTpStatus(), true);
+        }
+
         log.info("Excluindo todos detalhes despesas mensais - request: idDespesa= {} - idFuncionario= {}", idDespesa, idFuncionario);
         repository.deleteTodosDetalhesDespesasMensais(idDespesa, idFuncionario);
 
@@ -131,8 +139,6 @@ public class LancamentosBusinessService {
 
         log.info("Atualizando status das parcelas comuns e amortizadas para Pendente - request: idDespesa= {} - idFuncionario= {}", idDespesa, idFuncionario);
         repository.updateParcelaStatusPendenteDespesasExcluidas(idDespesa, idFuncionario);
-
-        //TODO implementar a exclusao da consolidacao na despesa geral
 
         log.info("Atualizando status das despesas parceladas para Em Aberto - request: idFuncionario= {}", idFuncionario);
         this.atualizaStatusDespesasParceladasEmAberto(idFuncionario);
@@ -190,25 +196,29 @@ public class LancamentosBusinessService {
 
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
-    public void gravarDetalheDespesasMensais(DetalheDespesasMensaisRequest request) {
-        DetalheDespesasMensaisDAO detalheDAO = new DetalheDespesasMensaisDAO();
-        BeanUtils.copyProperties(detalheDAO, request);
-        detalheDespesasServices.gravarDetalheDespesasMensais(detalheDAO, false);
+    public void gravarDetalheDespesasMensais(List<DetalheDespesasMensaisRequest> request) {
+        for (DetalheDespesasMensaisRequest detalhe: request) {
+            DetalheDespesasMensaisDAO dao = new DetalheDespesasMensaisDAO();
+            BeanUtils.copyProperties(dao, detalhe);
+            detalheDespesasServices.gravarDetalheDespesasMensais(dao, false);
 
-        if (request.getIdConsolidacao() > 0) {
-            for (DetalheDespesasMensaisDAO despesa : consolidacaoService.obterListDetalheDespesasConsolidadas(request.getIdDespesa(), request.getIdDetalheDespesa(), request.getIdConsolidacao(), request.getIdFuncionario())) {
-                var despesaRequest = detalheDespesasServices.parserToDetalheDespesasConsolidadas(request, despesa);
-                detalheDespesasServices.gravarDetalheDespesasMensais(despesaRequest, false);
+            if (detalhe.getIdConsolidacao() > 0) {
+                for (DetalheDespesasMensaisDAO despesa : consolidacaoService.obterListDetalheDespesasConsolidadas(detalhe.getIdDespesa(), detalhe.getIdDetalheDespesa(), detalhe.getIdConsolidacao(), detalhe.getIdFuncionario())) {
+                    var despesaRequest = detalheDespesasServices.parserToDetalheDespesasConsolidadas(detalhe, despesa);
+                    detalheDespesasServices.gravarDetalheDespesasMensais(despesaRequest, false);
+                }
             }
         }
     }
 
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
-    public void processarPagamentoDetalheDespesa(PagamentoDespesasRequest request) {
-        log.info("Processando pagamento detalhe despesa mensal - Filtros: {}", request.toString());
-        detalheDespesasServices.baixarPagamentoDespesas(request);
-        detalheDespesasServices.baixarPagamentoDespesasConsolidadas(request);
+    public void processarPagamentoDetalheDespesa(List<PagamentoDespesasRequest> request) {
+        for (PagamentoDespesasRequest despesa : request) {
+            log.info("Processando pagamento detalhe despesa mensal - Request: {}", despesa);
+            detalheDespesasServices.baixarPagamentoDespesa(despesa);
+            detalheDespesasServices.baixarPagamentoDespesasConsolidadas(despesa);
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -218,6 +228,7 @@ public class LancamentosBusinessService {
         var detalheDespesas = detalheDespesasServices.obterDetalheDespesaMensal(idDespesa, idDetalheDespesa, idFuncionario, null)
                 .getDetalheDespesaMensal();
 
+        List<PagamentoDespesasRequest> listDespesasRequest = new ArrayList<>();
         for (DetalheDespesasMensaisDAO despesa : detalheDespesas) {
             var request = PagamentoDespesasRequest.builder()
                     .idDespesa(despesa.getIdDespesa())
@@ -234,8 +245,10 @@ public class LancamentosBusinessService {
                     .isProcessamentoAdiantamentoParcelas(false)
                     .build();
 
-            this.processarPagamentoDetalheDespesa(request);
+            listDespesasRequest.add(request);
         }
+
+        this.processarPagamentoDetalheDespesa(listDespesasRequest);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -270,15 +283,15 @@ public class LancamentosBusinessService {
 
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
-    public void adiantarFluxoParcelas(List<DetalheDespesasMensaisRequest> request) {
+    public void adiarFluxoParcelas(List<DetalheDespesasMensaisRequest> request) {
         for (DetalheDespesasMensaisRequest despesa : request) {
             if (despesa.getIdConsolidacao() == 0) {
-                log.info("Processando adiantamento fluxo de parcelas - request: = idDespesa: {}, idDetalheDespesa = {}, idDespesaParcelada = {}, idParcela = {}, idFuncionario = {}", despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdDespesaParcelada(), despesa.getIdParcela(), despesa.getIdFuncionario());
-                despesasParceladasServices.adiantarFluxoParcelas(despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdDespesaParcelada(), despesa.getIdParcela(), despesa.getIdFuncionario());
+                log.info("Processando fluxo adiar parcelas - request: = idDespesa: {}, idDetalheDespesa = {}, idDespesaParcelada = {}, idParcela = {}, idFuncionario = {}", despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdDespesaParcelada(), despesa.getIdParcela(), despesa.getIdFuncionario());
+                despesasParceladasServices.adiarFluxoParcelas(despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdDespesaParcelada(), despesa.getIdParcela(), despesa.getIdFuncionario());
             } else if (despesa.getIdConsolidacao() > 0) {
                 for (DetalheDespesasMensaisDAO consolidacao : consolidacaoService.obterListDetalheDespesasConsolidadas(despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdConsolidacao(), despesa.getIdFuncionario())) {
-                    log.info("Processando adiantamento fluxo de parcelas (Despesas Consolidadas) - request = idDespesa: {}, idDetalheDespesa = {}, idDespesaParcelada = {}, idParcela = {}, idDespesaConsolidacao = {}, idFuncionario = {}", consolidacao.getIdDespesa(), consolidacao.getIdDetalheDespesa(), consolidacao.getIdDespesaParcelada(), consolidacao.getIdParcela(), consolidacao.getIdDespesaConsolidacao(), consolidacao.getIdFuncionario());
-                    despesasParceladasServices.adiantarFluxoParcelas(consolidacao.getIdDespesa(), consolidacao.getIdDetalheDespesa(), consolidacao.getIdDespesaParcelada(), consolidacao.getIdParcela(), consolidacao.getIdFuncionario());
+                    log.info("Processando fluxo adiar parcelas (Despesas Consolidadas) - request = idDespesa: {}, idDetalheDespesa = {}, idDespesaParcelada = {}, idParcela = {}, idDespesaConsolidacao = {}, idFuncionario = {}", consolidacao.getIdDespesa(), consolidacao.getIdDetalheDespesa(), consolidacao.getIdDespesaParcelada(), consolidacao.getIdParcela(), consolidacao.getIdDespesaConsolidacao(), consolidacao.getIdFuncionario());
+                    despesasParceladasServices.adiarFluxoParcelas(consolidacao.getIdDespesa(), consolidacao.getIdDetalheDespesa(), consolidacao.getIdDespesaParcelada(), consolidacao.getIdParcela(), consolidacao.getIdFuncionario());
                 }
                 /*Altera a flag de ParcelaAdiada no detalhe das despesas mensais tipo consolidacao e baixa o pagamento e marca como despesa de anotacao*/
                 repository.updateDetalheDespesasMensaisDespesaConsolidadaAdiada(despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdConsolidacao(), despesa.getVlTotal(), despesa.getIdFuncionario());
@@ -288,15 +301,15 @@ public class LancamentosBusinessService {
 
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
-    public void desfazerAdiantamentoFluxoParcelas(List<DetalheDespesasMensaisRequest> request) {
+    public void desfazerAdiamentoFluxoParcelas(List<DetalheDespesasMensaisRequest> request) {
         for (DetalheDespesasMensaisRequest despesa : request) {
             if (despesa.getIdConsolidacao() == 0) {
-                log.info("Processando fluxo para DESFAZER** o adiantamento fluxo de parcelas - request: idDespesa = {}, idDetalheDespesa = {}, idDespesaParcelada = {}, idParcela = {}, idFuncionario = {}", despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdDespesaParcelada(), despesa.getIdParcela(), despesa.getIdFuncionario());
-                despesasParceladasServices.desfazerAdiantamentoFluxoParcelas(despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdDespesaParcelada(), despesa.getIdParcela(), despesa.getIdFuncionario());
+                log.info("Processando fluxo para DESFAZER** o adiamento fluxo de parcelas - request: idDespesa = {}, idDetalheDespesa = {}, idDespesaParcelada = {}, idParcela = {}, idFuncionario = {}", despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdDespesaParcelada(), despesa.getIdParcela(), despesa.getIdFuncionario());
+                despesasParceladasServices.desfazerFluxoParcelasAdiadas(despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdDespesaParcelada(), despesa.getIdParcela(), despesa.getIdFuncionario());
             } else if (despesa.getIdConsolidacao() > 0) {
                 for (DetalheDespesasMensaisDAO consolidacao : consolidacaoService.obterListDetalheDespesasConsolidadas(despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdConsolidacao(), despesa.getIdFuncionario())) {
-                    log.info("Processando fluxo para DESFAZER** o adiantamento fluxo de parcelas (Despesas Consolidadas) - request = idDespesa: {}, idDetalheDespesa = {}, idDespesaParcelada = {}, idParcela = {}, idDespesaConsolidacao = {}, idFuncionario = {}", consolidacao.getIdDespesa(), consolidacao.getIdDetalheDespesa(), consolidacao.getIdDespesaParcelada(), consolidacao.getIdParcela(), consolidacao.getIdDespesaConsolidacao(), consolidacao.getIdFuncionario());
-                    despesasParceladasServices.desfazerAdiantamentoFluxoParcelas(consolidacao.getIdDespesa(), consolidacao.getIdDetalheDespesa(), consolidacao.getIdDespesaParcelada(), consolidacao.getIdParcela(), consolidacao.getIdFuncionario());
+                    log.info("Processando fluxo para DESFAZER** o adiamento fluxo de parcelas (Despesas Consolidadas) - request = idDespesa: {}, idDetalheDespesa = {}, idDespesaParcelada = {}, idParcela = {}, idDespesaConsolidacao = {}, idFuncionario = {}", consolidacao.getIdDespesa(), consolidacao.getIdDetalheDespesa(), consolidacao.getIdDespesaParcelada(), consolidacao.getIdParcela(), consolidacao.getIdDespesaConsolidacao(), consolidacao.getIdFuncionario());
+                    despesasParceladasServices.desfazerFluxoParcelasAdiadas(consolidacao.getIdDespesa(), consolidacao.getIdDetalheDespesa(), consolidacao.getIdDespesaParcelada(), consolidacao.getIdParcela(), consolidacao.getIdFuncionario());
                 }
                 /*Altera a flag de ParcelaAdiada no detalhe das despesas mensais tipo consolidacao, desfaz a baixa o pagamento e desmarca como despesa de anotacao*/
                 repository.updateDetalheDespesasMensaisDespesaConsolidadaAdiadaDesfazer(despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdConsolidacao(), despesa.getIdFuncionario());
@@ -430,9 +443,12 @@ public class LancamentosBusinessService {
 
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
-    public void deleteParcela(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario) {
-        log.info("Excluindo parcela >>> filtros: idDespesaParcelada: {} - idParcela: {} - idFuncionario: {}", idDespesaParcelada, idParcela, idFuncionario);
-        despesasParceladasServices.excluirParcela(idDespesaParcelada, idParcela, idFuncionario);
+    public void deleteParcela(List<ParcelasDAO> parcelas) {
+        for (ParcelasDAO parcela : parcelas) {
+            log.info("Excluindo parcela >>> filtros: idDespesaParcelada: {} - idParcela: {} - idFuncionario: {}", parcela.getIdDespesaParcelada(), parcela.getIdParcela(), parcela.getIdFuncionario());
+            despesasParceladasServices.excluirParcela(parcela.getIdDespesaParcelada(), parcela.getIdParcela(), parcela.getIdFuncionario());
+        }
+        despesasParceladasServices.validarBaixaCadastroDespesaParcelada(parcelas.get(0).getIdDespesaParcelada(), parcelas.get(0).getIdFuncionario());
     }
 
     @Transactional(rollbackFor = Exception.class)

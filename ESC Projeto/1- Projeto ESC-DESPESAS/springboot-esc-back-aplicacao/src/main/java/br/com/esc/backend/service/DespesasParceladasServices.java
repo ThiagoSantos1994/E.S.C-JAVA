@@ -52,7 +52,7 @@ public class DespesasParceladasServices {
                 .valorTotalDespesaPaga(repository.getValorTotalDespesaParceladaPaga(idDespesaParcelada, idFuncionario))
                 .valorTotalDespesaPendente(repository.getValorTotalDespesaParceladaPendente(idDespesaParcelada, idFuncionario))
                 .isDespesaComParcelaAmortizada(repository.getValidaDespesaParceladaAmortizacao(idDespesaParcelada, idFuncionario))
-                .isDespesaComParcelaAdiantada(repository.getValidaParcelaAdiantamento(idDespesaParcelada, null, idFuncionario))
+                .isDespesaComParcelaAdiantada(repository.getValidaParcelaAdiada(idDespesaParcelada, null, idFuncionario))
                 .despesaVinculada(nomeDespesaVinculada)
                 .despesas(despesa)
                 .parcelas(parcelas)
@@ -89,11 +89,11 @@ public class DespesasParceladasServices {
         }
 
         var isParcelaComAmortizacao = repository.getValidaParcelaAmortizacao(idDespesaParcelada, idParcela, idFuncionario);
-        var isParcelaComAdiantamento = repository.getValidaParcelaAdiantamento(idDespesaParcelada, idParcela, idFuncionario);
+        var isParcelaAdiada = repository.getValidaParcelaAdiada(idDespesaParcelada, idParcela, idFuncionario);
 
         if (bExcluirDespesa.equals(true)) {
-            if (isParcelaComAdiantamento.equalsIgnoreCase("S")) {
-                //Nao altera status de despesas com adiantamento, somente se for realizado o fluxo para desfazer o adiantamento
+            if (isParcelaAdiada.equalsIgnoreCase("S")) {
+                //Nao altera status de despesas adiadas, somente se for realizado o fluxo para desfazer o adiamento
                 return;
             }
 
@@ -158,68 +158,68 @@ public class DespesasParceladasServices {
                 .build();
     }
 
-    public void adiantarFluxoParcelas(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario) throws Exception {
-        var isValidaAdiantamentoMes = repository.getValidaDetalheDespesaParceladaAdiantada(idDespesa, idDetalheDespesa, idDespesaParcelada, idFuncionario);
+    public void adiarFluxoParcelas(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario) throws Exception {
+        var isValidaDespesaAdiada = repository.getValidaDetalheDespesaParceladaAdiada(idDespesa, idDetalheDespesa, idDespesaParcelada, idFuncionario);
 
-        if (isValidaAdiantamentoMes.equalsIgnoreCase("N")) {
+        if (isValidaDespesaAdiada.equalsIgnoreCase("N")) {
             var parcelaAtual = repository.getParcelasPorFiltro(idDespesaParcelada, idParcela, null, idFuncionario).get(0);
             if (parcelaAtual.getTpBaixado().equalsIgnoreCase("S")) {
-                log.error("Não é possivel adiantar uma parcela que ja foi paga anteriormente...");
+                log.error("Não é possivel adiar uma parcela que ja foi paga anteriormente...");
                 return;
             }
 
             var parcela = repository.getUltimaParcelaDespesaParcelada(idDespesaParcelada, idFuncionario);
-            var novaParcelaRequest = this.parserToNovaParcelaAdiantamento(parcela);
+            var novaParcelaRequest = this.parserToNovaParcelaAdiadas(parcela);
 
             if (convertStringToDecimal(novaParcelaRequest.getVlParcela()).compareTo(convertStringToDecimal(parcelaAtual.getVlParcela())) != 0) {
                 novaParcelaRequest.setVlParcela(parcelaAtual.getVlParcela());
             }
 
-            /*Grava a nova parcela adiantada*/
-            log.info("Gravando nova parcela adiantamento >>> " + novaParcelaRequest);
+            /*Grava a nova parcela adiada*/
+            log.info("Gravando nova parcela adiada >>> " + novaParcelaRequest);
             repository.insertParcela(novaParcelaRequest);
 
-            /*Baixa a parcela atual e altera o stts para adiantada*/
-            var observacoesBaixa = PARCELA_ADIANTADA_DESTE_MES_PARA.concat(novaParcelaRequest.getDsDataVencimento());
-            repository.updateParcelaStatusAdiantado(idDespesa, idDetalheDespesa, observacoesBaixa, idParcela, idDespesaParcelada, idFuncionario);
+            /*Baixa a parcela atual e altera o stts para adiada*/
+            var observacoesBaixa = PARCELA_ADIADA_DESTE_MES_PARA.concat(novaParcelaRequest.getDsDataVencimento());
+            repository.updateParcelaStatusAdiada(idDespesa, idDetalheDespesa, observacoesBaixa, idParcela, idDespesaParcelada, idFuncionario);
 
             /*Altera a flag de ParcelaAdiada no detalhe das despesas mensais e baixa o pagamento e marca como despesa de anotacao*/
             var logProcessamento = "Operacao realizada em: " + DataHoraAtual() + " - Usuario: ** " + repository.getUsuarioLogado(idFuncionario);
             repository.updateDetalheDespesasMensaisParcelaAdiada(idDespesa, idDetalheDespesa, idDespesaParcelada, observacoesBaixa, logProcessamento, novaParcelaRequest.getVlParcela(), idFuncionario);
 
-            /*Atualiza a contagem de parcelas adiantadas*/
-            repository.updateQuantidadeParcelasAdiantadas(idDespesaParcelada, idFuncionario);
+            /*Atualiza a contagem de parcelas adiadas*/
+            repository.updateQuantidadeParcelasAdiadas(idDespesaParcelada, idFuncionario);
         } else {
             var descricaoDespesa = repository.getDespesaParcelada(idDespesaParcelada, null, idFuncionario).getDsTituloDespesaParcelada();
-            throw new ErroNegocioException("A parcela da despesa " + descricaoDespesa + " ja foi adiantada neste mês. Não é permitido adiantar a mesma parcela 2X no mesmo mês.");
+            throw new ErroNegocioException("A parcela da despesa " + descricaoDespesa + " ja foi adiada neste mês. Não é permitido adiar a mesma parcela 2X no mesmo mês.");
         }
     }
 
-    public void desfazerAdiantamentoFluxoParcelas(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario) throws Exception {
-        var isParcelaAdiantada = repository.getValidaParcelaAdiantamento(idDespesaParcelada, idParcela, idFuncionario);
+    public void desfazerFluxoParcelasAdiadas(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario) throws Exception {
+        var isParcelaAdiada = repository.getValidaParcelaAdiada(idDespesaParcelada, idParcela, idFuncionario);
 
-        if (isParcelaAdiantada.equalsIgnoreCase("S")) {
+        if (isParcelaAdiada.equalsIgnoreCase("S")) {
             var parcela = repository.getUltimaParcelaDespesaParcelada(idDespesaParcelada, idFuncionario);
-            var valorParcelaAdiantada = repository.getParcelaPorDataVencimento(parcela.getIdDespesaParcelada(), parcela.getDsDataVencimento(), parcela.getIdFuncionario()).getVlParcela();
+            var valorParcelaAdiada = repository.getParcelaPorDataVencimento(parcela.getIdDespesaParcelada(), parcela.getDsDataVencimento(), parcela.getIdFuncionario()).getVlParcela();
 
             /*Exclui a parcela adicionada no final do fluxo*/
-            log.info("Excluindo ultima parcela adiantamento >>> " + parcela);
+            log.info("Excluindo ultima parcela adiada >>> " + parcela);
             repository.deleteParcela(parcela.getIdDespesaParcelada(), parcela.getIdParcela(), parcela.getIdFuncionario());
 
-            /*Exclui a parcela adiantada do detalhe despesas mensais (caso tenha sido importada)*/
+            /*Exclui a parcela adiada do detalhe despesas mensais (caso tenha sido importada)*/
             repository.deleteParcelaDetalheDespesasMensais(parcela.getIdDespesaParcelada(), parcela.getIdParcela(), idFuncionario);
 
             /*Desfaz a baixa da parcela com amortizacao e volta o stts para PENDENTE*/
-            repository.updateParcelaStatusPendenteParcelaAdiada(idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, valorParcelaAdiantada, idFuncionario);
+            repository.updateParcelaStatusPendenteParcelaAdiada(idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, valorParcelaAdiada, idFuncionario);
 
             /*Altera a flag de ParcelaAdiada para N no detalhe das despesas mensais e desfaz o pagamento e a despesa de anotacao*/
-            repository.updateDetalheDespesasMensaisDesfazerAdiantamento(idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, valorParcelaAdiantada, idFuncionario);
+            repository.updateDetalheDespesasMensaisDesfazerAdiamento(idDespesa, idDetalheDespesa, idDespesaParcelada, idParcela, valorParcelaAdiada, idFuncionario);
 
             /*Atualiza a contagem de parcelas adiantadas*/
-            repository.updateQuantidadeParcelasDesfazerAdiantamento(idDespesaParcelada, idFuncionario);
+            repository.updateQuantidadeParcelasDesfazerAdiamento(idDespesaParcelada, idFuncionario);
         } else {
             var descricaoDespesa = repository.getDespesaParcelada(idDespesaParcelada, null, idFuncionario).getDsTituloDespesaParcelada();
-            throw new ErroNegocioException("A parcela da despesa " + descricaoDespesa + " não pode ser processada. Motivo: Não consta adiantamento de parcelas para esta despesa.");
+            throw new ErroNegocioException("A parcela da despesa " + descricaoDespesa + " não pode ser processada. Motivo: Não consta adiamento para esta parcela nesta despesa.");
         }
     }
 
@@ -399,8 +399,6 @@ public class DespesasParceladasServices {
     public void excluirParcela(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario) {
         repository.deleteParcela(idDespesaParcelada, idParcela, idFuncionario);
         repository.deleteDetalheDespesaParcelada(idDespesaParcelada, idParcela, idFuncionario);
-
-        this.validarBaixaCadastroDespesaParcelada(idDespesaParcelada, idFuncionario);
     }
 
     public void excluirDespesaParcelada(Integer idDespesaParcelada, Integer idFuncionario) {
@@ -430,7 +428,7 @@ public class DespesasParceladasServices {
     }
 
     public void gravarParcela(ParcelasDAO parcela) {
-        var listParcelas = repository.getParcelasPorFiltro(parcela.getIdDespesaParcelada(), parcela.getIdParcela(), null, parcela.getIdFuncionario()).get(0);
+        var listParcelas = repository.getParcelasPorFiltro(parcela.getIdDespesaParcelada(), parcela.getIdParcela(), null, parcela.getIdFuncionario());
 
         if (isEmpty(listParcelas)) {
             log.info("Gravando Nova Parcela >> Request: {}", parcela);
@@ -439,7 +437,7 @@ public class DespesasParceladasServices {
             log.info("Atualizando Parcela >> Request: {}", parcela);
             repository.updateParcela(parcela);
 
-            var valorParcelaAtual = listParcelas.getVlParcela();
+            var valorParcelaAtual = listParcelas.get(0).getVlParcela();
 
             if (convertStringToDecimal(valorParcelaAtual).compareTo(convertStringToDecimal(parcela.getVlParcela())) != 0) {
                 repository.updateValorTotalDetalheDespesasMensaisParcelas(parcela.getVlParcela(), parcela.getIdDespesaParcelada(), parcela.getIdParcela(), parcela.getIdFuncionario(), PENDENTE);
@@ -464,7 +462,7 @@ public class DespesasParceladasServices {
                 .build();
     }
 
-    private ParcelasDAO parserToNovaParcelaAdiantamento(ParcelasDAO parcela) throws ParseException {
+    private ParcelasDAO parserToNovaParcelaAdiadas(ParcelasDAO parcela) throws ParseException {
         NumberFormat formatter = new DecimalFormat("000");
 
         Integer idParcelaNova = (parcela.getIdParcela() + 1);
@@ -492,7 +490,7 @@ public class DespesasParceladasServices {
         return repository.getParcelasParaAmortizacao(idDespesaParcelada, idFuncionario);
     }
 
-    private void validarBaixaCadastroDespesaParcelada(Integer idDespesaParcelada, Integer idFuncionario) {
+    public void validarBaixaCadastroDespesaParcelada(Integer idDespesaParcelada, Integer idFuncionario) {
         var qtdeParcelas = repository.getQuantidadeParcelasEmAberto(idDespesaParcelada, idFuncionario);
 
         if (qtdeParcelas.intValue() <= 0) {

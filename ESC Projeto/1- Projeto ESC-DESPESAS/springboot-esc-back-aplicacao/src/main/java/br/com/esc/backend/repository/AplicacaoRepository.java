@@ -53,6 +53,8 @@ public interface AplicacaoRepository {
 
     List<DetalheDespesasMensaisDAO> getDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem);
 
+    List<DetalheDespesasMensaisDAO> getDespesasParceladasDetalheDespesasMensais(Integer idDespesa, Integer idFuncionario);
+
     DetalheDespesasMensaisDAO getDetalheDespesaMensalPorFiltro(DetalheDespesasMensaisDAO mensaisDAO);
 
     ParcelasDAO getParcelaPorDataVencimento(Integer idDespesaParcelada, String dataVencimento, Integer idFuncionario);
@@ -71,13 +73,13 @@ public interface AplicacaoRepository {
 
     String getValidaParcelaAmortizacao(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
 
-    String getValidaParcelaAdiantamento(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
+    String getValidaParcelaAdiada(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
 
     String getValidaDetalheDespesaComParcelaAdiada(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 
     String getValidaDetalheDespesaComParcelaAmortizada(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 
-    String getValidaDetalheDespesaParceladaAdiantada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idFuncionario);
+    String getValidaDetalheDespesaParceladaAdiada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idFuncionario);
 
     String getValidaDetalheDespesaComConsolidacao(Integer idConsolidacao, Integer idFuncionario);
 
@@ -289,9 +291,9 @@ public interface AplicacaoRepository {
 
     void updateParcelaStatusAmortizado(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
 
-    void updateQuantidadeParcelasAdiantadas(Integer idDespesaParcelada, Integer idFuncionario);
+    void updateQuantidadeParcelasAdiadas(Integer idDespesaParcelada, Integer idFuncionario);
 
-    void updateQuantidadeParcelasDesfazerAdiantamento(Integer idDespesaParcelada, Integer idFuncionario);
+    void updateQuantidadeParcelasDesfazerAdiamento(Integer idDespesaParcelada, Integer idFuncionario);
 
     void updateDespesasParceladasEmAberto(Integer idFuncionario);
 
@@ -299,7 +301,7 @@ public interface AplicacaoRepository {
 
     void updateStatusParcelaSemAmortizacao(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
 
-    void updateParcelaStatusAdiantado(Integer idDespesa, Integer idDetalheDespesa, String dsObservacoes, Integer idParcela, Integer idDespesaParcelada, Integer idFuncionario);
+    void updateParcelaStatusAdiada(Integer idDespesa, Integer idDetalheDespesa, String dsObservacoes, Integer idParcela, Integer idDespesaParcelada, Integer idFuncionario);
 
     void updateStatusPagamentoDetalheDespesa(String vlTotal, String vlTotalPago, String tpStatus, String dsObservacoes, String dsObservacoesComplementares, Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario);
 
@@ -313,7 +315,7 @@ public interface AplicacaoRepository {
 
     void updateDetalheDespesasMensaisSemRelatorio(Integer idDespesa, Integer idDespesaLinkRelatorio, Integer idFuncionario);
 
-    void updateDetalheDespesasMensaisDesfazerAdiantamento(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, String vlTotal, Integer idFuncionario);
+    void updateDetalheDespesasMensaisDesfazerAdiamento(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, String vlTotal, Integer idFuncionario);
 
     void updateChaveKeyUtilizada(Integer idChaveKey);
 

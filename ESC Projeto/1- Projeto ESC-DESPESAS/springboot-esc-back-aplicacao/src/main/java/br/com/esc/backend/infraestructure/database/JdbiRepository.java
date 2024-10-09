@@ -114,6 +114,11 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlQuery
     @UseRowMapper(DetalheDespesasMensaisRowMapper.class)
+    List<DetalheDespesasMensaisDAO> getDespesasParceladasDetalheDespesasMensais(Integer idDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
+    @UseRowMapper(DetalheDespesasMensaisRowMapper.class)
     DetalheDespesasMensaisDAO getDetalheDespesaMensalPorFiltro(@BindBean("detalhe") DetalheDespesasMensaisDAO mensaisDAO);
 
     @Override
@@ -187,7 +192,7 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlQuery
-    String getValidaParcelaAdiantamento(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
+    String getValidaParcelaAdiada(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
 
     @Override
     @SqlQuery
@@ -195,7 +200,7 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlQuery
-    String getValidaDetalheDespesaParceladaAdiantada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idFuncionario);
+    String getValidaDetalheDespesaParceladaAdiada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idFuncionario);
 
     @Override
     @SqlQuery
@@ -623,7 +628,7 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlUpdate
-    void updateParcelaStatusAdiantado(Integer idDespesa, Integer idDetalheDespesa, String dsObservacoes, Integer idParcela, Integer idDespesaParcelada, Integer idFuncionario);
+    void updateParcelaStatusAdiada(Integer idDespesa, Integer idDetalheDespesa, String dsObservacoes, Integer idParcela, Integer idDespesaParcelada, Integer idFuncionario);
 
     @Override
     @SqlUpdate
@@ -651,15 +656,15 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlUpdate
-    void updateQuantidadeParcelasAdiantadas(Integer idDespesaParcelada, Integer idFuncionario);
+    void updateQuantidadeParcelasAdiadas(Integer idDespesaParcelada, Integer idFuncionario);
 
     @Override
     @SqlUpdate
-    void updateQuantidadeParcelasDesfazerAdiantamento(Integer idDespesaParcelada, Integer idFuncionario);
+    void updateQuantidadeParcelasDesfazerAdiamento(Integer idDespesaParcelada, Integer idFuncionario);
 
     @Override
     @SqlUpdate
-    void updateDetalheDespesasMensaisDesfazerAdiantamento(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, String vlTotal, Integer idFuncionario);
+    void updateDetalheDespesasMensaisDesfazerAdiamento(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, String vlTotal, Integer idFuncionario);
 
     @Override
     @SqlUpdate

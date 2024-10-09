@@ -91,7 +91,8 @@ public class DetalheDespesasServices {
     public void gravarDetalheDespesasMensais(DetalheDespesasMensaisDAO detalheDAO, boolean isParcelaAmortizacao) throws Exception {
         var bIsParcelaAdiada = false;
         var despesa = repository.getDespesaMensalPorFiltro(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheReferencia(), detalheDAO.getIdFuncionario());
-        if (null != despesa && despesa.getTpRelatorio().equalsIgnoreCase("S") && detalheDAO.getTpRelatorio().equalsIgnoreCase("S")) {
+        if (null != despesa && despesa.getTpRelatorio().equalsIgnoreCase("S") && detalheDAO.getTpRelatorio().equalsIgnoreCase("S")
+                || detalheDAO.getTpLinhaSeparacao().equalsIgnoreCase("S")) {
             //Se a despesa referencia for do tipo relatorio e o detalhe tambem, não permite a gravação dos dados.
             return;
         }
@@ -147,8 +148,8 @@ public class DetalheDespesasServices {
             repository.insertDetalheDespesasMensais(asList(detalheDAO));
 
             if (bIsParcelaAdiada) {
-                var valorParcelaAdiantada = repository.getMaxValorParcela(detalheDAO.getIdDespesaParcelada(), detalheDAO.getIdFuncionario());
-                repository.updateDetalheDespesasMensaisParcelaAdiada(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdDespesaParcelada(), "Despesa parcelada adiantada no fluxo de parcelas.", "", valorParcelaAdiantada, detalheDAO.getIdFuncionario());
+                var valorParcelaAdiada = repository.getMaxValorParcela(detalheDAO.getIdDespesaParcelada(), detalheDAO.getIdFuncionario());
+                repository.updateDetalheDespesasMensaisParcelaAdiada(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdDespesaParcelada(), "Despesa parcelada adiantada no fluxo de parcelas.", "", valorParcelaAdiada, detalheDAO.getIdFuncionario());
             }
 
             this.ordenarRegistrosAtualizacao(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdFuncionario(), "prazo");
@@ -327,7 +328,7 @@ public class DetalheDespesasServices {
         }
     }
 
-    public void baixarPagamentoDespesas(PagamentoDespesasRequest request) throws Exception {
+    public void baixarPagamentoDespesa(PagamentoDespesasRequest request) throws Exception {
         if (request.getTpStatus().equalsIgnoreCase(PENDENTE)) {
             var isDespesaConsolidada = (request.getIdConsolidacao() > 0);
             if (isDespesaConsolidada) {
@@ -335,19 +336,16 @@ public class DetalheDespesasServices {
                 request.setVlTotalPago(VALOR_ZERO);
             }
 
-            var bProcessamentoAdiantamentoParcelas = request.getIsProcessamentoAdiantamentoParcelas();
-
-            if ((bProcessamentoAdiantamentoParcelas.equals(true) && request.getIdDetalheDespesa() > 0) || bProcessamentoAdiantamentoParcelas.equals(false)) {
-                var existeParcelasAdiadas = repository.getValidaDetalheDespesaComParcelaAdiada(request.getIdDespesa(), request.getIdDetalheDespesa(), request.getIdFuncionario());
-                if (existeParcelasAdiadas.equalsIgnoreCase("N")) {
-                    repository.updateStatusPagamentoDetalheDespesa(request.getVlTotal(), request.getVlTotalPago(), PAGO, request.getDsObservacoes(), request.getDsObservacoesComplementar(), request.getIdDespesa(), request.getIdDetalheDespesa(), request.getIdOrdem(), request.getIdFuncionario());
+            if (request.getIdDespesaParcelada() > 0) {
+                var isParcelaAdiada = repository.getValidaParcelaAdiada(request.getIdDespesaParcelada(), request.getIdParcela(), request.getIdFuncionario());
+                if (isParcelaAdiada.equalsIgnoreCase("S")) {
+                    log.warn("Operação não permitida para despesas parceladas que foram adiadas..");
+                    return;
                 }
             }
 
-            if (bProcessamentoAdiantamentoParcelas.equals(false)) {
-                despesasParceladasServices.validaStatusDespesaParcelada(request.getIdDespesa(), request.getIdDetalheDespesa(), request.getIdDespesaParcelada(), request.getIdParcela(), request.getIdFuncionario(), PAGO, false);
-            }
-            log.info("Baixa pagamento realizada com sucesso!");
+            repository.updateStatusPagamentoDetalheDespesa(request.getVlTotal(), request.getVlTotalPago(), PAGO, request.getDsObservacoes(), request.getDsObservacoesComplementar(), request.getIdDespesa(), request.getIdDetalheDespesa(), request.getIdOrdem(), request.getIdFuncionario());
+            despesasParceladasServices.validaStatusDespesaParcelada(request.getIdDespesa(), request.getIdDetalheDespesa(), request.getIdDespesaParcelada(), request.getIdParcela(), request.getIdFuncionario(), PAGO, false);
         }
 
         /*Atualiza o stts pagamento para as linhas de separacao*/
@@ -379,25 +377,23 @@ public class DetalheDespesasServices {
                         .isProcessamentoAdiantamentoParcelas(false)
                         .build();
 
-                this.baixarPagamentoDespesas(requestBaixa);
+                this.baixarPagamentoDespesa(requestBaixa);
             }
         }
     }
 
     public void desfazerBaixaPagamentoDespesas(PagamentoDespesasRequest request) throws Exception {
         if (request.getTpStatus().equalsIgnoreCase(PAGO)) {
-            var bProcessamentoAdiantamentoParcelas = request.getIsProcessamentoAdiantamentoParcelas();
-
-            if ((bProcessamentoAdiantamentoParcelas.equals(true) && request.getIdDetalheDespesa() > 0) || bProcessamentoAdiantamentoParcelas.equals(false)) {
-                var existeParcelasAdiadas = repository.getValidaDetalheDespesaComParcelaAdiada(request.getIdDespesa(), request.getIdDetalheDespesa(), request.getIdFuncionario());
-                if (existeParcelasAdiadas.equalsIgnoreCase("N")) {
-                    repository.updateStatusPagamentoDetalheDespesa(request.getVlTotal(), request.getVlTotalPago(), PENDENTE, request.getDsObservacoes(), request.getDsObservacoesComplementar(), request.getIdDespesa(), request.getIdDetalheDespesa(), request.getIdOrdem(), request.getIdFuncionario());
+            if (request.getIdDespesaParcelada() > 0) {
+                var isParcelaAdiada = repository.getValidaParcelaAdiada(request.getIdDespesaParcelada(), request.getIdParcela(), request.getIdFuncionario());
+                if (isParcelaAdiada.equalsIgnoreCase("S")) {
+                    log.warn("Operação não permitida para despesas parceladas que foram adiadas..");
+                    return;
                 }
             }
 
-            if (bProcessamentoAdiantamentoParcelas.equals(false)) {
-                despesasParceladasServices.validaStatusDespesaParcelada(request.getIdDespesa(), request.getIdDetalheDespesa(), request.getIdDespesaParcelada(), request.getIdParcela(), request.getIdFuncionario(), PENDENTE, false);
-            }
+            repository.updateStatusPagamentoDetalheDespesa(request.getVlTotal(), request.getVlTotalPago(), PENDENTE, request.getDsObservacoes(), request.getDsObservacoesComplementar(), request.getIdDespesa(), request.getIdDetalheDespesa(), request.getIdOrdem(), request.getIdFuncionario());
+            despesasParceladasServices.validaStatusDespesaParcelada(request.getIdDespesa(), request.getIdDetalheDespesa(), request.getIdDespesaParcelada(), request.getIdParcela(), request.getIdFuncionario(), PENDENTE, false);
         }
 
         /*Atualiza o stts pagamento para as linhas de separacao*/

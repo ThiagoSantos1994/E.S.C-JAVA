@@ -291,9 +291,9 @@ public class AplicacaoController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping(path = "/despesasParceladas/parcelas/excluir/{idDespesaParcelada}/{idParcela}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> excluirParcela(@PathVariable("idDespesaParcelada") Integer idDespesaParcelada, @PathVariable("idParcela") Integer idParcela, @PathVariable("idFuncionario") Integer idFuncionario) {
-        service.deleteParcela(idDespesaParcelada, idParcela, idFuncionario);
+    @PostMapping(path = "/despesasParceladas/parcelas/excluir", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> excluirParcela(@RequestBody List<ParcelasDAO> request) {
+        service.deleteParcela(request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -346,7 +346,7 @@ public class AplicacaoController {
     }
 
     @PostMapping(path = "/lancamentosFinanceiros/detalheDespesasMensais/incluir", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> gravarDetalheDespesasMensais(@RequestBody DetalheDespesasMensaisRequest request) {
+    public ResponseEntity<Void> gravarDetalheDespesasMensais(@RequestBody List<DetalheDespesasMensaisRequest> request) {
         service.gravarDetalheDespesasMensais(request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -364,7 +364,7 @@ public class AplicacaoController {
     }
 
     @PostMapping(path = "/lancamentosFinanceiros/detalheDespesasMensais/baixarPagamentoDespesa", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> processarPagamentoDetalheDespesa(@RequestBody PagamentoDespesasRequest request) {
+    public ResponseEntity<Void> processarPagamentoDetalheDespesa(@RequestBody List<PagamentoDespesasRequest> request) {
         service.processarPagamentoDetalheDespesa(request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -421,15 +421,15 @@ public class AplicacaoController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping(path = "/lancamentosFinanceiros/parcelas/adiantarFluxoParcelas", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> adiantarFluxoParcelas(@RequestBody List<DetalheDespesasMensaisRequest> request) {
-        service.adiantarFluxoParcelas(request);
+    @PostMapping(path = "/lancamentosFinanceiros/parcelas/adiarFluxoParcelas", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> adiarFluxoParcelas(@RequestBody List<DetalheDespesasMensaisRequest> request) {
+        service.adiarFluxoParcelas(request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping(path = "/lancamentosFinanceiros/parcelas/desfazerAdiantamentoFluxoParcelas", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> desfazerAdiantamentoFluxoParcelas(@RequestBody List<DetalheDespesasMensaisRequest> request) {
-        service.desfazerAdiantamentoFluxoParcelas(request);
+    @PostMapping(path = "/lancamentosFinanceiros/parcelas/desfazerAdiamentoFluxoParcelas", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> desfazerAdiamentoFluxoParcelas(@RequestBody List<DetalheDespesasMensaisRequest> request) {
+        service.desfazerAdiamentoFluxoParcelas(request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

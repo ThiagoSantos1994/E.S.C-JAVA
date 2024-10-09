@@ -28,7 +28,7 @@ public class ImportarLancamentosServices {
     private final DetalheDespesasServices detalheDespesasServices;
     private final ConsolidacaoService consolidacaoService;
     private boolean bDespesaComStatusPago;
-    private boolean bDespesaComParcelaAdiantada;
+    private boolean bDespesaComParcelaAdiada;
     private boolean bProcessamentoTemporario;
 
     public void processarImportacaoDespesasMensais(Integer idDespesa, Integer idFuncionario, String dsMes, String dsAno) throws Exception {
@@ -65,7 +65,7 @@ public class ImportarLancamentosServices {
                     log.info("Despesa mensal com status PAGO, nao foi atualizado. >>>  {}", detalheDespesa);
                     continue;
                 }
-                if (bDespesaComParcelaAdiantada == true) {
+                if (bDespesaComParcelaAdiada == true) {
                     log.info("Despesa mensal com status adiantamento de parcela, nao foi atualizado. >>>  {}", detalheDespesa);
                     continue;
                 }
@@ -90,7 +90,7 @@ public class ImportarLancamentosServices {
                 log.info("Inserindo detalhe despesas mensais >>>  {}", detalheDespesa);
                 repository.insertDetalheDespesasMensais(asList(detalheDespesa));
 
-                if (bDespesaComParcelaAdiantada == true) {
+                if (bDespesaComParcelaAdiada == true) {
                     log.info("Despesa mensal com status adiantamento de parcela, realizando tratamento para gravar. >>>  {}", detalheDespesa);
 
                     /*Altera a flag de ParcelaAdiada no detalhe das despesas mensais e baixa o pagamento e marca como despesa de anotacao*/
@@ -242,7 +242,7 @@ public class ImportarLancamentosServices {
 
     private Boolean isDetalheDespesaExistente(DetalheDespesasMensaisDAO detalhe) {
         bDespesaComStatusPago = false;
-        bDespesaComParcelaAdiantada = false;
+        bDespesaComParcelaAdiada = false;
 
         var filtro = DetalheDespesasMensaisDAO.builder()
                 .idDespesa(detalhe.getIdDespesa())
@@ -260,9 +260,9 @@ public class ImportarLancamentosServices {
         var detalheDespesasMensais = repository.getDetalheDespesaMensalPorFiltro(filtro);
         if (isNull(detalheDespesasMensais)) {
             /*Em caso de reprocessamento onde a despesa foi excluida anteriormente, valida se a parcela esta com a flag adiantada ativa*/
-            var isParcelaAdiantada = repository.getValidaParcelaAdiantamento(detalhe.getIdDespesaParcelada(), detalhe.getIdParcela(), detalhe.getIdFuncionario());
-            if (isParcelaAdiantada.equalsIgnoreCase("S")) {
-                bDespesaComParcelaAdiantada = true;
+            var isParcelaAdiada = repository.getValidaParcelaAdiada(detalhe.getIdDespesaParcelada(), detalhe.getIdParcela(), detalhe.getIdFuncionario());
+            if (isParcelaAdiada.equalsIgnoreCase("S")) {
+                bDespesaComParcelaAdiada = true;
             }
             return false;
         }
@@ -273,7 +273,7 @@ public class ImportarLancamentosServices {
         }
 
         if (detalheDespesasMensais.getTpParcelaAdiada().equalsIgnoreCase("S")) {
-            bDespesaComParcelaAdiantada = true;
+            bDespesaComParcelaAdiada = true;
         }
 
         return true;
