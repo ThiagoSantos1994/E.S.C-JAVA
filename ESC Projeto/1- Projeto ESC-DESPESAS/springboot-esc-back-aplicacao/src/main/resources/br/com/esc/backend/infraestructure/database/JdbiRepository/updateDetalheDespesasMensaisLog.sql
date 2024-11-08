@@ -1,7 +1,7 @@
 UPDATE
-    tbd_DetalheDespesasMensaisLogs
+    tbd_DetalheDespesasMensais
 SET
-    id_Ordem = :idNovaOrdem
+    id_DetalheDespesaLog = :idDetalheDespesaLog
 WHERE
     id_Despesa = :idDespesa
     AND id_DetalheDespesa = :idDetalheDespesa

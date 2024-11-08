@@ -72,11 +72,11 @@ public class LembreteServices {
     private String validarNovaDataBaixa(TituloLembretesDAO lembrete, String tipoBaixa) throws ParseException {
         var dataLembrete = aplicacaoRepository.getLembreteDetalhe(lembrete.getIdLembrete(), lembrete.getIdFuncionario()).getDataInicial();
 
-        if (tipoBaixa.equals(SEMANA)) {
+        if (tipoBaixa.equalsIgnoreCase(SEMANA)) {
             return retornaDataPersonalizadaEmDias(dataLembrete, 7);
-        } else if (tipoBaixa.equals(MES)) {
+        } else if (tipoBaixa.equalsIgnoreCase(MES)) {
             return formatarDataEUA(retornaDataPersonalizada(formatarDataBR(dataLembrete), 1));
-        } else if (tipoBaixa.equals(ANO)) {
+        } else if (tipoBaixa.equalsIgnoreCase(ANO)) {
             return formatarDataEUA(retornaDataPersonalizada(formatarDataBR(dataLembrete), 12));
         } else {
             //Quando for baixa, retorna null

@@ -22,6 +22,8 @@ public class DetalheDespesasMensaisRequest {
     private Integer idDespesaParcelada;
     private Integer idFuncionario;
     private Integer idDespesaLinkRelatorio;
+    private Integer idObservacao;
+    private Integer idDetalheDespesaLog;
     private String vlTotal;
     private String vlTotalPago;
     private String dsObservacao;

@@ -8,6 +8,8 @@ SELECT
     a.id_DespesaParcelada,
     a.id_Consolidacao,
     a.id_DespesaConsolidacao,
+    a.id_Observacao,
+    a.id_DetalheDespesaLog,
     a.id_Funcionario,
     a.id_DespesaLinkRelatorio,
     a.vl_Total,

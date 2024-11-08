@@ -2,16 +2,12 @@ INSERT INTO tbd_DetalheDespesasMensaisLogs
     (
         id_Despesa,
         id_DetalheDespesa,
-        id_Ordem,
         id_Funcionario,
-        vl_ValorAlterado,
-        ds_DataHoraAlteracao
+        ds_LogDespesa
     )
 VALUES (
     :idDespesa,
     :idDetalheDespesa,
-    :idOrdem,
     :idFuncionario,
-    :valorCampo,
-    GETDATE()
+    :dsLogDespesa
 )

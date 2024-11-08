@@ -237,6 +237,10 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlQuery
+    Integer getMaxOrdemDetalheDespesasMensaisNormal(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
     Integer getMaxOrdemDetalheDespesasTipoRelatorio(Integer idDespesa, Integer idFuncionario);
 
     @Override
@@ -296,11 +300,19 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlQuery
-    String getObservacoesDetalheDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario);
+    String getObservacoesDetalheDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idObservacao, Integer idFuncionario);
 
     @Override
     @SqlQuery
-    Integer getQuantidadeObservacoesDetalheDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario);
+    String getLogsDetalheDespesa(Integer idDetalheDespesaLog, Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
+    Integer getQuantidadeObservacoesDetalheDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idObservacao, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
+    Integer getQuantidadeLogsDetalheDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idDetalheDespesaLog, Integer idFuncionario);
 
     @Override
     @SqlQuery
@@ -448,7 +460,8 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlUpdate
-    void insertObservacaoDetalheDespesaMensal(@BindBean("detalhe") ObservacoesDetalheDespesaRequest detalheDAO);
+    @GetGeneratedKeys
+    Integer insertObservacaoDetalheDespesaMensal(@BindBean("detalhe") ObservacoesDetalheDespesaRequest detalheDAO);
 
     @Override
     @SqlUpdate
@@ -468,7 +481,8 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlUpdate
-    void insertDetalheDespesasMensaisLogs(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario, String valorCampo);
+    @GetGeneratedKeys
+    Integer insertDetalheDespesasMensaisLogs(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String dsLogDespesa);
 
     @Override
     @SqlUpdate
@@ -524,6 +538,10 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlUpdate
+    void updateLogsDetalheDespesaMensal(@BindBean("detalhe") LogsDetalheDespesaRequest request);
+
+    @Override
+    @SqlUpdate
     void updateDespesaParcelada(@BindBean("despesa") DespesaParceladaDAO despesaParceladaDAO);
 
     @Override
@@ -568,11 +586,11 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlUpdate
-    void updateObservacaoDetalheDespesasMensaisOrdenacao(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idNovaOrdem, Integer idFuncionario);
+    void updateDetalheDespesasMensaisObservacao(Integer idObservacao, Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario);
 
     @Override
     @SqlUpdate
-    void updateDetalheDespesasMensaisLogsOrdenacao(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idNovaOrdem, Integer idFuncionario);
+    void updateDetalheDespesasMensaisLog(Integer idDetalheDespesaLog, Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario);
 
     @Override
     @SqlUpdate
@@ -764,7 +782,7 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlUpdate
-    void deleteDetalheDespesasMensaisLogsPorFiltro(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario);
+    void deleteDetalheDespesasMensaisLogsPorFiltro(Integer idDespesa, Integer idDetalheDespesa, Integer idDetalheDespesaLog, Integer idFuncionario);
 
     @Override
     @SqlUpdate
@@ -772,7 +790,7 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlUpdate
-    void deleteObservacaoDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario);
+    void deleteObservacaoDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idObservacao, Integer idFuncionario);
 
     @Override
     @SqlUpdate

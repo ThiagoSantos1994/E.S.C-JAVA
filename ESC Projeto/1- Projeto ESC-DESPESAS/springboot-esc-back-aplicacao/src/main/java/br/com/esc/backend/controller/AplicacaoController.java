@@ -75,15 +75,21 @@ public class AplicacaoController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping(path = "/lancamentosFinanceiros/detalheDespesasMensais/observacoes/consultar/{idDespesa}/{idDetalheDespesa}/{idObservacao}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StringResponse> obterObservacoesDetalheDespesasMensais(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idObservacao") Integer idObservacao, @PathVariable("idFuncionario") Integer idFuncionario) {
+        var response = service.obterObservacoesDetalheDespesa(idDespesa, idDetalheDespesa, idObservacao, idFuncionario);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping(path = "/lancamentosFinanceiros/obterTitulosDespesasRelatorio/{idDespesa}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TituloDespesaResponse> obterTitulosDespesasRelatorio(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idFuncionario") Integer idFuncionario) {
         var response = service.obterTitulosDespesasRelatorio(idDespesa, idFuncionario);
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping(path = "/lancamentosFinanceiros/detalheDespesasMensais/observacoes/consultar/{idDespesa}/{idDetalheDespesa}/{idOrdem}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<StringResponse> obterObservacoesDetalheDespesasMensais(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idOrdem") Integer idOrdem, @PathVariable("idFuncionario") Integer idFuncionario) {
-        var response = service.obterObservacoesDetalheDespesa(idDespesa, idDetalheDespesa, idOrdem, idFuncionario);
+    @GetMapping(path = "/lancamentosFinanceiros/detalheDespesasMensais/historico/consultar/{idDetalheDespesaLog}/{idDespesa}/{idDetalheDespesa}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StringResponse> obterHistoricoDetalheDespesasMensais(@PathVariable("idDetalheDespesaLog") Integer idDetalheDespesaLog, @PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idFuncionario") Integer idFuncionario) {
+        var response = service.obterHistoricoDetalheDespesa(idDetalheDespesaLog, idDespesa, idDetalheDespesa, idFuncionario);
         return ResponseEntity.ok(response);
     }
 

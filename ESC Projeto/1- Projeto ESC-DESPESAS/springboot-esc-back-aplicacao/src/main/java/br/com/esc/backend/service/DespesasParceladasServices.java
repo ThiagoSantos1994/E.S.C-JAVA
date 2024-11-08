@@ -3,6 +3,7 @@ package br.com.esc.backend.service;
 import br.com.esc.backend.domain.*;
 import br.com.esc.backend.exception.ErroNegocioException;
 import br.com.esc.backend.repository.AplicacaoRepository;
+import br.com.esc.backend.utils.DataUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
@@ -219,7 +220,7 @@ public class DespesasParceladasServices {
             repository.updateQuantidadeParcelasDesfazerAdiamento(idDespesaParcelada, idFuncionario);
         } else {
             var descricaoDespesa = repository.getDespesaParcelada(idDespesaParcelada, null, idFuncionario).getDsTituloDespesaParcelada();
-            throw new ErroNegocioException("A parcela da despesa " + descricaoDespesa + " não pode ser processada. Motivo: Não consta adiamento para esta parcela nesta despesa.");
+            throw new ErroNegocioException("A parcela da despesa " + descricaoDespesa + " não pode ser processada. \n\nMotivo: Esta parcela não foi adiada, verifique qual parcela foi adiada e tente novamente.");
         }
     }
 
@@ -347,7 +348,7 @@ public class DespesasParceladasServices {
                         .build();
 
                 var detalheDespesaMensalParcela = repository.getDetalheDespesaMensalPorFiltro(filtro);
-                repository.updateStatusPagamentoDetalheDespesa(valorQuitacao, valorQuitacao, PAGO, observacoes, "Baixa Automatica - Quitacao TOTAL", detalheDespesaMensalParcela.getIdDespesa(), detalheDespesaMensalParcela.getIdDetalheDespesa(), detalheDespesaMensalParcela.getIdOrdem(), idFuncionario);
+                repository.updateStatusPagamentoDetalheDespesa(valorQuitacao, valorQuitacao, PAGO, observacoes, "Baixa Automatica - Quitacao TOTAL - ".concat(DataUtils.DataHoraAtual()), detalheDespesaMensalParcela.getIdDespesa(), detalheDespesaMensalParcela.getIdDetalheDespesa(), detalheDespesaMensalParcela.getIdOrdem(), idFuncionario);
 
                 log.info("Baixando pagamento da parcela.. >> {}", parcela);
                 repository.updateParcelaStatusQuitado(observacoes, idDespesaParcelada, idParcela, valorQuitacao, idFuncionario);

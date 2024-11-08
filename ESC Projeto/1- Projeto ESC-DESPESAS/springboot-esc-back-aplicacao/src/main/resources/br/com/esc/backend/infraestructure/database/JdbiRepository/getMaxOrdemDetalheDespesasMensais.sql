@@ -4,5 +4,5 @@ FROM
     tbd_DetalheDespesasMensais
 WHERE
     id_Despesa = :idDespesa
-    AND id_Funcionario = :idFuncionario
     AND id_DetalheDespesa = :idDetalheDespesa
+    AND id_Funcionario = :idFuncionario

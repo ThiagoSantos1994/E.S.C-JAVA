@@ -51,10 +51,13 @@ public class ImportarLancamentosServices {
 
         var despesasMensais = this.processarDespesasMensais(idDespesaImportacao, idFuncionario);
         for (DespesasMensaisDAO despesaMensal : despesasMensais) {
-            detalheDespesasServices.gravarDespesasMensais(despesaMensal);
+            var isDespesaNaoImportada = isEmpty(repository.getDespesasMensais(idDespesa, despesaMensal.getIdFuncionario(), despesaMensal.getIdDetalheDespesa()));
+            if (isDespesaNaoImportada) {
+                detalheDespesasServices.gravarDespesasMensais(despesaMensal);
 
-            var bReprocessarTodosValores = despesaMensal.getTpReprocessar().equalsIgnoreCase("S");
-            this.processarImportacaoDetalheDespesasMensais(idDespesaImportacao, despesaMensal.getIdDetalheDespesa(), idFuncionario, dsMes, dsAno, bReprocessarTodosValores);
+                var bReprocessarTodosValores = despesaMensal.getTpReprocessar().equalsIgnoreCase("S");
+                this.processarImportacaoDetalheDespesasMensais(idDespesaImportacao, despesaMensal.getIdDetalheDespesa(), idFuncionario, dsMes, dsAno, bReprocessarTodosValores);
+            }
         }
     }
 
@@ -231,6 +234,8 @@ public class ImportarLancamentosServices {
             dao.setDsObservacao("");
             dao.setDsObservacao2("");
             dao.setIdDespesa(idDespesa);
+            dao.setIdObservacao(0);
+            dao.setIdDetalheDespesaLog(0);
             dao.setIdConsolidacao(dao.getIdConsolidacao());
             dao.setIdDespesaConsolidacao(dao.getIdDespesaConsolidacao());
 
@@ -301,6 +306,7 @@ public class ImportarLancamentosServices {
                         .idDetalheDespesa(idDetalheDespesa)
                         .tpStatus(PENDENTE)
                         .idOrdem(null)
+                        .idObservacao(0)
                         .idFuncionario(idFuncionario)
                         .idDespesaParcelada(despesaParcelada.getIdDespesaParcelada())
                         .idDespesaLinkRelatorio(0)
@@ -348,6 +354,7 @@ public class ImportarLancamentosServices {
                         .dsDescricao(DESCRICAO_DESPESA_CONSOLIDACAO)
                         .tpStatus(PENDENTE)
                         .idOrdem(null)
+                        .idObservacao(0)
                         .idFuncionario(idFuncionario)
                         .idDespesaParcelada(0)
                         .idParcela(0)
@@ -393,6 +400,7 @@ public class ImportarLancamentosServices {
                     .idDetalheDespesa(idDetalheDespesa)
                     .tpStatus(PENDENTE)
                     .idOrdem(null)
+                    .idObservacao(0)
                     .idFuncionario(idFuncionario)
                     .dsObservacao("<AUT AMORTIZACAO - ".concat(DataHoraAtual()).concat(">"))
                     .idDespesaParcelada(idDespesaParcelada)

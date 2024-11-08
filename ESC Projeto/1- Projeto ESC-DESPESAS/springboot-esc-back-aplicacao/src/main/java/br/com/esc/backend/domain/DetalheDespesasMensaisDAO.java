@@ -17,6 +17,8 @@ public class DetalheDespesasMensaisDAO {
     private Integer idDetalheReferencia;
     private Integer idConsolidacao;
     private Integer idDespesaConsolidacao;
+    private Integer idObservacao;
+    private Integer idDetalheDespesaLog;
     private String dsTituloDespesa;
     private String dsDescricao;
     private Integer idOrdem;

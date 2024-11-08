@@ -3,5 +3,5 @@ DELETE FROM
 WHERE
    id_Despesa = :idDespesa
    AND id_DetalheDespesa = :idDetalheDespesa
-   AND id_Ordem = :idOrdem
+   AND id_Observacao = :idObservacao
    AND id_Funcionario = :idFuncionario

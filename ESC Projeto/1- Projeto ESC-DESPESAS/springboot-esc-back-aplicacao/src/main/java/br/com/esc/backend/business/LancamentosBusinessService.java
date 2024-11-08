@@ -109,9 +109,6 @@ public class LancamentosBusinessService {
                 consolidacaoService.excluirConsolidacaoDetalheDespesaMensal(detalhe.getIdDespesa(), detalhe.getIdDetalheDespesa(), detalhe.getIdConsolidacao(), detalhe.getIdFuncionario());
             }
         }
-
-        var detalheRequest = request.get(0);
-        detalheDespesasServices.ordenarRegistrosAtualizacao(detalheRequest.getIdDespesa(), detalheRequest.getIdDetalheDespesa(), detalheRequest.getIdFuncionario(), "prazo");
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -150,6 +147,7 @@ public class LancamentosBusinessService {
         log.info("Processando importacao lancamentos e despesas mensais - idDespesa {} - idFuncionario {} - dsMes {} - dsAno {}", idDespesa, idFuncionario, dsMes, dsAno);
         importacaoServices.processarImportacaoDespesasMensais(idDespesa, idFuncionario, dsMes, dsAno);
         this.atualizaStatusDespesasParceladasEmAberto(idFuncionario);
+        this.ordenarListaDespesasMensais(idDespesa, idFuncionario);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -419,9 +417,13 @@ public class LancamentosBusinessService {
         return lancamentosServices.getTituloDespesaRelatorio(idDespesa, idFuncionario);
     }
 
-    public StringResponse obterObservacoesDetalheDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario) {
+    public StringResponse obterObservacoesDetalheDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idObservacao, Integer idFuncionario) {
         log.info("Consultando observações dos detalhes da despesa");
-        return detalheDespesasServices.getObservacoesDetalheDespesa(idDespesa, idDetalheDespesa, idOrdem, idFuncionario);
+        return detalheDespesasServices.getObservacoesDetalheDespesa(idDespesa, idDetalheDespesa, idObservacao, idFuncionario);
+    }
+
+    public StringResponse obterHistoricoDetalheDespesa(Integer idDetalheDespesaLog, Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario) {
+        return detalheDespesasServices.getHistoricoDetalheDespesa(idDetalheDespesaLog, idDespesa, idDetalheDespesa, idFuncionario);
     }
 
     public void gravarObservacoesDetalheDespesa(ObservacoesDetalheDespesaRequest request) {
@@ -448,7 +450,8 @@ public class LancamentosBusinessService {
             log.info("Excluindo parcela >>> filtros: idDespesaParcelada: {} - idParcela: {} - idFuncionario: {}", parcela.getIdDespesaParcelada(), parcela.getIdParcela(), parcela.getIdFuncionario());
             despesasParceladasServices.excluirParcela(parcela.getIdDespesaParcelada(), parcela.getIdParcela(), parcela.getIdFuncionario());
         }
-        despesasParceladasServices.validarBaixaCadastroDespesaParcelada(parcelas.get(0).getIdDespesaParcelada(), parcelas.get(0).getIdFuncionario());
+        /*Retirada a baixa automatica da despesa apos exclusão das parcelas para reprocessamento. 24/10/2024*/
+        //despesasParceladasServices.validarBaixaCadastroDespesaParcelada(parcelas.get(0).getIdDespesaParcelada(), parcelas.get(0).getIdFuncionario());
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -495,6 +498,7 @@ public class LancamentosBusinessService {
 
         return DetalheDespesasParceladasResponse.builder()
                 .idDespesaParcelada(idDespesa)
+                .despesas(DespesaParceladaDAO.builder().tpBaixado("N").build())
                 .despesaVinculada("Novo fluxo de parcelas, clique em SALVAR para gravar esta despesa parcelada.")
                 .parcelas(fluxoParcelas.getParcelas())
                 .build();

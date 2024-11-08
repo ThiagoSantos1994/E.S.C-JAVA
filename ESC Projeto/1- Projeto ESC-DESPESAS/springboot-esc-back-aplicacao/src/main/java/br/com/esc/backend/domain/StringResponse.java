@@ -16,6 +16,7 @@ public class StringResponse {
     private String mesAno;
     private String mensagem;
     private String observacoes;
+    private String historico;
     private String nomeDespesaParcelada;
     private String nomeLembrete;
     private String vlSubTotalDespesa;

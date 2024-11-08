@@ -9,11 +9,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ObservacoesDetalheDespesaRequest {
-    private Integer idObservacao;
+public class LogsDetalheDespesaRequest {
+    private Integer idDetalheDespesaLog;
     private Integer idDespesa;
     private Integer idDetalheDespesa;
     private Integer idOrdem;
     private Integer idFuncionario;
-    private String dsObservacoes;
+    private String dsLogDespesa;
 }

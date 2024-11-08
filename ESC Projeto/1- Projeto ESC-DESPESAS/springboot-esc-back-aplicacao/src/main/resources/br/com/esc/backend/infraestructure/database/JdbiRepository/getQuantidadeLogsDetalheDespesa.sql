@@ -1,9 +1,9 @@
 SELECT
-    ds_AnotacaoDespesa
+    COUNT(id_DetalheDespesaLog)
 FROM
-    tbd_ObservacaoDetalheDespesaMensal
+    tbd_DetalheDespesasMensaisLogs
 WHERE
     id_Despesa = :idDespesa
     AND id_DetalheDespesa = :idDetalheDespesa
-    AND id_Observacao = :idObservacao
+    AND id_DetalheDespesaLog = :idDetalheDespesaLog
     AND id_Funcionario = :idFuncionario

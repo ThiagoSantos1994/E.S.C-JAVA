@@ -1,9 +1,9 @@
 SELECT
-    COUNT(id_Ordem)
+    COUNT(id_Observacao)
 FROM
     tbd_ObservacaoDetalheDespesaMensal
 WHERE
     id_Despesa = :idDespesa
     AND id_DetalheDespesa = :idDetalheDespesa
-    AND id_Ordem = :idOrdem
+    AND id_Observacao = :idObservacao
     AND id_Funcionario = :idFuncionario
