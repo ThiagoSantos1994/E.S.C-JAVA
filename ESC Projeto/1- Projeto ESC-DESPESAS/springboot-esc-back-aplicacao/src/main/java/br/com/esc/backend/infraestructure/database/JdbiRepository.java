@@ -138,6 +138,11 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlQuery
     @UseRowMapper(ParcelasRowMapper.class)
+    List<ParcelasDAO> getParcelasEmAberto(Integer idDespesaParcelada, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
+    @UseRowMapper(ParcelasRowMapper.class)
     List<ParcelasDAO> getParcelasParaAmortizacao(Integer idDespesaParcelada, Integer idFuncionario);
 
     @Override
@@ -354,6 +359,11 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlQuery
+    @UseRowMapper(TituloConsolidacaoRowMapper.class)
+    List<TituloConsolidacao> getNomeConsolidacoesAtivasParaAssociacao(Integer idFuncionario);
+
+    @Override
+    @SqlQuery
     @UseRowMapper(TituloDespesaRowMapper.class)
     List<TituloDespesa> getNomeDespesaRelatorio(Integer idDespesa, Integer idFuncionario);
 
@@ -550,7 +560,7 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlUpdate
-    void updateDataConfiguracoesLancamentos(Integer idFuncionario, Integer mesReferencia);
+    void updateDataConfiguracoesLancamentos(Integer idFuncionario, Integer mesReferencia, Integer anoReferencia);
 
     @Override
     @SqlUpdate

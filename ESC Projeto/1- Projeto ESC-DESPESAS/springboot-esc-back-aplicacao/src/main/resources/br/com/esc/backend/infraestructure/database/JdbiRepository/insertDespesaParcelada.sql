@@ -21,7 +21,7 @@ VALUES (
     :despesa.vlFatura,
     :despesa.dsVigenciaFin,
     :despesa.idFuncionario,
-    :despesa.nrParcelasAdiantadas,
+    0,
     :despesa.tpBaixado,
     :despesa.dtCadastro
 )

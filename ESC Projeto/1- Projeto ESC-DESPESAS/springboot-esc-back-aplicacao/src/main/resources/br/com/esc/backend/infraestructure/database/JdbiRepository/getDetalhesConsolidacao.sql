@@ -15,15 +15,20 @@ SELECT
     	a.id_DespesaParcelada = c.id_DespesaParcelada
     	AND a.id_Funcionario = c.id_Funcionario
     ) AS ds_DescricaoDespesa,
-    (CASE WHEN(d.tp_Baixado = 'N') THEN 'Em Aberto' ELSE 'Quitado' END) as statusDespesa,
-    COALESCE(
-        (
+    (CASE WHEN (d.tp_Baixado = 'N') THEN 'Em Aberto' ELSE 'Quitado' END) as statusDespesa,
+    (CASE WHEN (d.tp_Baixado = 'S') THEN
+		(
+            SELECT e.vl_Parcela FROM tbd_Parcelas e
+            WHERE e.id_DespesaParcelada = c.id_DespesaParcelada
+            AND e.id_Parcelas = (SELECT MAX(nr_Parcela) FROM tbd_Parcelas WHERE id_DespesaParcelada = c.id_DespesaParcelada AND tp_Baixado = 'S')
+        )
+	ELSE
+		(
             SELECT e.vl_Parcela FROM tbd_Parcelas e
             WHERE e.id_DespesaParcelada = c.id_DespesaParcelada
             AND e.id_Parcelas = (SELECT MIN(nr_Parcela) FROM tbd_Parcelas WHERE id_DespesaParcelada = c.id_DespesaParcelada AND tp_Baixado = 'N')
-        ),
-        d.vl_Fatura
-    ) as vl_Fatura,
+        )
+    END) as vl_Fatura,
     d.nr_ParcelasAdiantadas
 FROM
 	tbd_ConsolidacaoDespesasParceladas c

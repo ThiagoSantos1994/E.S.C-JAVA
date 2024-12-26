@@ -14,6 +14,7 @@ import java.util.List;
 public class ConfiguracaoLancamentosResponse {
     private Integer dataViradaMes;
     private Integer mesReferencia;
+    private Integer anoReferencia;
     private boolean bViradaAutomatica;
     private Integer idFuncionario;
     private Integer qtdeLembretes;

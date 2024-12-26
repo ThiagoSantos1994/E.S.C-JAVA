@@ -22,7 +22,7 @@ public class ConsolidacaoService {
     private final AplicacaoRepository aplicacaoRepository;
 
     public List<TituloConsolidacao> getListaNomesConsolidacoes(Integer idFuncionario, Boolean tpBaixado) {
-        return aplicacaoRepository.getTituloConsolidacao(idFuncionario, (tpBaixado.equals(true) ? "tp_Baixado = 'S'" : "tp_Baixado = 'N'"));
+        return aplicacaoRepository.getTituloConsolidacao(idFuncionario, (tpBaixado.equals(true) ? "tp_Baixado IS NOT NULL" : "tp_Baixado = 'N'"));
     }
 
     public ConsolidacaoDAO getDetalheConsolidacao(Integer idConsolidacao, Integer idFuncionario) {
@@ -48,6 +48,10 @@ public class ConsolidacaoService {
             log.info("Atualizando consolidacao...");
             aplicacaoRepository.updateConsolidacao(consolidacaoDAO);
         }
+    }
+
+    public void baixarConsolidacao(ConsolidacaoDAO consolidacaoDAO) {
+
     }
 
     public void excluirConsolidacao(ConsolidacaoDAO consolidacaoDAO) {

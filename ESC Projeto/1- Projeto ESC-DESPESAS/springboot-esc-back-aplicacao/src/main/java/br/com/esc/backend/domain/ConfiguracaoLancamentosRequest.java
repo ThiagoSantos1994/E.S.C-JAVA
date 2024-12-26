@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class ConfiguracaoLancamentosRequest {
     private Integer dataViradaMes;
     private Integer mesReferencia;
+    private Integer anoReferencia;
     private boolean bViradaAutomatica;
     private char viradaAutomatica;
     private Integer idFuncionario;

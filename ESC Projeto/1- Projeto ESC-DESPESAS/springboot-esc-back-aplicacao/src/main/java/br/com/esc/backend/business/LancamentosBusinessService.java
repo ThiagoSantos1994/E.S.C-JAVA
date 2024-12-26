@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 
 import static br.com.esc.backend.service.DetalheDespesasServices.parserOrdem;
 import static br.com.esc.backend.utils.DataUtils.AnoSeguinte;
+import static br.com.esc.backend.utils.DataUtils.MesAtual;
 import static br.com.esc.backend.utils.ObjectUtils.isEmpty;
 import static br.com.esc.backend.utils.ObjectUtils.isNull;
 import static br.com.esc.backend.utils.VariaveisGlobais.VALOR_ZERO;
@@ -195,7 +196,7 @@ public class LancamentosBusinessService {
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
     public void gravarDetalheDespesasMensais(List<DetalheDespesasMensaisRequest> request) {
-        for (DetalheDespesasMensaisRequest detalhe: request) {
+        for (DetalheDespesasMensaisRequest detalhe : request) {
             DetalheDespesasMensaisDAO dao = new DetalheDespesasMensaisDAO();
             BeanUtils.copyProperties(dao, detalhe);
             detalheDespesasServices.gravarDetalheDespesasMensais(dao, false);
@@ -592,13 +593,15 @@ public class LancamentosBusinessService {
     }
 
     private List<String> obterListaAnosReferencia() {
+        List<String> responseList = new ArrayList<>();
         log.info("Obtendo lista de anos referencia...");
 
-        List<String> responseList = new ArrayList<>();
-        responseList.add(AnoSeguinte());
-
         try {
-            responseList.addAll(repository.getListaAnoReferencia());
+            var listAnosRef = repository.getListaAnoReferencia();
+            if (!listAnosRef.contains(AnoSeguinte())) {
+                responseList.add(AnoSeguinte());
+            }
+            responseList.addAll(listAnosRef);
         } catch (Exception ex) {
             responseList.add(DataUtils.AnoAtual());
         }

@@ -18,6 +18,7 @@ public class ConfiguracaoLancamentosRowMapper implements RowMapper<ConfiguracaoL
         return ConfiguracaoLancamentosResponse.builder()
                 .dataViradaMes(rs.getInt("dt_ViradaMes"))
                 .mesReferencia(rs.getInt("ds_MesReferencia"))
+                .anoReferencia(rs.getInt("ds_AnoReferencia"))
                 .bViradaAutomatica((rs.getString("tp_ViradaAutomatica").equalsIgnoreCase("S") ? valueOf(true) : valueOf(false)))
                 .idFuncionario(rs.getInt("id_Funcionario"))
                 .qtdeAcessos(rs.getInt("qt_Acessos"))

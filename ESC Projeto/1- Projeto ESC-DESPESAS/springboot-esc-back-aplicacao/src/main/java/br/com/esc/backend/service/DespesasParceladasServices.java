@@ -35,6 +35,7 @@ public class DespesasParceladasServices {
     public DetalheDespesasParceladasResponse obterDespesaParceladaPorFiltros(Integer idDespesa, String nomeDespesaParcelada, Integer idFuncionario) {
         var despesa = repository.getDespesaParcelada(idDespesa, nomeDespesaParcelada, idFuncionario);
         var parcelas = repository.getParcelasPorFiltro(despesa.getIdDespesaParcelada(), null, null, idFuncionario);
+        //var parcelas = repository.getParcelasEmAberto(despesa.getIdDespesaParcelada(), idFuncionario);
         var idDespesaParcelada = despesa.getIdDespesaParcelada();
         var valorDespesa = repository.getValorTotalDespesaParcelada(idDespesaParcelada, idFuncionario);
         var qtdeParcelas = parcelas.size();
@@ -288,7 +289,7 @@ public class DespesasParceladasServices {
         List<TituloDespesa> listaConsolidacoes = new ArrayList<>();
 
         if (tipo.equalsIgnoreCase("ativas")) {
-            for (TituloConsolidacao consolidacao : repository.getNomeConsolidacoesParaImportacao(idFuncionario)) {
+            for (TituloConsolidacao consolidacao : repository.getNomeConsolidacoesAtivasParaAssociacao(idFuncionario)) {
                 var tituloDespesa = TituloDespesa.builder()
                         .idDespesa(-consolidacao.getIdConsolidacao()) // para consolidacao foi necessario adicionar o - para tratar no frontend
                         .idConsolidacao(consolidacao.getIdConsolidacao())

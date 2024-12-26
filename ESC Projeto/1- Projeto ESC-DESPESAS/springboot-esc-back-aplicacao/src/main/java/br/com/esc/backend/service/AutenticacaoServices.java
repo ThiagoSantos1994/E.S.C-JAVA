@@ -92,7 +92,8 @@ public class AutenticacaoServices {
             //Muda a data de referencia somente no dia e mes programado
             if (configuracao.getDataViradaMes().compareTo(0) != 0 && (parseInt(DiaAtual()) >= configuracao.getDataViradaMes()) && parseInt(MesAtual()) == configuracao.getMesReferencia()) {
                 var mesViradaConfiguracao = (parseInt(MesAtual()) + 1 == 13 ? 1 : parseInt(MesAtual()) + 1);
-                aplicacaoRepository.updateDataConfiguracoesLancamentos(idFuncionario, mesViradaConfiguracao);
+                var anoViradaConfiguracao = (parseInt(MesAtual()) + 1 == 13 ? parseInt(AnoSeguinte()) : parseInt(AnoAtual()));
+                aplicacaoRepository.updateDataConfiguracoesLancamentos(idFuncionario, mesViradaConfiguracao, anoViradaConfiguracao);
             }
         }  catch (Exception ex) {
             log.info("Funcionario sem parametrizacao de configuracoes lancamentos, incluindo novo registro na base.");

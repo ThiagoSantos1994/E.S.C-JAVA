@@ -67,6 +67,8 @@ public interface AplicacaoRepository {
 
     List<ParcelasDAO> getParcelasPorFiltro(Integer idDespesaParcelada, Integer idParcela, String tpBaixado, Integer idFuncionario);
 
+    List<ParcelasDAO> getParcelasEmAberto(Integer idDespesaParcelada, Integer idFuncionario);
+
     List<ParcelasDAO> getParcelasParaAmortizacao(Integer idDespesaParcelada, Integer idFuncionario);
 
     String getValidaDespesaParceladaAmortizacao(Integer idDespesaParcelada, Integer idFuncionario);
@@ -154,6 +156,8 @@ public interface AplicacaoRepository {
     List<TituloConsolidacao> getNomeConsolidacoes(Integer idFuncionario);
 
     List<TituloConsolidacao> getNomeConsolidacoesParaImportacao(Integer idFuncionario);
+
+    List<TituloConsolidacao> getNomeConsolidacoesAtivasParaAssociacao(Integer idFuncionario);
 
     List<TituloDespesa> getNomeDespesaRelatorio(Integer idDespesa, Integer idFuncionario);
 
@@ -251,7 +255,7 @@ public interface AplicacaoRepository {
 
     void updateConfiguracoesLancamentos(ConfiguracaoLancamentosRequest request);
 
-    void updateDataConfiguracoesLancamentos(Integer idFuncionario, Integer mesReferencia);
+    void updateDataConfiguracoesLancamentos(Integer idFuncionario, Integer mesReferencia, Integer anoReferencia);
 
     void updateParcela(ParcelasDAO parcelasDAO);
 
