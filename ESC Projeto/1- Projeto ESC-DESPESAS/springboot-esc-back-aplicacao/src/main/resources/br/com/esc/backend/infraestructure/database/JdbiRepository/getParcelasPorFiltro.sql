@@ -19,6 +19,7 @@ WHERE
     (:idDespesaParcelada IS NULL OR id_DespesaParcelada = :idDespesaParcelada)
     AND (:idParcela IS NULL OR id_Parcelas = :idParcela)
     AND (:tpBaixado IS NULL OR tp_Baixado = :tpBaixado)
+    <visualizacao>
     AND id_Funcionario = :idFuncionario
 ORDER BY
     id_Parcelas

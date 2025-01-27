@@ -9,7 +9,10 @@ SELECT
         WHEN '*CONS' THEN cons.ds_TituloConsolidacao ELSE a.ds_Descricao
     END))) AS ds_TituloDespesa,
     UPPER(LTRIM(RTRIM(a.ds_Descricao))) AS ds_Descricao,
-    a.id_Ordem,
+    (CASE WHEN (desp.tp_Relatorio = 'S' AND a.id_DespesaLinkRelatorio = 0)
+     THEN a.id_Ordem
+     WHEN a.id_DespesaParcelada = 0 THEN 998 ELSE 999 END
+    ) as id_Ordem,
     a.id_Parcela,
     a.id_DespesaParcelada,
     a.id_Consolidacao,
@@ -20,7 +23,7 @@ SELECT
     a.id_DespesaLinkRelatorio,
     a.vl_Total,
     a.vl_TotalPago,
-    a.ds_Observacao,
+    CASE ISNULL(a.id_DespesaLinkRelatorio, 0) WHEN 0 THEN a.ds_Observacao ELSE 'REF: ' + (SELECT ds_NomeDespesa FROM tbd_DespesaMensal WHERE id_Despesa = a.id_Despesa AND id_DetalheDespesa = a.id_DetalheDespesa AND id_Funcionario = a.id_Funcionario) END as ds_Observacao,
     a.ds_Observacao2,
     a.tp_CategoriaDespesa,
     ISNULL(a.tp_Status, 'N') AS tp_Status,
@@ -40,6 +43,7 @@ FROM
 WHERE
     a.id_Despesa = :idDespesa
     AND a.id_Funcionario = :idFuncionario
-    AND a.id_DetalheDespesa = :idDetalheDespesa
+    AND ((:idDetalheDespesa IS NULL OR a.id_DetalheDespesa = :idDetalheDespesa)
+    OR (a.id_DespesaLinkRelatorio = :idDetalheDespesa AND a.tp_Relatorio = 'S'))
 ORDER BY
-    <ordem>
+    id_Ordem

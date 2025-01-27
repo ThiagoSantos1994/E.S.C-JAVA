@@ -53,6 +53,8 @@ public interface AplicacaoRepository {
 
     List<DetalheDespesasMensaisDAO> getDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem);
 
+    List<DetalheDespesasMensaisDAO> getDetalheDespesasMensaisTipoRelatorio(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+
     List<DetalheDespesasMensaisDAO> getDespesasParceladasDetalheDespesasMensais(Integer idDespesa, Integer idFuncionario);
 
     DetalheDespesasMensaisDAO getDetalheDespesaMensalPorFiltro(DetalheDespesasMensaisDAO mensaisDAO);
@@ -65,9 +67,7 @@ public interface AplicacaoRepository {
 
     ParcelasDAO getUltimaParcelaDespesaParcelada(Integer idDespesaParcelada, Integer idFuncionario);
 
-    List<ParcelasDAO> getParcelasPorFiltro(Integer idDespesaParcelada, Integer idParcela, String tpBaixado, Integer idFuncionario);
-
-    List<ParcelasDAO> getParcelasEmAberto(Integer idDespesaParcelada, Integer idFuncionario);
+    List<ParcelasDAO> getParcelasPorFiltro(Integer idDespesaParcelada, Integer idParcela, String tpBaixado, Integer idFuncionario, String visualizacao);
 
     List<ParcelasDAO> getParcelasParaAmortizacao(Integer idDespesaParcelada, Integer idFuncionario);
 
@@ -97,9 +97,9 @@ public interface AplicacaoRepository {
 
     Integer getMaxOrdemDetalheDespesasTipoRelatorio(Integer idDespesa, Integer idFuncionario);
 
-    List<Integer> getDespesasParceladasConsolidadas (Integer idDespesa, Integer idDetalheDespesa, Integer idConsolidacao, Integer idFuncionario);
+    List<Integer> getDespesasParceladasConsolidadas(Integer idDespesa, Integer idDetalheDespesa, Integer idConsolidacao, Integer idFuncionario);
 
-    List<Integer> getDespesasParceladasConsolidadasImportacao (Integer idConsolidacao, Integer idFuncionario);
+    List<Integer> getDespesasParceladasConsolidadasImportacao(Integer idConsolidacao, Integer idFuncionario);
 
     DespesasFixasMensaisDAO getDespesasFixasTipoDebitoCartao(Integer idDespesa, Integer idFuncionario);
 
@@ -118,6 +118,8 @@ public interface AplicacaoRepository {
     List<DespesaParceladaDAO> getDespesasParceladas(Integer idFuncionario, String status);
 
     ChaveKeyDAO getNovaChaveKey(String tpRegistroKey);
+
+    ChaveKeySemUsoDAO getChaveKeySemUso(String coluna, String tabela);
 
     Integer getMaxIdDespesaTemp(Integer idFuncionario);
 
@@ -157,7 +159,7 @@ public interface AplicacaoRepository {
 
     List<TituloConsolidacao> getNomeConsolidacoesParaImportacao(Integer idFuncionario);
 
-    List<TituloConsolidacao> getNomeConsolidacoesAtivasParaAssociacao(Integer idFuncionario);
+    List<TituloConsolidacao> getNomeConsolidacoesAtivasParaAssociacao(Integer idFuncionario, Integer idDespesa, Integer idDetalheDespesa);
 
     List<TituloDespesa> getNomeDespesaRelatorio(Integer idDespesa, Integer idFuncionario);
 
@@ -241,7 +243,7 @@ public interface AplicacaoRepository {
 
     void updateDespesasParceladasConsolidacao(Integer idDespesaParcelada, Integer idConsolidacao, Integer idFuncionario);
 
-    void updateDetalheDespesasMensaisDesassociacao(Integer idConsolidacao, Integer idDespesaParcelada,Integer idFuncionario);
+    void updateDetalheDespesasMensaisDesassociacao(Integer idConsolidacao, Integer idDespesaParcelada, Integer idFuncionario);
 
     void insertDespesaConsolidacao(ConsolidacaoDespesasRequest despesas);
 
@@ -384,6 +386,8 @@ public interface AplicacaoRepository {
     void deleteObservacaoDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idObservacao, Integer idFuncionario);
 
     void deleteTodasObservacaoDetalheDespesaMensal(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+
+    void deleteTodasDespesasMensaisLogs(Integer idDespesa, Integer idFuncionario);
 
     void deleteParcela(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
 

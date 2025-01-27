@@ -114,6 +114,11 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlQuery
     @UseRowMapper(DetalheDespesasMensaisRowMapper.class)
+    List<DetalheDespesasMensaisDAO> getDetalheDespesasMensaisTipoRelatorio(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
+    @UseRowMapper(DetalheDespesasMensaisRowMapper.class)
     List<DetalheDespesasMensaisDAO> getDespesasParceladasDetalheDespesasMensais(Integer idDespesa, Integer idFuncionario);
 
     @Override
@@ -133,12 +138,7 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlQuery
     @UseRowMapper(ParcelasRowMapper.class)
-    List<ParcelasDAO> getParcelasPorFiltro(Integer idDespesaParcelada, Integer idParcela, String tpBaixado, Integer idFuncionario);
-
-    @Override
-    @SqlQuery
-    @UseRowMapper(ParcelasRowMapper.class)
-    List<ParcelasDAO> getParcelasEmAberto(Integer idDespesaParcelada, Integer idFuncionario);
+    List<ParcelasDAO> getParcelasPorFiltro(Integer idDespesaParcelada, Integer idParcela, String tpBaixado, Integer idFuncionario, @Define("visualizacao") String visualizacao);
 
     @Override
     @SqlQuery
@@ -250,11 +250,11 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlQuery
-    List<Integer> getDespesasParceladasConsolidadas (Integer idDespesa, Integer idDetalheDespesa, Integer idConsolidacao, Integer idFuncionario);
+    List<Integer> getDespesasParceladasConsolidadas(Integer idDespesa, Integer idDetalheDespesa, Integer idConsolidacao, Integer idFuncionario);
 
     @Override
     @SqlQuery
-    List<Integer> getDespesasParceladasConsolidadasImportacao (Integer idConsolidacao, Integer idFuncionario);
+    List<Integer> getDespesasParceladasConsolidadasImportacao(Integer idConsolidacao, Integer idFuncionario);
 
     @Override
     @SqlQuery
@@ -286,6 +286,11 @@ public interface JdbiRepository extends AplicacaoRepository {
     @SqlQuery
     @UseRowMapper(ChaveKeyMapper.class)
     ChaveKeyDAO getNovaChaveKey(String tpRegistroKey);
+
+    @Override
+    @SqlQuery
+    @UseRowMapper(ChaveKeySemUsoMapper.class)
+    ChaveKeySemUsoDAO getChaveKeySemUso(@Define("coluna") String coluna, @Define("tabela") String tabela);
 
     @Override
     @SqlQuery
@@ -360,7 +365,7 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlQuery
     @UseRowMapper(TituloConsolidacaoRowMapper.class)
-    List<TituloConsolidacao> getNomeConsolidacoesAtivasParaAssociacao(Integer idFuncionario);
+    List<TituloConsolidacao> getNomeConsolidacoesAtivasParaAssociacao(Integer idFuncionario, Integer idDespesa, Integer idDetalheDespesa);
 
     @Override
     @SqlQuery
@@ -500,7 +505,7 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlUpdate
-    void deleteConsolidacao(@BindBean("consolidacao")ConsolidacaoDAO consolidacaoDAO);
+    void deleteConsolidacao(@BindBean("consolidacao") ConsolidacaoDAO consolidacaoDAO);
 
     @Override
     @SqlUpdate
@@ -520,7 +525,7 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlUpdate
-    void updateDetalheDespesasMensaisDesassociacao(Integer idConsolidacao, Integer idDespesaParcelada,Integer idFuncionario);
+    void updateDetalheDespesasMensaisDesassociacao(Integer idConsolidacao, Integer idDespesaParcelada, Integer idFuncionario);
 
     @Override
     @SqlUpdate
@@ -805,6 +810,10 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlUpdate
     void deleteTodasObservacaoDetalheDespesaMensal(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void deleteTodasDespesasMensaisLogs(Integer idDespesa, Integer idFuncionario);
 
     @Override
     @SqlUpdate

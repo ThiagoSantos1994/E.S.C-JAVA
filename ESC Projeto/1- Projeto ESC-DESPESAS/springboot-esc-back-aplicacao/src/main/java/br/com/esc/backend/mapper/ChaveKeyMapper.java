@@ -17,6 +17,8 @@ public class ChaveKeyMapper implements RowMapper<ChaveKeyDAO> {
         return ChaveKeyDAO.builder()
                 .idChaveKey(rs.getInt("id_ChaveKey"))
                 .novaChave(rs.getInt("novaChave"))
+                .dsNomeTabela(rs.getString("ds_NomeTabela"))
+                .dsNomeColuna(rs.getString("ds_NomeColuna"))
                 .build();
     }
 }

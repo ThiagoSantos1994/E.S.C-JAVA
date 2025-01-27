@@ -7,7 +7,6 @@ import br.com.esc.backend.utils.DataUtils;
 import br.com.esc.backend.utils.ObjectUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import lombok.var;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static br.com.esc.backend.service.DespesasParceladasServices.opcaoVisualizacaoParcelas;
 import static br.com.esc.backend.utils.GlobalUtils.getAnoAtual;
 import static br.com.esc.backend.utils.GlobalUtils.getMesAtual;
 import static br.com.esc.backend.utils.MotorCalculoUtils.*;
@@ -32,34 +32,45 @@ public class DetalheDespesasServices {
     private final DespesasParceladasServices despesasParceladasServices;
     private final ConsolidacaoService consolidacaoService;
 
-    public DetalheDespesasMensaisDTO obterDetalheDespesaMensal(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem) {
+    public DetalheDespesasMensaisDTO obterDetalheDespesaMensal(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem, Boolean visualizarConsolidacao) {
+        var despesaTipoRelatorio = "N";
+
         var despesaMensal = repository.getDespesasMensais(idDespesa, idFuncionario, idDetalheDespesa);
 
         if (despesaMensal.size() <= 0) {
             return new DetalheDespesasMensaisDTO();
         } else {
-            var tpRelatorio = despesaMensal.get(0).getTpRelatorio();
+            despesaTipoRelatorio = despesaMensal.get(0).getTpRelatorio();
 
-            despesaMensal.get(0).setVlTotalDespesa((tpRelatorio.equalsIgnoreCase("S")) ?
+            despesaMensal.get(0).setVlTotalDespesa((despesaTipoRelatorio.equalsIgnoreCase("S")) ?
                     convertToMoedaBR(repository.getCalculoDespesaTipoRelatorio(idDespesa, idDetalheDespesa, idFuncionario)) :
                     convertToMoedaBR(convertStringToDecimal(repository.getValorTotalDespesa(idDespesa, idDetalheDespesa, idFuncionario))));
 
             despesaMensal.get(0).setVlLimiteExibicao((despesaMensal.get(0).getTpReferenciaSaldoMesAnterior().equalsIgnoreCase("S")) ?
-                    this.obterSubTotalDespesa((idDespesa - 1), idDetalheDespesa, idFuncionario, (tpRelatorio.equals("S") ? "relatorio" : "default")).getVlSubTotalDespesa() :
+                    this.obterSubTotalDespesa((idDespesa - 1), idDetalheDespesa, idFuncionario, (despesaTipoRelatorio.equals("S") ? "relatorio" : "default")).getVlSubTotalDespesa() :
                     despesaMensal.get(0).getVlLimite());
 
             despesaMensal.get(0).setDsExtratoDespesa(this.obterExtratoDespesasMes(idDespesa, idDetalheDespesa, idFuncionario, "detalheDespesas").getMensagem());
         }
 
-        var detalheDespesasMensaisList = repository.getDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario, parserOrdem(ordem)).stream()
-                .filter(d -> isNull(d.getIdDespesaConsolidacao()) || d.getIdDespesaConsolidacao() == 0)
-                .collect(Collectors.toList());
+        List<DetalheDespesasMensaisDAO> detalheDespesasMensaisList = despesaTipoRelatorio.equalsIgnoreCase("N") ?
+                repository.getDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario, parserOrdem(ordem)) :
+                repository.getDetalheDespesasMensaisTipoRelatorio(idDespesa, idDetalheDespesa, idFuncionario);
+
+        if (visualizarConsolidacao) {
+            detalheDespesasMensaisList = detalheDespesasMensaisList.stream()
+                    .filter(d -> isNull(d.getIdDespesaConsolidacao()) || d.getIdDespesaConsolidacao() == 0)
+                    .collect(Collectors.toList());
+        } else {
+            detalheDespesasMensaisList = detalheDespesasMensaisList.stream()
+                    .filter(d -> isNull(d.getIdConsolidacao()) || d.getIdConsolidacao() == 0)
+                    .collect(Collectors.toList());
+        }
 
         var isContemDespesasConsolidadas = detalheDespesasMensaisList.stream()
                 .filter(d -> isNotNull(d.getIdConsolidacao()) && d.getIdConsolidacao() > 0)
                 .filter(d -> d.getTpLinhaSeparacao().equals("N"))
-                .collect(Collectors.toList())
-                .size();
+                .count();
 
         if (isContemDespesasConsolidadas > 0) {
             List<DetalheDespesasMensaisDAO> newDetalheDespesasMensaisList = new ArrayList<>();
@@ -83,7 +94,6 @@ public class DetalheDespesasServices {
             detalheDespesasMensaisList.addAll(newDetalheDespesasMensaisList);
         }
 
-
         return DetalheDespesasMensaisDTO.builder()
                 .sizeDetalheDespesaMensalVB(detalheDespesasMensaisList.size())
                 .despesaMensal(despesaMensal.get(0))
@@ -106,7 +116,7 @@ public class DetalheDespesasServices {
 
             /*Fluxo especifico para gravacao de parcelas amortizadas*/
             if (isParcelaAmortizacao) {
-                var referenciaParcela = repository.getParcelasPorFiltro(detalheDAO.getIdDespesaParcelada(), detalheDAO.getIdParcela(), "N", detalheDAO.getIdFuncionario());
+                var referenciaParcela = repository.getParcelasPorFiltro(detalheDAO.getIdDespesaParcelada(), detalheDAO.getIdParcela(), "N", detalheDAO.getIdFuncionario(), opcaoVisualizacaoParcelas(false, detalheDAO.getIdDespesaParcelada()));
                 dataVencimento = referenciaParcela.get(0).getDsDataVencimento();
             }
 
@@ -126,6 +136,10 @@ public class DetalheDespesasServices {
             detalheDAO.setTpMeta(isEmpty(detalheDAO.getTpMeta()) ? "N" : detalheDAO.getTpMeta());
             detalheDAO.setTpParcelaAmortizada(isEmpty(detalheDAO.getTpParcelaAmortizada()) ? "N" : detalheDAO.getTpParcelaAmortizada());
             detalheDAO.setTpParcelaAdiada(isEmpty(detalheDAO.getTpParcelaAdiada()) ? "N" : detalheDAO.getTpParcelaAdiada());
+        } else if (detalheDAO.getTpStatus().equalsIgnoreCase(PAGO)
+                && (isEmpty(detalheDAO.getVlTotalPago()) || detalheDAO.getVlTotalPago().equalsIgnoreCase(VALOR_ZERO))) {
+            //Se o status for alterado para PAGO e não for informado o valor pago, seta o valor total da despesa.
+            detalheDAO.setVlTotalPago(detalheDAO.getVlTotal());
         }
 
         if (detalheDAO.getIdConsolidacao() > 0) {
@@ -175,6 +189,11 @@ public class DetalheDespesasServices {
 
             var qtdeLogs = repository.getQuantidadeLogsDetalheDespesa(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdDetalheDespesaLog(), detalheDAO.getIdFuncionario());
             if (qtdeLogs == 0) {
+                if (sbLogs.toString().contains(VALOR_ZERO)) {
+                    //Não permite gravar um novo log com valor zero.
+                    return;
+                }
+
                 Integer idLogNovo = repository.insertDetalheDespesasMensaisLogs(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdFuncionario(), sbLogs.toString());
                 repository.updateDetalheDespesasMensaisLog(idLogNovo, detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdOrdem(), detalheDAO.getIdFuncionario());
             } else {
@@ -267,13 +286,17 @@ public class DetalheDespesasServices {
     }
 
     public void deleteDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario) throws Exception {
+        isExcluirDetalheDespesaTipoRelatorio(idOrdem);
+
         despesasParceladasServices.isDespesaParceladaExcluida(idDespesa, idDetalheDespesa, idOrdem, idFuncionario);
+
         this.validaDespesaTipoDebitoCartao(this.mensaisDAOMapper(idDespesa, idDetalheDespesa, idFuncionario), true);
 
-        if (isNull(idOrdem) || idOrdem == -1) {
+        if (isEmpty(idOrdem) || idOrdem == -1) {
             repository.deleteDetalheDespesasMensaisLogs(idDespesa, idDetalheDespesa, idFuncionario);
             repository.deleteTodasObservacaoDetalheDespesaMensal(idDespesa, idDetalheDespesa, idFuncionario);
             repository.deleteDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario);
+            repository.updateDetalheDespesasMensaisSemRelatorio(idDespesa, idDetalheDespesa, idFuncionario);
         } else {
             var detalheDespesa = repository.getDetalheDespesaMensalPorFiltro(DetalheDespesasMensaisDAO.builder()
                     .idDespesa(idDespesa)
@@ -284,8 +307,6 @@ public class DetalheDespesasServices {
             repository.deleteObservacaoDetalheDespesasMensais(idDespesa, idDetalheDespesa, detalheDespesa.getIdObservacao(), idFuncionario);
             repository.deleteDetalheDespesasMensaisPorFiltro(idDespesa, idDetalheDespesa, idOrdem, idFuncionario);
         }
-
-        repository.updateDetalheDespesasMensaisSemRelatorio(idDespesa, idDetalheDespesa, idFuncionario);
     }
 
     public StringResponse getObservacoesDetalheDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idObservacao, Integer idFuncionario) {
@@ -580,7 +601,7 @@ public class DetalheDespesasServices {
     }
 
     private DespesasMensaisDAO mensaisDAOMapper(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario) {
-        var detalheDespesaMensal = this.obterDetalheDespesaMensal(idDespesa, idDetalheDespesa, idFuncionario, "default");
+        var detalheDespesaMensal = this.obterDetalheDespesaMensal(idDespesa, idDetalheDespesa, idFuncionario, "default", true);
         if (ObjectUtils.isEmpty(detalheDespesaMensal.getDespesaMensal())) {
             return null;
         }
@@ -606,6 +627,20 @@ public class DetalheDespesasServices {
 
         return ordem.equals("prazo") ? "(c.nr_Parcela + '/' + CAST(b.nr_TotalParcelas AS VarChar(10))), a.id_Ordem"
                 : ordem.equals("relatorio") ? "a.id_DespesaLinkRelatorio, a.id_DespesaParcelada, a.id_Ordem ASC" : "a.id_Ordem";
+    }
+
+    public static Integer isDetalheDespesaTipoRelatorio(Integer idOrdem) {
+        if (idOrdem.equals(998) || idOrdem.equals(999)) {
+            throw new ErroNegocioException("Não é permitido alterar a ordem de uma despesa vinculada ao relatório.");
+        }
+
+        return idOrdem;
+    }
+
+    public void isExcluirDetalheDespesaTipoRelatorio(Integer idOrdem) {
+        if (idOrdem.equals(998) || idOrdem.equals(999)) {
+            throw new ErroNegocioException("Não é permitido excluir esta despesa neste relatório, desassocie o item na despesa de referencia.");
+        }
     }
 
     private String removeNBSP_html(String valor) {

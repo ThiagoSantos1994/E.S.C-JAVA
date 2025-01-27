@@ -55,8 +55,8 @@ public class MotorCalculoUtils {
         }
 
         var dValor = 0d;
-        if(valor.contains(".") && valor.contains(",")) {
-            dValor = Double.parseDouble(valor.trim().replace("- ", "-").replace(".","").replace(",", "."));
+        if (valor.contains(".") && valor.contains(",")) {
+            dValor = Double.parseDouble(valor.trim().replace("- ", "-").replace(".", "").replace(",", "."));
         } else {
             dValor = Double.parseDouble(valor.trim().replace("- ", "-").replace(",", "."));
         }
@@ -74,6 +74,14 @@ public class MotorCalculoUtils {
         }
 
         return decimalFormat.format(valor);
+    }
+
+    public static String convertDecimalToStringComSinal(BigDecimal calculo) {
+        if (isEmpty(calculo)) {
+            return VALOR_ZERO;
+        }
+
+        return !convertDecimalToString(calculo).contains("-") ? "+".concat(convertDecimalToString(calculo)) : convertDecimalToString(calculo);
     }
 
     public static String convertToMoedaBR(BigDecimal valor) {

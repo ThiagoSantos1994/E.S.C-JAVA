@@ -1,7 +1,9 @@
 SELECT
-    a.id_ChaveKey,
-    (1 + a.id_SequenciaKey) novaChave
+    id_ChaveKey,
+    (1 + id_SequenciaKey) novaChave,
+    ds_NomeTabela,
+    ds_NomeColuna
 FROM
-    tbd_ChavePrimaria a
+    tbd_ChavePrimaria
 WHERE
-    a.tp_RegistroKey = :tpRegistroKey
+    tp_RegistroKey = :tpRegistroKey

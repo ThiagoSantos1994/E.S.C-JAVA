@@ -15,34 +15,6 @@ public class DetalheDespesasMensaisRowMapper implements RowMapper<DetalheDespesa
 
     @Override
     public DetalheDespesasMensaisDAO map(ResultSet rs, StatementContext ctx) throws SQLException {
-        if (rs.getString("tp_LinhaSeparacao").equalsIgnoreCase("S")) {
-            return DetalheDespesasMensaisDAO.builder()
-                    .idDespesa(rs.getInt("id_Despesa"))
-                    .idDetalheDespesa(rs.getInt("id_DetalheDespesa"))
-                    .idConsolidacao(rs.getInt("id_Consolidacao"))
-                    .idDespesaConsolidacao(rs.getInt("id_DespesaConsolidacao"))
-                    .idObservacao(rs.getInt("id_Observacao"))
-                    .idDetalheDespesaLog(rs.getInt("id_DetalheDespesaLog"))
-                    .idOrdem(rs.getInt("id_Ordem"))
-                    .idFuncionario(rs.getInt("id_Funcionario"))
-                    //.vlTotal(convertStringToDecimal(rs.getString("vl_Total")))
-                    //.vlTotalPago(convertStringToDecimal(rs.getString("vl_TotalPago")))
-                    .vlTotal(rs.getString("vl_Total"))
-                    .vlTotalPago(rs.getString("vl_TotalPago"))
-                    .dsObservacao(rs.getString("ds_Observacao"))
-                    .dsObservacao2(rs.getString("ds_Observacao2"))
-                    .tpCategoriaDespesa(rs.getString("tp_CategoriaDespesa"))
-                    .tpStatus(rs.getString("tp_Status"))
-                    .tpReprocessar(rs.getString("tp_Reprocessar"))
-                    .tpAnotacao(rs.getString("tp_Anotacao"))
-                    .tpRelatorio(rs.getString("tp_Relatorio"))
-                    .tpLinhaSeparacao(rs.getString("tp_LinhaSeparacao"))
-                    .tpParcelaAdiada(rs.getString("tp_ParcelaAdiada"))
-                    .tpParcelaAmortizada(rs.getString("tp_ParcelaAmortizada"))
-                    .tpMeta(rs.getString("tp_Meta"))
-                    .build();
-        }
-
         return DetalheDespesasMensaisDAO.builder()
                 .idDespesa(rs.getInt("id_Despesa"))
                 .idDetalheDespesa(rs.getInt("id_DetalheDespesa"))

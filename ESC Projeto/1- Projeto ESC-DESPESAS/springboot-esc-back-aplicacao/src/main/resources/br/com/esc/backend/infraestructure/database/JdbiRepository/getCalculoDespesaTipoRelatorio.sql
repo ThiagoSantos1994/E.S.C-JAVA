@@ -5,7 +5,6 @@ FROM
 WHERE
     id_Despesa = :idDespesa
     AND id_Funcionario = :idFuncionario
-    AND id_DespesaLinkRelatorio = :idDespesaLinkRelatorio
-    AND tp_Relatorio = 'S'
+    AND ((id_DespesaLinkRelatorio = :idDespesaLinkRelatorio AND tp_Relatorio = 'S') OR id_DetalheDespesa = :idDespesaLinkRelatorio)
     AND tp_LinhaSeparacao = 'N'
     AND id_Consolidacao = 0

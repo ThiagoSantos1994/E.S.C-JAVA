@@ -9,9 +9,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChaveKeyDAO {
-    private Integer idChaveKey;
-    private Integer novaChave;
-    private String dsNomeTabela;
-    private String dsNomeColuna;
+public class ChaveKeySemUsoDAO {
+    private Integer chave;
 }

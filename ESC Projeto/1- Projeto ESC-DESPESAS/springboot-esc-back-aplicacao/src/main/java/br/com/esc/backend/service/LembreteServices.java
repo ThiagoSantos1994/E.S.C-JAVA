@@ -2,6 +2,7 @@ package br.com.esc.backend.service;
 
 import br.com.esc.backend.domain.LembretesDAO;
 import br.com.esc.backend.domain.TituloLembretesDAO;
+import br.com.esc.backend.exception.ErroNegocioException;
 import br.com.esc.backend.repository.AplicacaoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static br.com.esc.backend.utils.DataUtils.*;
+import static br.com.esc.backend.utils.ObjectUtils.isEmpty;
 import static br.com.esc.backend.utils.ObjectUtils.isNull;
 import static br.com.esc.backend.utils.VariaveisGlobais.*;
 import static java.lang.String.valueOf;
@@ -52,6 +54,26 @@ public class LembreteServices {
         } else {
             log.info("Incluindo novo lembrete >> request {}", request);
             aplicacaoRepository.insertLembrete(request);
+        }
+    }
+
+    public static void validarCamposEntradaLembrete(LembretesDAO lembrete) {
+        if (isEmpty(lembrete.getDataInicial())) {
+            throw new ErroNegocioException("Deve ser informado a Data do Lembrete.");
+        } else if (isEmpty(lembrete.getDsTituloLembrete())) {
+            throw new ErroNegocioException("Deve ser informado um Nome para o Lembrete.");
+        } else if (lembrete.getTpLembreteDatado().equalsIgnoreCase("S")) {
+            if (isEmpty(lembrete.getData1()) && isEmpty(lembrete.getData2()) && isEmpty(lembrete.getData3()) && isEmpty(lembrete.getData4())
+                    && isEmpty(lembrete.getData5())) {
+                throw new ErroNegocioException("Deve ser informado a(s) datas programadas para exibição do lembrete.");
+            }
+        } else if (lembrete.getTpHabilitaNotificacaoDiaria().equalsIgnoreCase("S")) {
+            if (lembrete.getTpSegunda().equalsIgnoreCase("N") && lembrete.getTpTerca().equalsIgnoreCase("N")
+                    && lembrete.getTpQuarta().equalsIgnoreCase("N") && lembrete.getTpQuinta().equalsIgnoreCase("N")
+                    && lembrete.getTpSexta().equalsIgnoreCase("N") && lembrete.getTpSabado().equalsIgnoreCase("N")
+                    && lembrete.getTpDomingo().equalsIgnoreCase("N")) {
+                throw new ErroNegocioException("Deve ser selecionado o(s) dias da semana para exibição do lembrete.");
+            }
         }
     }
 

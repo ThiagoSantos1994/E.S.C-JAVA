@@ -27,9 +27,9 @@ public class AplicacaoController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping(path = "/lancamentosFinanceiros/detalheDespesasMensais/consultar/{idDespesa}/{idDetalheDespesa}/{idFuncionario}/{ordem}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DetalheDespesasMensaisDTO> obterDetalheDespesasMensais(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("ordem") String ordem) {
-        var response = service.obterDetalheDespesaMensal(idDespesa, idDetalheDespesa, idFuncionario, ordem);
+    @GetMapping(path = "/lancamentosFinanceiros/detalheDespesasMensais/consultar/{idDespesa}/{idDetalheDespesa}/{idFuncionario}/{ordem}/{visualizarConsolidacao}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DetalheDespesasMensaisDTO> obterDetalheDespesasMensais(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("ordem") String ordem,  @PathVariable("visualizarConsolidacao") Boolean visualizarConsolidacao) {
+        var response = service.obterDetalheDespesaMensal(idDespesa, idDetalheDespesa, idFuncionario, ordem, visualizarConsolidacao);
         return ResponseEntity.ok(response);
     }
 
@@ -111,9 +111,9 @@ public class AplicacaoController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping(path = "v2/despesasParceladas/consultar/{idDespesaParcelada}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DetalheDespesasParceladasResponse> obterDespesaParceladaPorID(@PathVariable("idDespesaParcelada") Integer idDespesaParcelada, @PathVariable("idFuncionario") Integer idFuncionario) {
-        var response = service.obterDespesaParceladaPorID(idDespesaParcelada, idFuncionario);
+    @GetMapping(path = "v2/despesasParceladas/consultar/{idDespesaParcelada}/{idFuncionario}/{isPendentes}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DetalheDespesasParceladasResponse> obterDespesaParceladaPorID(@PathVariable("idDespesaParcelada") Integer idDespesaParcelada, @PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("isPendentes") Boolean isPendentes) {
+        var response = service.obterDespesaParceladaPorID(idDespesaParcelada, idFuncionario, isPendentes);
         return ResponseEntity.ok(response);
     }
 
@@ -141,9 +141,9 @@ public class AplicacaoController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping(path = "/consolidacao/importacao/consultarConsolidacoes/{idFuncionario}/{tipo}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TituloDespesaResponse> consultarConsolidacoesParaAssociacao(@PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("tipo") String tipo) {
-        var response = service.consultarConsolidacoesParaAssociacao(idFuncionario, tipo);
+    @GetMapping(path = "/consolidacao/importacao/consultarConsolidacoes/{idFuncionario}/{idDespesa}/{idDetalheDespesa}/{tipo}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TituloDespesaResponse> consultarConsolidacoesParaAssociacao(@PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("tipo") String tipo) {
+        var response = service.consultarConsolidacoesParaAssociacao(idFuncionario, idDespesa, idDetalheDespesa, tipo);
         return ResponseEntity.ok(response);
     }
 

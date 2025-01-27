@@ -19,9 +19,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static br.com.esc.backend.service.DetalheDespesasServices.isDetalheDespesaTipoRelatorio;
 import static br.com.esc.backend.service.DetalheDespesasServices.parserOrdem;
+import static br.com.esc.backend.service.LembreteServices.validarCamposEntradaLembrete;
 import static br.com.esc.backend.utils.DataUtils.AnoSeguinte;
-import static br.com.esc.backend.utils.DataUtils.MesAtual;
 import static br.com.esc.backend.utils.ObjectUtils.isEmpty;
 import static br.com.esc.backend.utils.ObjectUtils.isNull;
 import static br.com.esc.backend.utils.VariaveisGlobais.VALOR_ZERO;
@@ -53,9 +54,9 @@ public class LancamentosBusinessService {
     }
 
     @SneakyThrows
-    public DetalheDespesasMensaisDTO obterDetalheDespesaMensal(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem) {
+    public DetalheDespesasMensaisDTO obterDetalheDespesaMensal(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem, Boolean visualizarConsolidacao) {
         log.info("Consultando detalhes despesa mensal >>>  idDespesa = {} - idDetalheDespesa = {} - idFuncionario = {} - ordem = {}", idDespesa, idDetalheDespesa, idFuncionario, ordem);
-        return detalheDespesasServices.obterDetalheDespesaMensal(idDespesa, idDetalheDespesa, idFuncionario, ordem);
+        return detalheDespesasServices.obterDetalheDespesaMensal(idDespesa, idDetalheDespesa, idFuncionario, ordem, visualizarConsolidacao);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -134,6 +135,9 @@ public class LancamentosBusinessService {
 
         log.info("Excluindo todas observacoes detalhes despesas mensais - request: idDespesa= {} - idFuncionario= {}", idDespesa, idFuncionario);
         repository.deleteTodasObservacaoDetalheDespesaMensal(idDespesa, null, idFuncionario);
+
+        log.info("Excluindo todos logs detalhes despesas mensais - request: idDespesa= {} - idFuncionario= {}", idDespesa, idFuncionario);
+        repository.deleteTodasDespesasMensaisLogs(idDespesa, idFuncionario);
 
         log.info("Atualizando status das parcelas comuns e amortizadas para Pendente - request: idDespesa= {} - idFuncionario= {}", idDespesa, idFuncionario);
         repository.updateParcelaStatusPendenteDespesasExcluidas(idDespesa, idFuncionario);
@@ -224,7 +228,7 @@ public class LancamentosBusinessService {
     @SneakyThrows
     public void processarPagamentoDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String observacaoPagamento) {
         log.info("Processando pagamento despesa mensal - Filtros: idDespesa: {} - idDetalheDespesa: {} - idFuncionario: {} - observacaoPagamento: {}", idDespesa, idDetalheDespesa, idFuncionario, observacaoPagamento);
-        var detalheDespesas = detalheDespesasServices.obterDetalheDespesaMensal(idDespesa, idDetalheDespesa, idFuncionario, null)
+        var detalheDespesas = detalheDespesasServices.obterDetalheDespesaMensal(idDespesa, idDetalheDespesa, idFuncionario, null, true)
                 .getDetalheDespesaMensal();
 
         List<PagamentoDespesasRequest> listDespesasRequest = new ArrayList<>();
@@ -326,7 +330,7 @@ public class LancamentosBusinessService {
     @SneakyThrows
     public void alterarOrdemRegistroDetalheDespesas(Integer idDespesa, Integer idDetalheDespesa, Integer iOrdemAtual, Integer iOrdemNova, Integer idFuncionario) {
         log.info("Alterando ordem registros DetalheDespesasMensais - Filtros: idDespesa = {}, idDetalheDespesa = {}, iOrdemAtual = {}, iOrdemNova = {}, idFuncionario = {}", idDespesa, idDetalheDespesa, iOrdemAtual, iOrdemNova, idFuncionario);
-        detalheDespesasServices.alterarOrdemRegistroDetalheDespesas(idDespesa, idDetalheDespesa, iOrdemAtual, iOrdemNova, idFuncionario);
+        detalheDespesasServices.alterarOrdemRegistroDetalheDespesas(idDespesa, idDetalheDespesa, isDetalheDespesaTipoRelatorio(iOrdemAtual), iOrdemNova, idFuncionario);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -464,7 +468,7 @@ public class LancamentosBusinessService {
 
     public DetalheDespesasParceladasResponse obterDespesaParceladaPorNome(String nomeDespesaParcelada, Integer idFuncionario) {
         log.info("Consultando detalhe despesa parcelada por filtros >>> nomeDespesaParcelada= {} - idFuncionario= {}", nomeDespesaParcelada, idFuncionario);
-        return despesasParceladasServices.obterDespesaParceladaPorFiltros(null, nomeDespesaParcelada, idFuncionario);
+        return despesasParceladasServices.obterDespesaParceladaPorFiltros(null, nomeDespesaParcelada, idFuncionario, false);
     }
 
     public CategoriaDespesasResponse obterSubTotalCategoriaDespesa(Integer idDespesa, Integer idFuncionario) {
@@ -475,9 +479,9 @@ public class LancamentosBusinessService {
                 .build();
     }
 
-    public DetalheDespesasParceladasResponse obterDespesaParceladaPorID(Integer idDespesaParcelada, Integer idFuncionario) {
+    public DetalheDespesasParceladasResponse obterDespesaParceladaPorID(Integer idDespesaParcelada, Integer idFuncionario, Boolean isPendentes) {
         log.info("Consultando detalhe despesa parcelada por filtros >>> idDespesaParcelada= {} - idFuncionario= {}", idDespesaParcelada, idFuncionario);
-        return despesasParceladasServices.obterDespesaParceladaPorFiltros(idDespesaParcelada, null, idFuncionario);
+        return despesasParceladasServices.obterDespesaParceladaPorFiltros(idDespesaParcelada, null, idFuncionario, isPendentes);
     }
 
     public List<ParcelasDAO> obterParcelasParaAmortizacao(Integer idDespesaParcelada, Integer idFuncionario) {
@@ -515,9 +519,9 @@ public class LancamentosBusinessService {
         return despesasParceladasServices.getNomeDespesasParceladasParaImportacao(idFuncionario, tipo);
     }
 
-    public TituloDespesaResponse consultarConsolidacoesParaAssociacao(Integer idFuncionario, String tipo) {
-        log.info("Obtendo Lista de Nomes Consolidacoes para Associacao de despesas - Filtros >>> idFuncionario: {} - tipo: {}", idFuncionario, tipo);
-        return despesasParceladasServices.getNomeConsolidacaoParaAssociacao(idFuncionario, tipo);
+    public TituloDespesaResponse consultarConsolidacoesParaAssociacao(Integer idFuncionario, Integer idDespesa, Integer idDetalheDespesa, String tipo) {
+        log.info("Obtendo Lista de Nomes Consolidacoes para Associacao de despesas - Filtros >>> idFuncionario: {} - idDespesa: {} - idDetalheDespesa: {} - tipo: {}", idFuncionario, idDespesa, idDetalheDespesa, tipo);
+        return despesasParceladasServices.getNomeConsolidacaoParaAssociacao(idFuncionario, idDespesa, idDetalheDespesa, tipo);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -583,6 +587,7 @@ public class LancamentosBusinessService {
         return consolidacaoService.obterRelatorioDespesasParceladasConsolidadas(idDespesa, idDetalheDespesa, idConsolidacao, idFuncionario);
     }
 
+    @SneakyThrows
     public StringResponse processarBackupBaseDados() {
         log.info("========== Realizando o backup da base de dados ==========");
         return backupServices.processarBackup();
@@ -696,6 +701,9 @@ public class LancamentosBusinessService {
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
     public void gravarLembrete(LembretesDAO request) {
+        log.info("Validando parametros de entrada do lembrete...");
+        validarCamposEntradaLembrete(request);
+
         log.info("Gravando detalhes do lembrete...");
         if (isNull(request.getIdLembrete()) || request.getIdLembrete() == -1) {
             request.setIdLembrete(this.retornaNovaChaveKey("LEMBRETES").getNovaChave());
@@ -735,10 +743,10 @@ public class LancamentosBusinessService {
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
     public ChaveKeyDAO retornaNovaChaveKey(String tipoChave) {
-        log.info("========= Gerando nova chaveKey, tipoChave: {} =========", tipoChave);
+        log.info("========= Gerando chaveKey, tipoChave: {} =========", tipoChave);
 
         if (ObjectUtils.isEmpty(tipoChave)) {
-            throw new CamposObrigatoriosException("tipochave e obrigatorio.");
+            throw new CamposObrigatoriosException("tipoChave e obrigatorio.");
         }
 
         ChaveKeyDAO keyDAO = repository.getNovaChaveKey(tipoChave);
@@ -746,8 +754,14 @@ public class LancamentosBusinessService {
             throw new Exception("Sequencia não identificada na tabela de chaves primárias, favor contatar imediatamente o desenvolvedor do software.");
         }
 
-        log.info("========= ChaveKey gerada com sucesso, tipoChave: {} novaChave: {} =========", tipoChave, keyDAO.getNovaChave());
-        repository.updateChaveKeyUtilizada(keyDAO.getIdChaveKey());
+        ChaveKeySemUsoDAO keySemUsoDAO = repository.getChaveKeySemUso(keyDAO.getDsNomeColuna(), keyDAO.getDsNomeTabela());
+        if (keySemUsoDAO.getChave().equals(keyDAO.getNovaChave())) {
+            log.info("========= Nova ChaveKey gerada com sucesso, tipoChave: {} novaChave: {} =========", tipoChave, keyDAO.getNovaChave());
+            repository.updateChaveKeyUtilizada(keyDAO.getIdChaveKey());
+        } else {
+            log.info("========= Reutilizando ChaveKey existente sem uso, tipoChave: {} chave: {} =========", tipoChave, keySemUsoDAO.getChave());
+            keyDAO.setNovaChave(keySemUsoDAO.getChave());
+        }
 
         return keyDAO;
     }
