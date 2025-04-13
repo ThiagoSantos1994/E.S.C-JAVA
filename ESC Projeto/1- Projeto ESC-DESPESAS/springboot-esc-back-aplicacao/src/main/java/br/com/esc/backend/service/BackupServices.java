@@ -33,7 +33,7 @@ public class BackupServices {
                 log.info("Realizando backup dos dados >> tabela: {}", backup);
                 repository.insertDadosBaseBackup(backup, principal);
             } catch (Exception e) {
-                log.error("Erro ao realizar o Backup >> tabela: {}" + backup);
+                log.error("Erro ao realizar o Backup >> tabela: {}", backup);
                 builder.append("Erro ao realizar o Backup >> tabela: {}" + backup);
             }
         }

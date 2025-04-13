@@ -625,9 +625,11 @@ public class LancamentosBusinessService {
 
     public ConfiguracaoLancamentosResponse obterConfiguracaoLancamentos(Integer idFuncionario) {
         log.info("Obtendo parametros sistemicos");
+
         var response = repository.getConfiguracaoLancamentos(idFuncionario);
         response.setQtdeLembretes(this.obterListaMonitorLembretes(idFuncionario).size());
         response.setAnosReferenciaFiltro(this.obterListaAnosReferencia());
+
         return response;
     }
 
@@ -676,10 +678,10 @@ public class LancamentosBusinessService {
         log.info("Associando despesa a consolidacao >>> - idConsolidacao: {} - request: {}", idConsolidacao, request);
         for (DetalheDespesasMensaisRequest detalhe : request) {
             var isDespesaExistente = repository.getDetalhesConsolidacao(idConsolidacao, detalhe.getIdFuncionario()).stream()
-                    .filter(d -> d.getIdDespesaParcelada() == detalhe.getIdDespesaParcelada())
+                    .filter(d -> d.getIdDespesaParcelada().equals(detalhe.getIdDespesaParcelada()))
                     .collect(Collectors.toList());
 
-            if (isDespesaExistente.size() == 0) {
+            if (isDespesaExistente.isEmpty()) {
                 consolidacaoService.associarDespesa(Arrays.asList(ConsolidacaoDespesasRequest.builder()
                         .idConsolidacao(idConsolidacao)
                         .idDespesaParcelada(detalhe.getIdDespesaParcelada())

@@ -32,7 +32,7 @@ public class ImportarLancamentosServices {
     private boolean bProcessamentoTemporario;
 
     public void processarImportacaoDespesasMensais(Integer idDespesa, Integer idFuncionario, String dsMes, String dsAno) throws Exception {
-        if (bProcessamentoTemporario == false) {
+        if (!bProcessamentoTemporario) {
             /*Limpa a base dos dados temporarios gerados para visualizacao temporaria*/
             repository.deleteDespesasFixasMensaisTemp(idFuncionario);
             repository.deleteDespesasMensaisTemp(idFuncionario);
@@ -49,8 +49,7 @@ public class ImportarLancamentosServices {
             idDespesaImportacao = despesasFixasMensais.get(0).getIdDespesa();
         }
 
-        var despesasMensais = this.processarDespesasMensais(idDespesaImportacao, idFuncionario);
-        for (DespesasMensaisDAO despesaMensal : despesasMensais) {
+        for (DespesasMensaisDAO despesaMensal : this.processarDespesasMensais(idDespesaImportacao, idFuncionario)) {
             var isDespesaNaoImportada = isEmpty(repository.getDespesasMensais(idDespesa, despesaMensal.getIdFuncionario(), despesaMensal.getIdDetalheDespesa()));
             if (isDespesaNaoImportada) {
                 detalheDespesasServices.gravarDespesasMensais(despesaMensal);
@@ -152,7 +151,7 @@ public class ImportarLancamentosServices {
             despesasFixasMensaisList.add(fixasMensais);
         }
 
-        if (despesasFixasMensaisList.size() == 0) {
+        if (despesasFixasMensaisList.isEmpty()) {
             throw new ErroNegocioException("Nao ha lancamentos mensais no mes anterior para processamento.");
         }
         return despesasFixasMensaisList;

@@ -189,11 +189,6 @@ public class DetalheDespesasServices {
 
             var qtdeLogs = repository.getQuantidadeLogsDetalheDespesa(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdDetalheDespesaLog(), detalheDAO.getIdFuncionario());
             if (qtdeLogs == 0) {
-                if (sbLogs.toString().contains(VALOR_ZERO)) {
-                    //Não permite gravar um novo log com valor zero.
-                    return;
-                }
-
                 Integer idLogNovo = repository.insertDetalheDespesasMensaisLogs(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdFuncionario(), sbLogs.toString());
                 repository.updateDetalheDespesasMensaisLog(idLogNovo, detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdOrdem(), detalheDAO.getIdFuncionario());
             } else {
