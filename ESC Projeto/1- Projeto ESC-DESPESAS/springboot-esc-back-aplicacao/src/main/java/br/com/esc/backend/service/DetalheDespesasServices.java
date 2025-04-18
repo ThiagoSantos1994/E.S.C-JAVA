@@ -252,14 +252,11 @@ public class DetalheDespesasServices {
     }
 
     public void gravarDespesasMensais(DespesasMensaisDAO mensaisDAO) {
-        if (mensaisDAO.getTpLinhaSeparacao().equalsIgnoreCase("N")) {
-            if (mensaisDAO.getTpEmprestimo().equalsIgnoreCase("S") && mensaisDAO.getIdEmprestimo() > 0) {
-                var idEmprestimo = repository.getCodigoEmprestimo(mensaisDAO.getDsTituloDespesa(), mensaisDAO.getIdFuncionario());
-                if (idEmprestimo > 0) {
-                    mensaisDAO.setDsNomeDespesa(DESCRICAO_DESPESA_EMPRESTIMO);
-                    mensaisDAO.setVlLimite(repository.getCalculoTotalDespesa(mensaisDAO.getIdDespesa(), mensaisDAO.getIdDetalheDespesa(), mensaisDAO.getIdFuncionario()).toString());
-                    mensaisDAO.setTpReferenciaSaldoMesAnterior("N");
-                }
+        if (mensaisDAO.getTpLinhaSeparacao().equals("N")) {
+            mensaisDAO.setIdEmprestimo(0);
+
+            if (mensaisDAO.getTpEmprestimo().equals("S") || mensaisDAO.getTpEmprestimoAPagar().equals("S")) {
+                mensaisDAO.setIdEmprestimo(mensaisDAO.getIdDetalheDespesa());
             }
         }
 
@@ -608,6 +605,22 @@ public class DetalheDespesasServices {
                 .tpLinhaSeparacao(ObjectUtils.isEmpty(detalheDespesaMensal.getDespesaMensal().getTpLinhaSeparacao()) ? null : detalheDespesaMensal.getDespesaMensal().getTpLinhaSeparacao())
                 .tpDebitoCartao(detalheDespesaMensal.getDespesaMensal().getTpDebitoCartao())
                 .tpAnotacao(ObjectUtils.isEmpty(detalheDespesaMensal.getDespesaMensal().getTpAnotacao()) ? "N" : detalheDespesaMensal.getDespesaMensal().getTpAnotacao())
+                .build();
+    }
+
+    public TituloDespesaResponse getNomeDespesasMensaisParaAssociacao(Integer idDespesa, Integer idFuncionario, Integer anoReferencia) {
+        List<TituloDespesa> listaDespesas = repository.getNomeDespesaMensalParaAssociacao(idDespesa, idFuncionario, anoReferencia);
+
+        List<String> listTituloDespesa = new ArrayList<>();
+        for (TituloDespesa despesas : listaDespesas) {
+            listTituloDespesa.add(despesas.getTituloDespesa());
+        }
+
+        log.info("ListaDespesasMensais: {}", listTituloDespesa);
+        return TituloDespesaResponse.builder()
+                .despesas(listaDespesas)
+                .sizeTituloDespesaVB(listaDespesas.size())
+                .tituloDespesa(listTituloDespesa)
                 .build();
     }
 

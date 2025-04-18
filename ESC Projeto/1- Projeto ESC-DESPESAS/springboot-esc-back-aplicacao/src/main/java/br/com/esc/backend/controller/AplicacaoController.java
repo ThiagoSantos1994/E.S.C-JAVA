@@ -28,7 +28,7 @@ public class AplicacaoController {
     }
 
     @GetMapping(path = "/lancamentosFinanceiros/detalheDespesasMensais/consultar/{idDespesa}/{idDetalheDespesa}/{idFuncionario}/{ordem}/{visualizarConsolidacao}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DetalheDespesasMensaisDTO> obterDetalheDespesasMensais(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("ordem") String ordem,  @PathVariable("visualizarConsolidacao") Boolean visualizarConsolidacao) {
+    public ResponseEntity<DetalheDespesasMensaisDTO> obterDetalheDespesasMensais(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("ordem") String ordem, @PathVariable("visualizarConsolidacao") Boolean visualizarConsolidacao) {
         var response = service.obterDetalheDespesaMensal(idDespesa, idDetalheDespesa, idFuncionario, ordem, visualizarConsolidacao);
         return ResponseEntity.ok(response);
     }
@@ -60,6 +60,12 @@ public class AplicacaoController {
     @GetMapping(path = "/lancamentosFinanceiros/detalheDespesasMensais/obterExtratoDespesasMes/{idDespesa}/{idDetalheDespesa}/{idFuncionario}/{tipo}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ExtratoDespesasDAO> obterExtratoDespesasMes(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("tipo") String tipo) {
         var response = service.obterExtratoDespesasMes(idDespesa, idDetalheDespesa, idFuncionario, tipo);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(path = "/lancamentosFinanceiros/detalheDespesasMensais/obterDespesasMensaisParaAssociacao/{idDespesa}/{idFuncionario}/{anoReferencia}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TituloDespesaResponse> consultarDespesasMensaisParaAssociacao(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idFuncionario") Integer idFuncionario, @PathVariable("anoReferencia") Integer anoReferencia) {
+        var response = service.consultarDespesasMensaisParaAssociacao(idDespesa, idFuncionario, anoReferencia);
         return ResponseEntity.ok(response);
     }
 
@@ -354,6 +360,12 @@ public class AplicacaoController {
     @PostMapping(path = "/lancamentosFinanceiros/detalheDespesasMensais/incluir", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> gravarDetalheDespesasMensais(@RequestBody List<DetalheDespesasMensaisRequest> request) {
         service.gravarDetalheDespesasMensais(request);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping(path = "/lancamentosFinanceiros/despesasMensais/alterarReferenciaDespesa/{idDespesa}/{idDetalheDespesa}/{idDetalheDespesaNova}/{idFuncionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> alterarReferenciaDespesa(@PathVariable("idDespesa") Integer idDespesa, @PathVariable("idDetalheDespesa") Integer idDetalheDespesa, @PathVariable("idDetalheDespesaNova") Integer idDetalheDespesaNova, @PathVariable("idFuncionario") Integer idFuncionario) {
+        service.alterarDespesaMensalReferencia(idDespesa, idDetalheDespesa, idDetalheDespesaNova, idFuncionario);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

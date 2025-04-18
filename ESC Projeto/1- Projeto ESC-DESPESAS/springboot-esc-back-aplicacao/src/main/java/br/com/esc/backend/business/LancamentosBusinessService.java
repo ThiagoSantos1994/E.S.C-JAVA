@@ -407,6 +407,12 @@ public class LancamentosBusinessService {
                 .build();
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
+    public void alterarDespesaMensalReferencia(Integer idDespesa, Integer idDetalheDespesa, Integer idDetalheDespesaNova, Integer idFuncionario) {
+        lancamentosServices.alterarDespesaMensalReferencia(idDespesa, idDetalheDespesa, idDetalheDespesaNova, idFuncionario);
+    }
+
     public TituloDespesaResponse obterTitulosDespesas(Integer idFuncionario) {
         log.info("Consultando titulos das despesas cadastradas");
         return lancamentosServices.getTituloDespesa(idFuncionario);
@@ -521,7 +527,12 @@ public class LancamentosBusinessService {
 
     public TituloDespesaResponse consultarConsolidacoesParaAssociacao(Integer idFuncionario, Integer idDespesa, Integer idDetalheDespesa, String tipo) {
         log.info("Obtendo Lista de Nomes Consolidacoes para Associacao de despesas - Filtros >>> idFuncionario: {} - idDespesa: {} - idDetalheDespesa: {} - tipo: {}", idFuncionario, idDespesa, idDetalheDespesa, tipo);
-        return despesasParceladasServices.getNomeConsolidacaoParaAssociacao(idFuncionario, idDespesa, idDetalheDespesa, tipo);
+        return consolidacaoService.getNomeConsolidacaoParaAssociacao(idFuncionario, idDespesa, idDetalheDespesa, tipo);
+    }
+
+    public TituloDespesaResponse consultarDespesasMensaisParaAssociacao(Integer idDespesa, Integer idFuncionario, Integer anoReferencia) {
+        log.info("Obtendo Lista de Despesas Mensais para Associacao - Filtros >>> idDespesa: {} - idFuncionario: {} - anoReferencia: {}", idDespesa, idFuncionario, anoReferencia);
+        return detalheDespesasServices.getNomeDespesasMensaisParaAssociacao(idDespesa, idFuncionario, anoReferencia);
     }
 
     @Transactional(rollbackFor = Exception.class)

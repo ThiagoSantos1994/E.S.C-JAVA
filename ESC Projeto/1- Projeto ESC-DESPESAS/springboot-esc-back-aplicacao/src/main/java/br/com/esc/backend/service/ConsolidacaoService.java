@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -132,4 +133,32 @@ public class ConsolidacaoService {
                 .collect(Collectors.toList());
     }
 
+    public TituloDespesaResponse getNomeConsolidacaoParaAssociacao(Integer idFuncionario, Integer idDespesa, Integer idDetalheDespesa, String tipo) {
+        List<TituloDespesa> listaConsolidacoes = new ArrayList<>();
+
+        List<TituloConsolidacao> tituloConsolidacaoList = (tipo.equalsIgnoreCase("ativas") ? aplicacaoRepository.getNomeConsolidacoesAtivasParaAssociacao(idFuncionario, idDespesa, idDetalheDespesa) :
+                aplicacaoRepository.getNomeConsolidacoes(idFuncionario));
+
+        for (TituloConsolidacao consolidacao : tituloConsolidacaoList) {
+            var tituloDespesa = TituloDespesa.builder()
+                    .idDespesa(-consolidacao.getIdConsolidacao()) // para consolidacao foi necessario adicionar o - para tratar no frontend
+                    .idConsolidacao(consolidacao.getIdConsolidacao())
+                    .tituloDespesa(consolidacao.getTituloConsolidacao())
+                    .build();
+
+            listaConsolidacoes.add(tituloDespesa);
+        }
+
+        List<String> listTituloDespesa = new ArrayList<>();
+        for (TituloDespesa despesas : listaConsolidacoes) {
+            listTituloDespesa.add(despesas.getTituloDespesa());
+        }
+
+        log.info("ListaConsolidacoesParaAssociacao: {}", listaConsolidacoes);
+        return TituloDespesaResponse.builder()
+                .despesas(listaConsolidacoes)
+                .sizeTituloDespesaVB(listaConsolidacoes.size())
+                .tituloDespesa(listTituloDespesa)
+                .build();
+    }
 }

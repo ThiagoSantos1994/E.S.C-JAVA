@@ -183,6 +183,14 @@ public class LancamentosFinanceirosServices {
                 .build();
     }
 
+    public void alterarDespesaMensalReferencia(Integer idDespesa, Integer idDetalheDespesa, Integer idDetalheDespesaNova, Integer idFuncionario) {
+        log.info("[Alterar Referencias Despesa Mensal] - Executando script para os parametros de entrada: idDespesa: {} - idDetalheDespesa: {} - idDetalheDespesaNova: {} - idFuncionario: {}", idDespesa, idDetalheDespesa, idDetalheDespesaNova, idFuncionario);
+
+        repository.alterarReferenciasDespesaMensal(idDespesa, idDetalheDespesa, idDetalheDespesaNova, idFuncionario);
+
+        log.info("[Alterar Referencias Despesa Mensal] - Alteração concluida com sucesso!");
+    }
+
     public void alterarOrdemRegistroDespesasFixas(Integer idDespesa, Integer iOrdemAtual, Integer iOrdemNova, Integer idFuncionario) {
         var iOrdemTemp1 = 9998;
         var iOrdemTemp2 = 9999;

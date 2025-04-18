@@ -364,6 +364,11 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlQuery
+    @UseRowMapper(TituloDespesaMensalRowMapper.class)
+    List<TituloDespesa> getNomeDespesaMensalParaAssociacao(Integer idDespesa, Integer idFuncionario, Integer anoReferencia);
+
+    @Override
+    @SqlQuery
     @UseRowMapper(TituloConsolidacaoRowMapper.class)
     List<TituloConsolidacao> getNomeConsolidacoesAtivasParaAssociacao(Integer idFuncionario, Integer idDespesa, Integer idDetalheDespesa);
 
@@ -726,6 +731,10 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlUpdate
     void updateDataRenovacaoAUTOLembrete(Integer idLembrete, Integer idFuncionario, String dataInicial);
+
+    @Override
+    @SqlUpdate
+    void alterarReferenciasDespesaMensal(Integer idDespesa, Integer idDetalheDespesa, Integer idDetalheDespesaNova, Integer idFuncionario);
 
     @Override
     @SqlUpdate

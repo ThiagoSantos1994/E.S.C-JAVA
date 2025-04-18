@@ -4,7 +4,6 @@ import br.com.esc.backend.domain.*;
 import br.com.esc.backend.exception.ErroNegocioException;
 import br.com.esc.backend.repository.AplicacaoRepository;
 import br.com.esc.backend.utils.DataUtils;
-import br.com.esc.backend.utils.MotorCalculoUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
@@ -243,32 +242,20 @@ public class DespesasParceladasServices {
     }
 
     public TituloDespesaResponse getNomeDespesasParceladasParaImportacao(Integer idFuncionario, String tipo) {
-        List<TituloDespesa> listaDespesas;
+        List<TituloDespesa> listaDespesas = (tipo.equalsIgnoreCase("ativas") ? repository.getNomeDespesasParceladasParaImportacao(idFuncionario)
+                : repository.getNomeDespesasParceladas(idFuncionario));
 
-        if (tipo.equalsIgnoreCase("ativas")) {
-            listaDespesas = repository.getNomeDespesasParceladasParaImportacao(idFuncionario);
+        List<TituloConsolidacao> listaConsolidacoes = (tipo.equalsIgnoreCase("ativas") ? repository.getNomeConsolidacoesParaImportacao(idFuncionario) :
+                repository.getNomeConsolidacoes(idFuncionario));
 
-            for (TituloConsolidacao consolidacao : repository.getNomeConsolidacoesParaImportacao(idFuncionario)) {
-                var tituloDespesa = TituloDespesa.builder()
-                        .idDespesa(-consolidacao.getIdConsolidacao()) // para consolidacao foi necessario adicionar o - para tratar no frontend
-                        .idConsolidacao(consolidacao.getIdConsolidacao())
-                        .tituloDespesa(consolidacao.getTituloConsolidacao())
-                        .build();
+        for (TituloConsolidacao consolidacao : listaConsolidacoes) {
+            var tituloDespesa = TituloDespesa.builder()
+                    .idDespesa(-consolidacao.getIdConsolidacao()) // para consolidacao foi necessario adicionar o - para tratar no frontend
+                    .idConsolidacao(consolidacao.getIdConsolidacao())
+                    .tituloDespesa(consolidacao.getTituloConsolidacao())
+                    .build();
 
-                listaDespesas.add(tituloDespesa);
-            }
-        } else {
-            listaDespesas = repository.getNomeDespesasParceladas(idFuncionario);
-
-            for (TituloConsolidacao consolidacao : repository.getNomeConsolidacoes(idFuncionario)) {
-                var tituloDespesa = TituloDespesa.builder()
-                        .idDespesa(-consolidacao.getIdConsolidacao()) // para consolidacao foi necessario adicionar o - para tratar no frontend
-                        .idConsolidacao(consolidacao.getIdConsolidacao())
-                        .tituloDespesa(consolidacao.getTituloConsolidacao())
-                        .build();
-
-                listaDespesas.add(tituloDespesa);
-            }
+            listaDespesas.add(tituloDespesa);
         }
 
         List<String> listTituloDespesa = new ArrayList<>();
@@ -284,46 +271,8 @@ public class DespesasParceladasServices {
                 .build();
     }
 
-    public TituloDespesaResponse getNomeConsolidacaoParaAssociacao(Integer idFuncionario, Integer idDespesa, Integer idDetalheDespesa, String tipo) {
-        List<TituloDespesa> listaConsolidacoes = new ArrayList<>();
-
-        if (tipo.equalsIgnoreCase("ativas")) {
-            for (TituloConsolidacao consolidacao : repository.getNomeConsolidacoesAtivasParaAssociacao(idFuncionario, idDespesa, idDetalheDespesa)) {
-                var tituloDespesa = TituloDespesa.builder()
-                        .idDespesa(-consolidacao.getIdConsolidacao()) // para consolidacao foi necessario adicionar o - para tratar no frontend
-                        .idConsolidacao(consolidacao.getIdConsolidacao())
-                        .tituloDespesa(consolidacao.getTituloConsolidacao())
-                        .build();
-
-                listaConsolidacoes.add(tituloDespesa);
-            }
-        } else {
-            for (TituloConsolidacao consolidacao : repository.getNomeConsolidacoes(idFuncionario)) {
-                var tituloDespesa = TituloDespesa.builder()
-                        .idDespesa(-consolidacao.getIdConsolidacao()) // para consolidacao foi necessario adicionar o - para tratar no frontend
-                        .idConsolidacao(consolidacao.getIdConsolidacao())
-                        .tituloDespesa(consolidacao.getTituloConsolidacao())
-                        .build();
-
-                listaConsolidacoes.add(tituloDespesa);
-            }
-        }
-
-        List<String> listTituloDespesa = new ArrayList<>();
-        for (TituloDespesa despesas : listaConsolidacoes) {
-            listTituloDespesa.add(despesas.getTituloDespesa());
-        }
-
-        log.info("ListaConsolidacoesParaAssociacao: {}", listaConsolidacoes);
-        return TituloDespesaResponse.builder()
-                .despesas(listaConsolidacoes)
-                .sizeTituloDespesaVB(listaConsolidacoes.size())
-                .tituloDespesa(listTituloDespesa)
-                .build();
-    }
-
     public StringResponse validarTituloDespesaParceladaExistente(String dsTituloDespesaParcelada, Integer idDespesaParcelada, Integer idFuncionario) {
-        var response = repository.getValidaTituloDespesaParceladaExistente(dsTituloDespesaParcelada, idDespesaParcelada, idFuncionario).compareTo(0) == 0 ? false : true;
+        var response = repository.getValidaTituloDespesaParceladaExistente(dsTituloDespesaParcelada, idDespesaParcelada, idFuncionario).compareTo(0) != 0;
         return StringResponse.builder()
                 .isTituloJaExistente(response)
                 .build();

@@ -159,6 +159,8 @@ public interface AplicacaoRepository {
 
     List<TituloConsolidacao> getNomeConsolidacoesParaImportacao(Integer idFuncionario);
 
+    List<TituloDespesa> getNomeDespesaMensalParaAssociacao(Integer idDespesa, Integer idFuncionario, Integer anoReferencia);
+
     List<TituloConsolidacao> getNomeConsolidacoesAtivasParaAssociacao(Integer idFuncionario, Integer idDespesa, Integer idDetalheDespesa);
 
     List<TituloDespesa> getNomeDespesaRelatorio(Integer idDespesa, Integer idFuncionario);
@@ -344,6 +346,8 @@ public interface AplicacaoRepository {
     void updateTituloDespesasMensais(Integer idDetalheDespesa, Integer idFuncionario, String dsNomeDespesa, String anoReferencia);
 
     void updateDataRenovacaoAUTOLembrete(Integer idLembrete, Integer idFuncionario, String dataInicial);
+
+    void alterarReferenciasDespesaMensal(Integer idDespesa, Integer idDetalheDespesa, Integer idDetalheDespesaNova, Integer idFuncionario);
 
     void deleteDespesaParceladaImportada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idFuncionario);
 

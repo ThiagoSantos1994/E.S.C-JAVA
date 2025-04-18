@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TituloDespesa {
     private Integer idDespesa;
+    private Integer idDetalheDespesa;
     private Integer idConsolidacao;
     private String tituloDespesa;
 }
