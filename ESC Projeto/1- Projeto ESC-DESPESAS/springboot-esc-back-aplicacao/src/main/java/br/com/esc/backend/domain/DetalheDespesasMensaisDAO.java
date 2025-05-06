@@ -40,4 +40,5 @@ public class DetalheDespesasMensaisDAO {
     private String tpParcelaAdiada;
     private String tpParcelaAmortizada;
     private String dsObservacoesEditorValores;
+    private Boolean isNovaLinhaEmBranco;
 }

@@ -29,6 +29,7 @@ public class LancamentosFinanceirosServices {
 
         List<DespesasFixasMensaisDAO> despesasFixasMensais = repository.getDespesasFixasMensais(dsMes, dsAno, idFuncionario);
         if (despesasFixasMensais.isEmpty()) {
+            dto.setVlSaldoInicialMes(VALOR_ZERO);
             dto.setVlSaldoPositivo(VALOR_ZERO);
             dto.setVlTotalDespesas(VALOR_ZERO);
             dto.setVlTotalPendentePagamento(VALOR_ZERO);

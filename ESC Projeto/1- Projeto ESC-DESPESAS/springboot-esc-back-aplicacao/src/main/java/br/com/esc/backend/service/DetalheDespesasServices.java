@@ -152,6 +152,8 @@ public class DetalheDespesasServices {
             detalheDAO.setVlTotalPago(this.removeNBSP_html(detalheDAO.getVlTotalPago()));
         }
 
+        detalheDAO.setIsNovaLinhaEmBranco(isEmpty(detalheDAO.getIsNovaLinhaEmBranco()) ? Boolean.FALSE : detalheDAO.getIsNovaLinhaEmBranco());
+
         if (isNotNull(detalheDAO.getIdOrdem()) && this.isDetalheDespesaExistente(detalheDAO)) {
             log.info("Atualizando DetalheDespesaMensal: request = {}", detalheDAO);
             repository.updateDetalheDespesasMensais(detalheDAO);
@@ -162,6 +164,8 @@ public class DetalheDespesasServices {
                     detalheDAO.getIdDespesaParcelada().equals(0) ?
                             repository.getMaxOrdemDetalheDespesasMensaisNormal(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdFuncionario()) :
                             repository.getMaxOrdemDetalheDespesasMensais(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdFuncionario());
+
+            idOrdemInclusao = detalheDAO.getIsNovaLinhaEmBranco() ? 1 : idOrdemInclusao;
 
             detalheDAO.setIdOrdem(idOrdemInclusao);
 

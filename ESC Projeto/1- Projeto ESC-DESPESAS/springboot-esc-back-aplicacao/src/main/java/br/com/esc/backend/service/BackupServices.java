@@ -34,7 +34,8 @@ public class BackupServices {
                 repository.insertDadosBaseBackup(backup, principal);
             } catch (Exception e) {
                 log.error("Erro ao realizar o Backup >> tabela: {}", backup);
-                builder.append("Erro ao realizar o Backup >> tabela: {}" + backup);
+                builder.append(isEmpty(builder.toString())? "Backup executado parcialmente com sucesso:".concat("\n"):
+                        "Erro backup >> Tabela:" + backup.concat("\n"));
             }
         }
 

@@ -38,4 +38,5 @@ public class DetalheDespesasMensaisRequest {
     private String tpParcelaAmortizada;
     private String tpMeta;
     private String dsObservacoesEditorValores;
+    private Boolean isNovaLinhaEmBranco;
 }
