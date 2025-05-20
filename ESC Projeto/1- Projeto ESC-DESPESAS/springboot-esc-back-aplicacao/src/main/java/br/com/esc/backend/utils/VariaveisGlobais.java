@@ -5,6 +5,7 @@ public class VariaveisGlobais {
     public static final String PAGO = "Pago";
     public static final String VALOR_ZERO = "0,00";
     public static final String POSITIVO = "Positivo";
+    public static final String NEGATIVO = "Negativo";
     public static final String OK = "OK";
     public static final String ERRO = "ERRO";
     public static final String PERC_BAIXO = "Baixo";

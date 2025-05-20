@@ -742,7 +742,7 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlUpdate
-    void deleteDetalheDespesaParcelada(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
+    void deleteDespesaParceladaAmortizadaImportada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
 
     @Override
     @SqlUpdate

@@ -203,12 +203,12 @@ public class LancamentosBusinessService {
         for (DetalheDespesasMensaisRequest detalhe : request) {
             DetalheDespesasMensaisDAO dao = new DetalheDespesasMensaisDAO();
             BeanUtils.copyProperties(dao, detalhe);
-            detalheDespesasServices.gravarDetalheDespesasMensais(dao, false);
+            detalheDespesasServices.gravarDetalheDespesasMensais(dao);
 
             if (detalhe.getIdConsolidacao() > 0) {
                 for (DetalheDespesasMensaisDAO despesa : consolidacaoService.obterListDetalheDespesasConsolidadas(detalhe.getIdDespesa(), detalhe.getIdDetalheDespesa(), detalhe.getIdConsolidacao(), detalhe.getIdFuncionario())) {
                     var despesaRequest = detalheDespesasServices.parserToDetalheDespesasConsolidadas(detalhe, despesa);
-                    detalheDespesasServices.gravarDetalheDespesasMensais(despesaRequest, false);
+                    detalheDespesasServices.gravarDetalheDespesasMensais(despesaRequest);
                 }
             }
         }

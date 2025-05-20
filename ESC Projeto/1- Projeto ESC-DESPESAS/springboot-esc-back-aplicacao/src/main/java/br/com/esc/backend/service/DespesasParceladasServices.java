@@ -348,7 +348,7 @@ public class DespesasParceladasServices {
 
     public void excluirParcela(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario) {
         repository.deleteParcela(idDespesaParcelada, idParcela, idFuncionario);
-        repository.deleteDetalheDespesaParcelada(idDespesaParcelada, idParcela, idFuncionario);
+        repository.deleteParcelaDetalheDespesasMensais(idDespesaParcelada, idParcela, idFuncionario);
     }
 
     public void excluirDespesaParcelada(Integer idDespesaParcelada, Integer idFuncionario) {
@@ -386,11 +386,17 @@ public class DespesasParceladasServices {
         } else {
             var valorAtualParcela = convertStringToDecimal(listParcelas.get(0).getVlParcela());
 
+            //Só altera o valor da parcela se ela estiver com o stts em aberto.
             if (valorAtualParcela.compareTo(convertStringToDecimal(parcela.getVlParcela())) != 0) {
-                BigDecimal calculo = convertStringToDecimal(parcela.getVlParcela()).subtract(valorAtualParcela);
-                parcela.setVlDesconto(convertDecimalToStringComSinal(calculo));
+                if (parcela.getTpBaixado().equals("N")) {
+                    BigDecimal calculo = convertStringToDecimal(parcela.getVlParcela()).subtract(valorAtualParcela);
+                    parcela.setVlDesconto(convertDecimalToStringComSinal(calculo));
 
-                repository.updateValorTotalDetalheDespesasMensaisParcelas(parcela.getVlParcela(), parcela.getIdDespesaParcelada(), parcela.getIdParcela(), parcela.getIdFuncionario(), PENDENTE);
+                    repository.updateValorTotalDetalheDespesasMensaisParcelas(parcela.getVlParcela(), parcela.getIdDespesaParcelada(), parcela.getIdParcela(), parcela.getIdFuncionario(), PENDENTE);
+                } else {
+                    log.info("Não foi possivel alterar o valor da parcela {} porque ela ja foi paga.", parcela.getIdParcela());
+                    parcela.setVlParcela(convertDecimalToString(valorAtualParcela));
+                }
             }
 
             parcela = validarCheckAmortizacao(parcela);
@@ -448,7 +454,7 @@ public class DespesasParceladasServices {
     public void validarBaixaCadastroDespesaParcelada(Integer idDespesaParcelada, Integer idFuncionario) {
         var qtdeParcelas = repository.getQuantidadeParcelasEmAberto(idDespesaParcelada, idFuncionario);
 
-        if (qtdeParcelas.intValue() <= 0) {
+        if (qtdeParcelas <= 0) {
             repository.updateDespesasParceladasEncerrado(idDespesaParcelada, idFuncionario);
         }
 

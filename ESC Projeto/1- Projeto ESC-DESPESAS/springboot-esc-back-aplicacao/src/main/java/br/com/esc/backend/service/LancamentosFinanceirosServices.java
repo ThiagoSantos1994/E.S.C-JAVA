@@ -59,7 +59,7 @@ public class LancamentosFinanceirosServices {
         dto.setPcUtilizacaoDespesasMes(new DecimalFormat("00").format(this.obterPercentualUtilizacaoDespesaMes(saldoInicialMes, receita, despesa)).concat("%"));
         dto.setVlSaldoDisponivelMes(convertToMoedaBR(saldoDisponivelMes));
         dto.setDespesasFixasMensais(despesasFixasMensais);
-        dto.setStatusSaldoMes(saldoDisponivelMes.toString().contains("-") ? "Negativo" : "Positivo");
+        dto.setStatusSaldoMes(saldoDisponivelMes.toString().contains("-") ? NEGATIVO : POSITIVO);
         dto.setLancamentosMensais(this.obterLancamentosMensais(idDespesa, idDespesaAnterior, idFuncionario));
 
         /*Especifico para aplicação VB6*/
@@ -95,7 +95,7 @@ public class LancamentosFinanceirosServices {
 
             detalhes.setVlTotalDespesaPendente(repository.getCalculoTotalDespesaPendente(idDespesa, idDetalheDespesa, idFuncionario));
             detalhes.setVlTotalDespesaPaga(repository.getCalculoTotalDespesaPaga(idDespesa, idDetalheDespesa, idFuncionario));
-            detalhes.setStatusPagamento(repository.getStatusDetalheDespesaPendentePagamento(idDespesa, idDetalheDespesa, idFuncionario) ? "Pendente" : "Pago");
+            detalhes.setStatusPagamento(repository.getStatusDetalheDespesaPendentePagamento(idDespesa, idDetalheDespesa, idFuncionario) ? PENDENTE : PAGO);
 
             if (detalhes.getTpEmprestimo().equalsIgnoreCase("N")) {
                 var percentual = calculaPorcentagem(convertStringToDecimal(detalhes.getVlLimite()), detalhes.getVlTotalDespesa());

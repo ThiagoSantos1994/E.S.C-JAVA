@@ -19,7 +19,8 @@ SET
     tp_Relatorio = :detalhe.tpRelatorio,
     tp_LinhaSeparacao = :detalhe.tpLinhaSeparacao,
     tp_Meta = :detalhe.tpMeta,
-    tp_ParcelaAdiada = :detalhe.tpParcelaAdiada
+    tp_ParcelaAdiada = :detalhe.tpParcelaAdiada,
+    tp_ParcelaAmortizada = :detalhe.tpParcelaAmortizada
 WHERE
     id_Despesa = :detalhe.idDespesa
     AND id_DetalheDespesa = :detalhe.idDetalheDespesa

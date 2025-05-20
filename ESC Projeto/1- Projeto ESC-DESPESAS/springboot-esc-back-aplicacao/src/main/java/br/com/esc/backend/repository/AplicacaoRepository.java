@@ -351,7 +351,7 @@ public interface AplicacaoRepository {
 
     void deleteDespesaParceladaImportada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idFuncionario);
 
-    void deleteDetalheDespesaParcelada(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
+    void deleteDespesaParceladaAmortizadaImportada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
 
     void deleteTodasParcelas(Integer idDespesaParcelada, Integer idFuncionario);
 

@@ -9,7 +9,9 @@ import lombok.var;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static br.com.esc.backend.utils.DataUtils.DataHoraAtual;
 import static br.com.esc.backend.utils.GlobalUtils.parserMesToString;
@@ -63,11 +65,11 @@ public class ImportarLancamentosServices {
     public void processarImportacaoDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String dsMes, String dsAno, Boolean bReprocessarTodosValores) {
         for (DetalheDespesasMensaisDAO detalheDespesa : this.processarDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario, dsMes, dsAno, bReprocessarTodosValores)) {
             if (this.isDetalheDespesaExistente(detalheDespesa)) {
-                if (bDespesaComStatusPago == true) {
+                if (bDespesaComStatusPago) {
                     log.info("Despesa mensal com status PAGO, nao foi atualizado. >>>  {}", detalheDespesa);
                     continue;
                 }
-                if (bDespesaComParcelaAdiada == true) {
+                if (bDespesaComParcelaAdiada) {
                     log.info("Despesa mensal com status adiantamento de parcela, nao foi atualizado. >>>  {}", detalheDespesa);
                     continue;
                 }
@@ -92,7 +94,7 @@ public class ImportarLancamentosServices {
                 log.info("Inserindo detalhe despesas mensais >>>  {}", detalheDespesa);
                 repository.insertDetalheDespesasMensais(asList(detalheDespesa));
 
-                if (bDespesaComParcelaAdiada == true) {
+                if (bDespesaComParcelaAdiada) {
                     log.info("Despesa mensal com status adiantamento de parcela, realizando tratamento para gravar. >>>  {}", detalheDespesa);
 
                     /*Altera a flag de ParcelaAdiada no detalhe das despesas mensais e baixa o pagamento e marca como despesa de anotacao*/
@@ -152,7 +154,7 @@ public class ImportarLancamentosServices {
         }
 
         if (despesasFixasMensaisList.isEmpty()) {
-            throw new ErroNegocioException("Nao ha lancamentos mensais no mes anterior para processamento.");
+            throw new ErroNegocioException("Não há lançamentos mensais no mês anterior para processamento.");
         }
         return despesasFixasMensaisList;
     }
@@ -193,19 +195,45 @@ public class ImportarLancamentosServices {
                     continue;
                 }
 
-                var isDetalheComParcelaAmortizada = repository.getValidaDetalheDespesaComParcelaAmortizada(dao.getIdDespesa(), dao.getIdDetalheDespesa(), idFuncionario);
-                if (isDetalheComParcelaAmortizada.equalsIgnoreCase("S")) {
+                var isParcelaAmortizada = parcela.getTpParcelaAmortizada().equalsIgnoreCase("S");
+                var isDespesaComParcelaAmortizada = dao.getTpParcelaAmortizada().equalsIgnoreCase("S");
+
+                if (isParcelaAmortizada) {
                     var parcelaSemAmortizacao = repository.getParcelaDisponivelSemAmortizacao(idDespesaParcelada, idFuncionario);
 
-                    if (isNull(parcelaSemAmortizacao)) {
+                    if (isNull(parcelaSemAmortizacao) || !isDespesaComParcelaAmortizada) {
                         // Ocorre quando é uma despesa com parcelas amortizadas onde a despesa foi quitada totalmente
                         continue;
-                    } else if (parcelaSemAmortizacao.getIdParcela() >= parcela.getIdParcela()) {
-                        // Somente para parcelas amortizadas, exclui a despesa parcelada para gravar novamente
-                        repository.deleteDespesaParceladaImportada(idDespesa, idDetalheDespesa, idDespesaParcelada, idFuncionario);
-                        parcela = parcelaSemAmortizacao;
                     } else {
-                        dao.setTpAnotacao("S");
+                        var parcelasAmortizadasDespesaAtualStream = repository.getDespesasParceladasDetalheDespesasMensais(idDespesa, idFuncionario).stream()
+                                .filter(d -> d.getTpParcelaAmortizada().equalsIgnoreCase("S"))
+                                .collect(Collectors.toList());
+
+                        if (parcelasAmortizadasDespesaAtualStream.size() == 0) {
+                            log.info("Adicionando parcela amortizada na despesa mensal... Parcela: {}.", parcelaSemAmortizacao.getIdParcela());
+                            parcelaSemAmortizacao.setTpParcelaAmortizada("S");
+                            parcela = parcelaSemAmortizacao;
+
+                            log.info("Atualizando status amortizacao da parcela com sucesso");
+                            repository.updateParcelaStatusAmortizado(idDespesaParcelada, parcela.getIdParcela(), idFuncionario);
+                        } else {
+                            var parcelaDespesaAtual = parcelasAmortizadasDespesaAtualStream.stream()
+                                    .collect(Collectors.maxBy(Comparator.comparingInt(DetalheDespesasMensaisDAO::getIdParcela)))
+                                    .get().getIdParcela();
+
+                            if (parcelaSemAmortizacao.getIdParcela() >= parcelaDespesaAtual) {
+                                continue;
+                            }
+
+                            //Exclui a parcela atual da despesa para gravar novamente.
+                            repository.deleteDespesaParceladaAmortizadaImportada(idDespesa, idDetalheDespesa, idDespesaParcelada, parcelaDespesaAtual, idFuncionario);
+
+                            log.info("Atualizando status amortizacao da parcela com sucesso");
+                            repository.updateParcelaStatusAmortizado(idDespesaParcelada, parcelaDespesaAtual, idFuncionario);
+
+                            parcelaSemAmortizacao.setTpParcelaAmortizada("S");
+                            parcela = parcelaSemAmortizacao;
+                        }
                     }
                 }
 
@@ -215,6 +243,7 @@ public class ImportarLancamentosServices {
                 dao.setVlTotal(parcela.getVlParcela().trim());
                 dao.setTpAnotacao(dao.getTpParcelaAdiada().equalsIgnoreCase("S") ? "N" : dao.getTpParcelaAdiada());
                 dao.setTpParcelaAdiada(isEmpty(dao.getTpParcelaAdiada()) ? "N" : dao.getTpParcelaAdiada());
+                dao.setTpParcelaAmortizada(isEmpty(parcela.getTpParcelaAmortizada()) ? "N" : parcela.getTpParcelaAmortizada());
             } else {
                 dao.setIdDespesaParcelada(0);
                 dao.setIdParcela(0);
@@ -320,7 +349,7 @@ public class ImportarLancamentosServices {
                         .tpLinhaSeparacao("N")
                         .build();
 
-                detalheDespesasServices.gravarDetalheDespesasMensais(request, false);
+                detalheDespesasServices.gravarDetalheDespesasMensais(request);
 
                 log.info("Importacao realizada com sucesso >> idDespesa: {} - idDetalheDespesa: {}", idDespesaRef, idDetalheDespesa);
             } else {
@@ -371,7 +400,7 @@ public class ImportarLancamentosServices {
                         .tpLinhaSeparacao("N")
                         .build();
 
-                detalheDespesasServices.gravarDetalheDespesasMensais(request, false);
+                detalheDespesasServices.gravarDetalheDespesasMensais(request);
 
                 consolidacaoService.associarConsolidacaoDetalheDespesaMensal(idDespesaRef, idDetalheDespesa, idConsolidacao, idFuncionario);
 
@@ -392,8 +421,10 @@ public class ImportarLancamentosServices {
             var idParcela = parcela.getIdParcela();
             var idDespesaParcelada = parcela.getIdDespesaParcelada();
 
-            log.info("Incluindo despesa parcelada - idDespesaParcelada: {} - idParcela: {}.", idDespesaParcelada, idParcela);
+            log.info("Atualizando status amortizacao da parcela com sucesso");
+            repository.updateParcelaStatusAmortizado(idDespesaParcelada, idParcela, idFuncionario);
 
+            log.info("Incluindo despesa parcelada - idDespesaParcelada: {} - idParcela: {}.", idDespesaParcelada, idParcela);
             var request = DetalheDespesasMensaisDAO.builder()
                     .idDespesa(idDespesa)
                     .idDetalheDespesa(idDetalheDespesa)
@@ -416,11 +447,8 @@ public class ImportarLancamentosServices {
                     .tpLinhaSeparacao("N")
                     .build();
 
-            detalheDespesasServices.gravarDetalheDespesasMensais(request, true);
+            detalheDespesasServices.gravarDetalheDespesasMensais(request);
             log.info("Parcela amortizada incluida com sucesso.");
-
-            log.info("Atualizando status amortizacao parcela com sucesso");
-            repository.updateParcelaStatusAmortizado(idDespesaParcelada, idParcela, idFuncionario);
         }
     }
 }

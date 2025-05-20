@@ -83,9 +83,14 @@ public class DetalheDespesasServices {
                     detalheDespesas.setVlTotalPago(convertDecimalToString(valorTotalDespesaPaga));
 
                     //Adiciona a quantidade de despesas associadas a consolidação no nome da despesa
-                    var qtdeDespesasConsolidadas = repository.getDespesasParceladasConsolidadas(idDespesa, idDetalheDespesa, detalheDespesas.getIdConsolidacao(), idFuncionario).size();
-                    var tituloDespesaConsolidada = detalheDespesas.getDsTituloDespesa().concat(" (" + qtdeDespesasConsolidadas + ")");
-                    detalheDespesas.setDsTituloDespesa(tituloDespesaConsolidada);
+                    if (isNull(detalheDespesas.getDsTituloDespesa())) {
+                        log.warn("Ocorreu um erro ao obter os dados da despesa consolidada, valide se existe na base.");
+                        detalheDespesas.setDsTituloDespesa("Despesa Consolidada Não Localizada (ERRO).");
+                    } else {
+                        var qtdeDespesasConsolidadas = repository.getDespesasParceladasConsolidadas(idDespesa, idDetalheDespesa, detalheDespesas.getIdConsolidacao(), idFuncionario).size();
+                        var tituloDespesaConsolidada = detalheDespesas.getDsTituloDespesa().concat(" (" + qtdeDespesasConsolidadas + ")");
+                        detalheDespesas.setDsTituloDespesa(tituloDespesaConsolidada);
+                    }
                 }
 
                 newDetalheDespesasMensaisList.add(detalheDespesas);
@@ -101,29 +106,48 @@ public class DetalheDespesasServices {
                 .build();
     }
 
-    public void gravarDetalheDespesasMensais(DetalheDespesasMensaisDAO detalheDAO, boolean isParcelaAmortizacao) throws Exception {
+    public void gravarDetalheDespesasMensais(DetalheDespesasMensaisDAO detalheDAO) throws Exception {
         var bIsParcelaAdiada = false;
+        var bIsParcelaAmortizada = false;
+        var bIsDespesaParcelada = (detalheDAO.getIdDespesaParcelada() > 0);
+
         var despesa = repository.getDespesaMensalPorFiltro(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheReferencia(), detalheDAO.getIdFuncionario());
         if (null != despesa && despesa.getTpRelatorio().equalsIgnoreCase("S") && detalheDAO.getTpRelatorio().equalsIgnoreCase("S")) {
             //Se a despesa referencia for do tipo relatorio e o detalhe tambem, não permite a gravação dos dados.
             return;
         }
 
-        /*Valida se a despesa é do tipo parcelada, se sim, busca o valor total a pagar da tabela de parcelas*/
-        if (detalheDAO.getIdDespesaParcelada() > 0) {
+        if (bIsDespesaParcelada) {
             var referencia = this.obterReferenciaMesProcessamento(detalheDAO.getIdDespesa(), detalheDAO.getIdFuncionario());
             var dataVencimento = (referencia.getDsMes() + "/" + referencia.getDsAno());
 
-            /*Fluxo especifico para gravacao de parcelas amortizadas*/
-            if (isParcelaAmortizacao) {
-                var referenciaParcela = repository.getParcelasPorFiltro(detalheDAO.getIdDespesaParcelada(), detalheDAO.getIdParcela(), "N", detalheDAO.getIdFuncionario(), opcaoVisualizacaoParcelas(false, detalheDAO.getIdDespesaParcelada()));
-                dataVencimento = referenciaParcela.get(0).getDsDataVencimento();
+            ParcelasDAO parcela = isNull(detalheDAO.getIdParcela()) ?
+                    repository.getParcelaPorDataVencimento(detalheDAO.getIdDespesaParcelada(), dataVencimento, detalheDAO.getIdFuncionario()) :
+                    repository.getParcelasPorFiltro(detalheDAO.getIdDespesaParcelada(), detalheDAO.getIdParcela(), null, detalheDAO.getIdFuncionario(), opcaoVisualizacaoParcelas(false, detalheDAO.getIdDespesaParcelada())).get(0);
+
+            bIsParcelaAmortizada = parcela.getTpParcelaAmortizada().equalsIgnoreCase("S");
+
+            if (!bIsParcelaAmortizada) {
+                log.info("Parcela sem amortização, seguindo o fluxo validando a data de vencimento da parcela com a data da despesa.");
+
+                if (!parcela.getDsDataVencimento().equals(dataVencimento)) {
+                    throw new ErroNegocioException("Não foi localizada parcela com data de vencimento para ".concat(dataVencimento)
+                            .concat(".\n\nVerifique o fluxo de parcelas e tente novamente."));
+                }
+            } else {
+                log.info("Parcela amortizada, seguindo o fluxo sem validação de data de vencimento da parcela com a data da despesa.");
+
+                //Permite a alteração do valor da parcela na Despesa Mensal somente se for uma parcela amortizada (19/05/2025)
+                if (!isEmpty(detalheDAO.getVlTotal())) {
+                    if (convertStringToDecimal(detalheDAO.getVlTotal()).compareTo(convertStringToDecimal(parcela.getVlParcela())) != 0) {
+                        log.info("Identificado alteração no valor original da parcela: {} da despesa amortizada: {}. Valor Original: {} R$ - Novo Valor: {}R$ - O valor será alterado.", parcela.getIdParcela(), parcela.getIdDespesaParcelada(), parcela.getVlParcela(), detalheDAO.getVlTotal());
+
+                        parcela.setVlParcela(detalheDAO.getVlTotal());
+                        despesasParceladasServices.gravarParcela(parcela);
+                    }
+                }
             }
 
-            ParcelasDAO parcela = repository.getParcelaPorDataVencimento(detalheDAO.getIdDespesaParcelada(), dataVencimento, detalheDAO.getIdFuncionario());
-            if (isNull(parcela)) {
-                throw new ErroNegocioException("Não foi localizada parcela com data de vencimento para ".concat(dataVencimento).concat(".\n\nVerifique o fluxo de parcelas e tente novamente."));
-            }
             detalheDAO.setVlTotal(parcela.getVlParcela());
             detalheDAO.setDsDescricao(DESCRICAO_DESPESA_PARCELADA);
             detalheDAO.setIdParcela(parcela.getIdParcela());
@@ -134,7 +158,7 @@ public class DetalheDespesasServices {
         if (detalheDAO.getTpStatus().equalsIgnoreCase(PENDENTE)) {
             detalheDAO.setVlTotalPago(VALOR_ZERO);
             detalheDAO.setTpMeta(isEmpty(detalheDAO.getTpMeta()) ? "N" : detalheDAO.getTpMeta());
-            detalheDAO.setTpParcelaAmortizada(isEmpty(detalheDAO.getTpParcelaAmortizada()) ? "N" : detalheDAO.getTpParcelaAmortizada());
+            detalheDAO.setTpParcelaAmortizada(bIsParcelaAmortizada ? "S" : "N");
             detalheDAO.setTpParcelaAdiada(isEmpty(detalheDAO.getTpParcelaAdiada()) ? "N" : detalheDAO.getTpParcelaAdiada());
         } else if (detalheDAO.getTpStatus().equalsIgnoreCase(PAGO)
                 && (isEmpty(detalheDAO.getVlTotalPago()) || detalheDAO.getVlTotalPago().equalsIgnoreCase(VALOR_ZERO))) {
@@ -159,13 +183,15 @@ public class DetalheDespesasServices {
             repository.updateDetalheDespesasMensais(detalheDAO);
             despesasParceladasServices.validaStatusDespesaParcelada(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdDespesaParcelada(), detalheDAO.getIdParcela(), detalheDAO.getIdFuncionario(), detalheDAO.getTpStatus(), false);
         } else {
-            Integer idOrdemInclusao = detalheDAO.getTpRelatorio().equalsIgnoreCase("S") ?
-                    repository.getMaxOrdemDetalheDespesasTipoRelatorio(detalheDAO.getIdDespesa(), detalheDAO.getIdFuncionario()) :
-                    detalheDAO.getIdDespesaParcelada().equals(0) ?
-                            repository.getMaxOrdemDetalheDespesasMensaisNormal(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdFuncionario()) :
-                            repository.getMaxOrdemDetalheDespesasMensais(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdFuncionario());
+            Integer idOrdemInclusao = 1;
 
-            idOrdemInclusao = detalheDAO.getIsNovaLinhaEmBranco() ? 1 : idOrdemInclusao;
+            if (!detalheDAO.getIsNovaLinhaEmBranco()) {
+                idOrdemInclusao = detalheDAO.getTpRelatorio().equalsIgnoreCase("S") ?
+                        repository.getMaxOrdemDetalheDespesasTipoRelatorio(detalheDAO.getIdDespesa(), detalheDAO.getIdFuncionario()) :
+                        detalheDAO.getIdDespesaParcelada().equals(0) ?
+                                repository.getMaxOrdemDetalheDespesasMensaisNormal(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdFuncionario()) :
+                                repository.getMaxOrdemDetalheDespesasMensais(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdFuncionario());
+            }
 
             detalheDAO.setIdOrdem(idOrdemInclusao);
 
