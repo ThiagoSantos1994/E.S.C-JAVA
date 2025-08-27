@@ -51,10 +51,6 @@ public class ConsolidacaoService {
         }
     }
 
-    public void baixarConsolidacao(ConsolidacaoDAO consolidacaoDAO) {
-
-    }
-
     public void excluirConsolidacao(ConsolidacaoDAO consolidacaoDAO) {
         for (ConsolidacaoDespesasResponse despesa : aplicacaoRepository.getDetalhesConsolidacao(consolidacaoDAO.getIdConsolidacao(), consolidacaoDAO.getIdFuncionario())) {
             log.info("Desassociando a consolidacao da despesa parcelada... >> {} ", despesa);

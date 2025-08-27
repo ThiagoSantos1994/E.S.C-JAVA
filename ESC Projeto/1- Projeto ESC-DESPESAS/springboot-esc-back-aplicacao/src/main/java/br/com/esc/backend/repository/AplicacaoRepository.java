@@ -77,10 +77,6 @@ public interface AplicacaoRepository {
 
     String getValidaParcelaAdiada(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
 
-    String getValidaDetalheDespesaComParcelaAdiada(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
-
-    String getValidaDetalheDespesaComParcelaAmortizada(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
-
     String getValidaDetalheDespesaParceladaAdiada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idFuncionario);
 
     String getValidaDetalheDespesaComConsolidacao(Integer idConsolidacao, Integer idFuncionario);
@@ -108,8 +104,6 @@ public interface AplicacaoRepository {
     Integer getQuantidadeParcelasEmAberto(Integer idDespesaParcelada, Integer idFuncionario);
 
     Integer getQuantidadeParcelas(Integer idDespesaParcelada, Integer idFuncionario);
-
-    Integer getCodigoEmprestimo(String dsTituloEmprestimo, Integer idFuncionario);
 
     String getUsuarioLogado(Integer idFuncionario);
 

@@ -189,19 +189,11 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlQuery
-    String getValidaDetalheDespesaComParcelaAmortizada(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
-
-    @Override
-    @SqlQuery
     String getValidaParcelaAmortizacao(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
 
     @Override
     @SqlQuery
     String getValidaParcelaAdiada(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
-
-    @Override
-    @SqlQuery
-    String getValidaDetalheDespesaComParcelaAdiada(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 
     @Override
     @SqlQuery
@@ -263,10 +255,6 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlQuery
     Integer getQuantidadeParcelasEmAberto(Integer idDespesaParcelada, Integer idFuncionario);
-
-    @Override
-    @SqlQuery
-    Integer getCodigoEmprestimo(String dsTituloEmprestimo, Integer idFuncionario);
 
     @Override
     @SqlQuery

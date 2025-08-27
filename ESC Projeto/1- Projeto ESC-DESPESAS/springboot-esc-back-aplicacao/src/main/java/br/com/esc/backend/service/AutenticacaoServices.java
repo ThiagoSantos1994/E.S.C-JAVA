@@ -9,12 +9,12 @@ import br.com.esc.backend.repository.AutenticacaoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.net.UnknownHostException;
 
 import static br.com.esc.backend.utils.DataUtils.*;
-import static br.com.esc.backend.utils.GlobalUtils.getProperties;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.lang.Integer.parseInt;
@@ -27,6 +27,9 @@ public class AutenticacaoServices {
 
     private final AplicacaoRepository aplicacaoRepository;
     private final AutenticacaoRepository repository;
+
+    @Value("${prop.tempoLimiteSessao}")
+    private Integer tempoLimiteSessao;
 
     public AutenticacaoResponse autenticarUsuario(LoginRequest login) {
         var idLogin = -1;
@@ -65,13 +68,12 @@ public class AutenticacaoServices {
     }
 
     public StringResponse validarSessaoUsuario(Integer idFuncionario) {
-        var parametro = parseInt(getProperties().getProperty("prop.tempoLimiteSessao"));
         var result = repository.getHorarioLoginAuditoriaAcesso(idFuncionario);
 
-        log.info("Validando Sessao Usuario >> ParametroRequest: {} - ResponseAuditoria: {}", parametro, result);
+        log.info("Validando Sessao Usuario >> ParametroRequest: {} - ResponseAuditoria: {}", tempoLimiteSessao, result);
 
-        if (result.getDataLogin().equalsIgnoreCase(formatarDataBR(DataAtual()))) {
-            if (result.getTempoLogado().compareTo(parametro) >= 0) {
+        if (result.getDataLogin().equalsIgnoreCase(formatarDataBR(dataAtual()))) {
+            if (result.getTempoLogado().compareTo(tempoLimiteSessao) >= 0) {
                 log.info("Validando Sessao Usuario Response >> Sessao expirada por tempo excedido.");
                 return StringResponse.builder().isSessaoValida(FALSE).build();
             } else {
@@ -90,9 +92,9 @@ public class AutenticacaoServices {
             var configuracao = aplicacaoRepository.getConfiguracaoLancamentos(idFuncionario);
 
             //Muda a data de referencia somente no dia e mes programado
-            if (configuracao.getDataViradaMes().compareTo(0) != 0 && (parseInt(DiaAtual()) >= configuracao.getDataViradaMes()) && parseInt(MesAtual()) == configuracao.getMesReferencia()) {
-                var mesViradaConfiguracao = (parseInt(MesAtual()) + 1 == 13 ? 1 : parseInt(MesAtual()) + 1);
-                var anoViradaConfiguracao = (parseInt(MesAtual()) + 1 == 13 ? parseInt(AnoSeguinte()) : parseInt(AnoAtual()));
+            if (configuracao.getDataViradaMes().compareTo(0) != 0 && (parseInt(diaAtual()) >= configuracao.getDataViradaMes()) && parseInt(mesAtual()) == configuracao.getMesReferencia()) {
+                var mesViradaConfiguracao = (parseInt(mesAtual()) + 1 == 13 ? 1 : parseInt(mesAtual()) + 1);
+                var anoViradaConfiguracao = (parseInt(mesAtual()) + 1 == 13 ? parseInt(anoSeguinte()) : parseInt(anoAtual()));
                 aplicacaoRepository.updateDataConfiguracoesLancamentos(idFuncionario, mesViradaConfiguracao, anoViradaConfiguracao);
             }
         }  catch (Exception ex) {
@@ -105,7 +107,7 @@ public class AutenticacaoServices {
         log.info("Registrando acessos...");
 
         var hostAcesso = this.obterDadosMaquina();
-        repository.insertAuditoriaAcesso(idFuncionario, DataHoraAtual(), hostAcesso);
+        repository.insertAuditoriaAcesso(idFuncionario, dataHoraAtual(), hostAcesso);
     }
 
     private String obterDadosMaquina() {

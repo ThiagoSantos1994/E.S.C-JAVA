@@ -47,7 +47,7 @@ public class DespesasParceladasServices {
                 .qtdeParcelas(qtdeParcelas)
                 .qtdeParcelasPagas(repository.getQuantidadeParcelasPagas(idDespesaParcelada, idFuncionario))
                 .parcelaAtual(isEmpty(parcelaAtual) ? "000/" + qtdeParcelas : parcelaAtual.concat("/") + qtdeParcelas)
-                .valorParcelaAtual(this.obterValorDespesa(idDespesaParcelada, 0, MesAnoAtual(), idFuncionario).getVlDespesaParcelada())
+                .valorParcelaAtual(this.obterValorDespesa(idDespesaParcelada, 0, mesAnoAtual(), idFuncionario).getVlDespesaParcelada())
                 .valorTotalDespesa(valorDespesa)
                 .valorTotalDespesaPaga(repository.getValorTotalDespesaParceladaPaga(idDespesaParcelada, idFuncionario))
                 .valorTotalDespesaPendente(repository.getValorTotalDespesaParceladaPendente(idDespesaParcelada, idFuncionario))
@@ -184,7 +184,7 @@ public class DespesasParceladasServices {
             repository.updateParcelaStatusAdiada(idDespesa, idDetalheDespesa, observacoesBaixa, idParcela, idDespesaParcelada, idFuncionario);
 
             /*Altera a flag de ParcelaAdiada no detalhe das despesas mensais e baixa o pagamento e marca como despesa de anotacao*/
-            var logProcessamento = "Operacao realizada em: " + DataHoraAtual() + " - Usuario: ** " + repository.getUsuarioLogado(idFuncionario);
+            var logProcessamento = "Operacao realizada em: " + dataHoraAtual() + " - Usuario: ** " + repository.getUsuarioLogado(idFuncionario);
             repository.updateDetalheDespesasMensaisParcelaAdiada(idDespesa, idDetalheDespesa, idDespesaParcelada, observacoesBaixa, logProcessamento, novaParcelaRequest.getVlParcela(), idFuncionario);
 
             /*Atualiza a contagem de parcelas adiadas*/
@@ -297,7 +297,12 @@ public class DespesasParceladasServices {
                         .build();
 
                 var detalheDespesaMensalParcela = repository.getDetalheDespesaMensalPorFiltro(filtro);
-                repository.updateStatusPagamentoDetalheDespesa(valorQuitacao, valorQuitacao, PAGO, observacoes, "Baixa Automatica - Quitacao TOTAL - ".concat(DataUtils.DataHoraAtual()), detalheDespesaMensalParcela.getIdDespesa(), detalheDespesaMensalParcela.getIdDetalheDespesa(), detalheDespesaMensalParcela.getIdOrdem(), idFuncionario);
+
+                if (isEmpty(detalheDespesaMensalParcela)) {
+                    throw new ErroNegocioException("Não é possivel quitar esta despesa parcelada porque que não foi importada no lançamento mensal.");
+                }
+
+                repository.updateStatusPagamentoDetalheDespesa(valorQuitacao, valorQuitacao, PAGO, observacoes, "Baixa Automatica - Quitacao TOTAL - ".concat(DataUtils.dataHoraAtual()), detalheDespesaMensalParcela.getIdDespesa(), detalheDespesaMensalParcela.getIdDetalheDespesa(), detalheDespesaMensalParcela.getIdOrdem(), idFuncionario);
 
                 log.info("Baixando pagamento da parcela.. >> {}", parcela);
                 repository.updateParcelaStatusQuitado(observacoes, idDespesaParcelada, idParcela, valorQuitacao, idFuncionario);
@@ -362,7 +367,7 @@ public class DespesasParceladasServices {
 
         if (isEmpty(idDespesaExistente)) {
             log.info("Gravando Nova Despesa Parcelada >> Request: {}", despesa);
-            despesa.setDtCadastro(DataHoraAtual());
+            despesa.setDtCadastro(dataHoraAtual());
             repository.insertDespesaParcelada(despesa);
         } else {
             log.info("Atualizando Despesa Parcelada >> Request: {}", despesa);

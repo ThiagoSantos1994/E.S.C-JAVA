@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 import static br.com.esc.backend.service.DetalheDespesasServices.isDetalheDespesaTipoRelatorio;
 import static br.com.esc.backend.service.DetalheDespesasServices.parserOrdem;
 import static br.com.esc.backend.service.LembreteServices.validarCamposEntradaLembrete;
-import static br.com.esc.backend.utils.DataUtils.AnoSeguinte;
+import static br.com.esc.backend.utils.DataUtils.anoSeguinte;
 import static br.com.esc.backend.utils.ObjectUtils.isEmpty;
 import static br.com.esc.backend.utils.ObjectUtils.isNull;
 import static br.com.esc.backend.utils.VariaveisGlobais.VALOR_ZERO;
@@ -244,7 +244,7 @@ public class LancamentosBusinessService {
                     .vlTotal(despesa.getVlTotal())
                     .vlTotalPago(despesa.getVlTotal())
                     .tpStatus(despesa.getTpStatus())
-                    .dsObservacoes(isEmpty(observacaoPagamento) ? "Pagamento realizado em ".concat(DataUtils.DataHoraAtual()) : observacaoPagamento)
+                    .dsObservacoes(isEmpty(observacaoPagamento) ? "Pagamento realizado em ".concat(DataUtils.dataHoraAtual()) : observacaoPagamento)
                     .isProcessamentoAdiantamentoParcelas(false)
                     .build();
 
@@ -614,12 +614,12 @@ public class LancamentosBusinessService {
 
         try {
             var listAnosRef = repository.getListaAnoReferencia();
-            if (!listAnosRef.contains(AnoSeguinte())) {
-                responseList.add(AnoSeguinte());
+            if (!listAnosRef.contains(anoSeguinte())) {
+                responseList.add(anoSeguinte());
             }
             responseList.addAll(listAnosRef);
         } catch (Exception ex) {
-            responseList.add(DataUtils.AnoAtual());
+            responseList.add(DataUtils.anoAtual());
         }
 
         return responseList;

@@ -5,7 +5,6 @@ import org.joda.time.DateTime;
 import org.joda.time.Days;
 
 import java.text.DateFormat;
-import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -17,7 +16,7 @@ import static java.lang.String.valueOf;
 
 public class DataUtils {
 
-    public static String DataHoraAtual() {
+    public static String dataHoraAtual() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date data = new Date(System.currentTimeMillis());
         return simpleDateFormat.format(data);
@@ -31,15 +30,6 @@ public class DataUtils {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
         Date data = new Date(ref);
         return simpleDateFormat.format(data);
-    }
-
-    public static String formatarDataBR(Calendar ref) {
-        if (isEmpty(ref)) {
-            return "";
-        }
-
-        DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-        return df.format(ref);
     }
 
     public static String formatarDataEUA(String ref) {
@@ -57,63 +47,52 @@ public class DataUtils {
         return df.format(ref);
     }
 
-    public static String DataAtual() {
+    public static String dataAtual() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd");
         Date data = new Date(System.currentTimeMillis());
         return simpleDateFormat.format(data);
     }
 
-    public static String MesAnoAtual() {
-        return MesAtual().concat("/").concat(AnoAtual());
+    public static String mesAnoAtual() {
+        return mesAtual().concat("/").concat(anoAtual());
     }
 
-    public static String DiaAtual() {
+    public static String diaAtual() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd");
         Date data = new Date(System.currentTimeMillis());
         return simpleDateFormat.format(data);
     }
 
-    public static String MesAtual() {
+    public static String mesAtual() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM");
         Date data = new Date(System.currentTimeMillis());
         return simpleDateFormat.format(data);
     }
 
-    public static String AnoAtual() {
+    public static String anoAtual() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("YYYY");
         Date ano = new Date(System.currentTimeMillis());
         return simpleDateFormat.format(ano);
     }
 
-    public static String AnoSeguinte() {
+    public static String anoSeguinte() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("YYYY");
         Date ano = new Date(System.currentTimeMillis());
         return valueOf(parseInt(simpleDateFormat.format(ano)) + 1);
     }
 
-    public static String AnoAnterior() {
-        int ano = (parseInt(AnoAtual()) - 1);
-        return valueOf(ano);
-    }
-
-    public static String MesNome(int mes) {
-        String[] months = new DateFormatSymbols().getMonths();
-        if (mes < 13) {
-            int arrayMes = (mes - 1);
-            return months[arrayMes];
-        } else {
-            return "MES INVALIDO";
-        }
-    }
-
-    public static String MesNomeAtual() {
-        int mes = (parseInt(MesAtual()) - 1);
-        String[] months = new DateFormatSymbols().getMonths();
-        return months[mes];
-    }
-
     public static Date convertStringToDate(String sData) throws ParseException {
         return new SimpleDateFormat("dd/MM/yyyy").parse(sData);
+    }
+
+    public static String retornaMesAnterior(String dsMes) {
+        var dsMesAnterior = (parseInt(dsMes) - 1 < 1 ? 12 : parseInt(dsMes) - 1);
+        var result = (dsMesAnterior <= 9 ? "0" + dsMesAnterior : valueOf(dsMesAnterior));
+        return result;
+    }
+
+    public static String parserMesToString(Integer dsMes) {
+        return (dsMes <= 9 ? "0" + dsMes : valueOf(dsMes));
     }
 
     public static Date retornaDataPersonalizada(String data, Integer qtdeMes) throws ParseException {

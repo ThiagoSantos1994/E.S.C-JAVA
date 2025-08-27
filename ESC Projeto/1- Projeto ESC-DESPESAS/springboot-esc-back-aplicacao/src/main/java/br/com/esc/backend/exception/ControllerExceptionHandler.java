@@ -34,7 +34,7 @@ public class ControllerExceptionHandler {
     }
 
     private static ErroRepresentation getErroRepresentation(Exception e) {
-        log.error("ExceptionHandler | Erro ao realizar operação no backend: {}", e.getMessage());
+        log.error("ExceptionHandler | Erro ao realizar operação no backend: {}", e);
 
         var erro = new ErroRepresentation();
         erro.setCodigo(HttpStatus.BAD_REQUEST.value());

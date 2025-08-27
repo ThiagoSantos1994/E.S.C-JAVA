@@ -16,8 +16,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static br.com.esc.backend.service.DespesasParceladasServices.opcaoVisualizacaoParcelas;
-import static br.com.esc.backend.utils.GlobalUtils.getAnoAtual;
-import static br.com.esc.backend.utils.GlobalUtils.getMesAtual;
+import static br.com.esc.backend.utils.DataUtils.anoAtual;
+import static br.com.esc.backend.utils.DataUtils.mesAtual;
 import static br.com.esc.backend.utils.MotorCalculoUtils.*;
 import static br.com.esc.backend.utils.ObjectUtils.*;
 import static br.com.esc.backend.utils.VariaveisGlobais.*;
@@ -37,7 +37,7 @@ public class DetalheDespesasServices {
 
         var despesaMensal = repository.getDespesasMensais(idDespesa, idFuncionario, idDetalheDespesa);
 
-        if (despesaMensal.size() <= 0) {
+        if (despesaMensal.size() == 0) {
             return new DetalheDespesasMensaisDTO();
         } else {
             despesaTipoRelatorio = despesaMensal.get(0).getTpRelatorio();
@@ -160,9 +160,7 @@ public class DetalheDespesasServices {
             detalheDAO.setTpMeta(isEmpty(detalheDAO.getTpMeta()) ? "N" : detalheDAO.getTpMeta());
             detalheDAO.setTpParcelaAmortizada(bIsParcelaAmortizada ? "S" : "N");
             detalheDAO.setTpParcelaAdiada(isEmpty(detalheDAO.getTpParcelaAdiada()) ? "N" : detalheDAO.getTpParcelaAdiada());
-        } else if (detalheDAO.getTpStatus().equalsIgnoreCase(PAGO)
-                && (isEmpty(detalheDAO.getVlTotalPago()) || detalheDAO.getVlTotalPago().equalsIgnoreCase(VALOR_ZERO))) {
-            //Se o status for alterado para PAGO e não for informado o valor pago, seta o valor total da despesa.
+        } else if (detalheDAO.getTpStatus().equalsIgnoreCase(PAGO) && !detalheDAO.getVlTotalPago().equalsIgnoreCase(detalheDAO.getVlTotal())) {
             detalheDAO.setVlTotalPago(detalheDAO.getVlTotal());
         }
 
@@ -215,7 +213,7 @@ public class DetalheDespesasServices {
 
             StringBuilder sbLogs = new StringBuilder();
             sbLogs.append((isEmpty(logsDAO.getHistorico()) ? "" : logsDAO.getHistorico()));
-            sbLogs.append((detalheDAO.getVlTotal().concat(" - ").concat(DataUtils.DataHoraAtual())).concat("\n").replace("\\n", "\n"));
+            sbLogs.append((detalheDAO.getVlTotal().concat(" - ").concat(DataUtils.dataHoraAtual())).concat("\n").replace("\\n", "\n"));
 
             var qtdeLogs = repository.getQuantidadeLogsDetalheDespesa(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdDetalheDespesaLog(), detalheDAO.getIdFuncionario());
             if (qtdeLogs == 0) {
@@ -536,7 +534,7 @@ public class DetalheDespesasServices {
         var extrato = new ExtratoDespesasDAO();
 
         if (tipo.equalsIgnoreCase("cadastroParcelas")) {
-            extrato = repository.getExtratoDespesasParceladasMes(getMesAtual(), getAnoAtual(), idFuncionario);
+            extrato = repository.getExtratoDespesasParceladasMes(mesAtual(), anoAtual(), idFuncionario);
 
             mensagemBuffer.append(NESTE_MES_SERA_QUITADO);
             mensagemBuffer.append(extrato.getVlDespesas()).append("R$");

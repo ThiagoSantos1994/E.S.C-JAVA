@@ -13,9 +13,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static br.com.esc.backend.utils.DataUtils.DataHoraAtual;
-import static br.com.esc.backend.utils.GlobalUtils.parserMesToString;
-import static br.com.esc.backend.utils.GlobalUtils.retornaMesAnterior;
+import static br.com.esc.backend.utils.DataUtils.*;
 import static br.com.esc.backend.utils.ObjectUtils.*;
 import static br.com.esc.backend.utils.VariaveisGlobais.*;
 import static java.lang.Integer.parseInt;
@@ -98,7 +96,7 @@ public class ImportarLancamentosServices {
                     log.info("Despesa mensal com status adiantamento de parcela, realizando tratamento para gravar. >>>  {}", detalheDespesa);
 
                     /*Altera a flag de ParcelaAdiada no detalhe das despesas mensais e baixa o pagamento e marca como despesa de anotacao*/
-                    var logProcessamento = "Operacao realizada em: " + DataHoraAtual() + " - Usuario: ** " + repository.getUsuarioLogado(idFuncionario);
+                    var logProcessamento = "Operacao realizada em: " + dataHoraAtual() + " - Usuario: ** " + repository.getUsuarioLogado(idFuncionario);
                     repository.updateDetalheDespesasMensaisParcelaAdiada(idDespesa, idDetalheDespesa, detalheDespesa.getIdDespesaParcelada(), "Despesa adiantada no fluxo de adiantamento de parcelas.", logProcessamento, detalheDespesa.getVlTotal(), idFuncionario);
                 }
             }
@@ -432,7 +430,7 @@ public class ImportarLancamentosServices {
                     .idOrdem(null)
                     .idObservacao(0)
                     .idFuncionario(idFuncionario)
-                    .dsObservacao("<AUT AMORTIZACAO - ".concat(DataHoraAtual()).concat(">"))
+                    .dsObservacao("<AUT AMORTIZACAO - ".concat(dataHoraAtual()).concat(">"))
                     .idDespesaParcelada(idDespesaParcelada)
                     .idParcela(idParcela)
                     .idDespesaLinkRelatorio(0)

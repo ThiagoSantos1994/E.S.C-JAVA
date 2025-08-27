@@ -12,7 +12,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import static br.com.esc.backend.utils.GlobalUtils.getAnoAtual;
+import static br.com.esc.backend.utils.DataUtils.anoAtual;
 import static br.com.esc.backend.utils.MotorCalculoUtils.*;
 import static br.com.esc.backend.utils.ObjectUtils.*;
 import static br.com.esc.backend.utils.VariaveisGlobais.*;
@@ -243,7 +243,7 @@ public class LancamentosFinanceirosServices {
     }
 
     public void alterarTituloDespesa(Integer idDetalheDespesa, Integer idFuncionario, String dsNomeDespesa) {
-        repository.updateTituloDespesasMensais(idDetalheDespesa, idFuncionario, dsNomeDespesa, getAnoAtual());
+        repository.updateTituloDespesasMensais(idDetalheDespesa, idFuncionario, dsNomeDespesa, anoAtual());
     }
 
     public String validaTituloDespesaDuplicado(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String dsTituloDespesa) {
