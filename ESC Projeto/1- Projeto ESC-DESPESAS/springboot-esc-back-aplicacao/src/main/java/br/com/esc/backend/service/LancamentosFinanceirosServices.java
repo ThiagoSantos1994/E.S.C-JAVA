@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static br.com.esc.backend.utils.DataUtils.anoAtual;
 import static br.com.esc.backend.utils.MotorCalculoUtils.*;
@@ -35,12 +36,12 @@ public class LancamentosFinanceirosServices {
             dto.setVlTotalPendentePagamento(VALOR_ZERO);
             dto.setVlSaldoDisponivelMes(VALOR_ZERO);
             dto.setStatusSaldoMes(POSITIVO);
+            dto.setPcUtilizacaoDespesasMes(PERC_ZERO);
             return dto;
         }
 
         var idDespesa = despesasFixasMensais.get(0).getIdDespesa();
         var idDespesaAnterior = (idDespesa - 1);
-
         var saldoInicialMes = repository.getCalculoSaldoInicialMES(idDespesa, idFuncionario);
         var receita = calcularReceitaPositivaMes(repository.getCalculoReceitaPositivaMES(idDespesa, idFuncionario));
         var despesa = repository.getCalculoReceitaNegativaMES(idDespesa, idFuncionario);
@@ -56,11 +57,11 @@ public class LancamentosFinanceirosServices {
         dto.setVlTotalDespesas(convertToMoedaBR(despesa));
         dto.setVlTotalPendentePagamento(convertToMoedaBR(pendente));
         dto.setVlSaldoInicialMes(convertToMoedaBR(saldoInicialMes));
-        dto.setPcUtilizacaoDespesasMes(new DecimalFormat("00").format(this.obterPercentualUtilizacaoDespesaMes(saldoInicialMes, receita, despesa)).concat("%"));
+        dto.setPcUtilizacaoDespesasMes(new DecimalFormat("00").format(calculaPorcentagem(receita, despesa, 3)).concat("%"));
         dto.setVlSaldoDisponivelMes(convertToMoedaBR(saldoDisponivelMes));
         dto.setDespesasFixasMensais(despesasFixasMensais);
         dto.setStatusSaldoMes(saldoDisponivelMes.toString().contains("-") ? NEGATIVO : POSITIVO);
-        dto.setLancamentosMensais(this.obterLancamentosMensais(idDespesa, idDespesaAnterior, idFuncionario));
+        dto.setLancamentosMensais(this.obterLancamentosMensais(idDespesa, idDespesaAnterior, idFuncionario, receita));
 
         /*Especifico para aplicação VB6*/
         dto.setSizeDespesasFixasMensaisVB(despesasFixasMensais.size());
@@ -69,7 +70,7 @@ public class LancamentosFinanceirosServices {
         return dto;
     }
 
-    private List<LancamentosMensaisDAO> obterLancamentosMensais(Integer idDespesa, Integer idDespesaAnterior, Integer idFuncionario) {
+    private List<LancamentosMensaisDAO> obterLancamentosMensais(Integer idDespesa, Integer idDespesaAnterior, Integer idFuncionario, BigDecimal receitaMes) {
         List<LancamentosMensaisDAO> lancamentosMensaisList = new ArrayList<>();
 
         for (LancamentosMensaisDAO detalhes : repository.getLancamentosMensais(idDespesa, idFuncionario)) {
@@ -98,9 +99,15 @@ public class LancamentosFinanceirosServices {
             detalhes.setStatusPagamento(repository.getStatusDetalheDespesaPendentePagamento(idDespesa, idDetalheDespesa, idFuncionario) ? PENDENTE : PAGO);
 
             if (detalhes.getTpEmprestimo().equalsIgnoreCase("N")) {
+                //Percentual baseado no teto definido de gasto para a despesa (ou referencia mês anterior)
                 var percentual = calculaPorcentagem(convertStringToDecimal(detalhes.getVlLimite()), detalhes.getVlTotalDespesa());
                 detalhes.setPercentualUtilizacao(new DecimalFormat("0.0").format(percentual).concat("%"));
-                detalhes.setStatusPercentual(this.validarPercentualUtilizacao(percentual));
+                detalhes.setStatusPercentual(this.percentualUtilizacao(percentual));
+
+                //Percentual calculado automaticamente com base no valor total da receita do mês
+                var percentualReceita = calculaPorcentagem(convertStringToDecimal(receitaMes.toString()), detalhes.getVlTotalDespesa());
+                detalhes.setPercentualReceita(new DecimalFormat("0.0").format(percentualReceita).concat("%"));
+                detalhes.setStatusPercentualReceita(this.percentualUtilizacaoReceita(percentualReceita));
             }
 
             if (detalhes.getDsNomeDespesa().equalsIgnoreCase(DESCRICAO_DESPESA_EMPRESTIMO)) {
@@ -294,11 +301,6 @@ public class LancamentosFinanceirosServices {
                 build();
     }
 
-    private BigDecimal obterPercentualUtilizacaoDespesaMes(BigDecimal saldoInicialMes, BigDecimal receita, BigDecimal despesa) {
-        var iPercentualUtilizadoBase = calculaPorcentagem(receita, (saldoInicialMes.subtract(receita)), 2);
-        return calculaPorcentagem(saldoInicialMes, (despesa.subtract(saldoInicialMes)), 2).add(iPercentualUtilizadoBase);
-    }
-
     private Boolean isDespesaFixaExistente(DespesasFixasMensaisRequest request) {
         var despesaFixaMensal = repository.getDespesaFixaMensalPorFiltro(request.getIdDespesa(), request.getIdOrdem(), request.getIdFuncionario());
         return isNotNull(despesaFixaMensal);
@@ -314,7 +316,7 @@ public class LancamentosFinanceirosServices {
         return OK;
     }
 
-    private String validarPercentualUtilizacao(BigDecimal porcentagem) {
+    private String percentualUtilizacao(BigDecimal porcentagem) {
         var percentual = Integer.parseInt(new DecimalFormat("0").format(porcentagem));
 
         if (percentual >= 0 && percentual <= 25) {
@@ -324,6 +326,22 @@ public class LancamentosFinanceirosServices {
         } else if (percentual >= 51 && percentual <= 80) {
             return PERC_ALTO;
         } else if (percentual >= 81) {
+            return PERC_ALTISSIMO;
+        }
+
+        return ERRO;
+    }
+
+    private String percentualUtilizacaoReceita(BigDecimal porcentagem) {
+        var percentual = Integer.parseInt(new DecimalFormat("0").format(porcentagem));
+
+        if (percentual >= 0 && percentual <= 10) {
+            return PERC_BAIXO;
+        } else if (percentual >= 11 && percentual <= 20) {
+            return PERC_MEDIO;
+        } else if (percentual >= 21 && percentual <= 24) {
+            return PERC_ALTO;
+        } else if (percentual >= 25) {
             return PERC_ALTISSIMO;
         }
 

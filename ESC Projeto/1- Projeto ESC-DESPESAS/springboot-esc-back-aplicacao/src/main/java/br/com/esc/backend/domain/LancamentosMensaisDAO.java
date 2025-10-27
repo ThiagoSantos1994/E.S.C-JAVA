@@ -28,6 +28,8 @@ public class LancamentosMensaisDAO {
     private String statusPagamento;
     private String percentualUtilizacao;
     private String statusPercentual;
+    private String percentualReceita;
+    private String statusPercentualReceita;
     private String tpEmprestimo;
     private String tpPoupanca;
     private String tpAnotacao;
