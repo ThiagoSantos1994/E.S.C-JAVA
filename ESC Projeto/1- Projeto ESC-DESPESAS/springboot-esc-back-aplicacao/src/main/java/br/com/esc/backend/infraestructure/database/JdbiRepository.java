@@ -298,6 +298,10 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlQuery
+    String getMesAnoExtensoPorID(Integer idDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
     String getObservacoesDetalheDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idObservacao, Integer idFuncionario);
 
     @Override

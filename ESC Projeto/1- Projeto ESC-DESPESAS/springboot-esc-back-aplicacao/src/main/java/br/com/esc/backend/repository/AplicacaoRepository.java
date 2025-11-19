@@ -123,6 +123,8 @@ public interface AplicacaoRepository {
 
     String getMesAnoPorIDTemp(Integer idDespesa, Integer idFuncionario);
 
+    String getMesAnoExtensoPorID(Integer idDespesa, Integer idFuncionario);
+
     String getObservacoesDetalheDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idObservacao, Integer idFuncionario);
 
     String getLogsDetalheDespesa(Integer idDetalheDespesaLog, Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);

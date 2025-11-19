@@ -11,7 +11,6 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static br.com.esc.backend.utils.DataUtils.anoAtual;
 import static br.com.esc.backend.utils.MotorCalculoUtils.*;
@@ -26,70 +25,107 @@ public class LancamentosFinanceirosServices {
     private final AplicacaoRepository repository;
 
     public LancamentosFinanceirosDTO obterLancamentosFinanceiros(String dsMes, String dsAno, Integer idFuncionario) {
+        List<DespesasFixasMensaisDAO> despesasFixasMensais = repository.getDespesasFixasMensais(dsMes, dsAno, idFuncionario);
         LancamentosFinanceirosDTO dto = new LancamentosFinanceirosDTO();
 
-        List<DespesasFixasMensaisDAO> despesasFixasMensais = repository.getDespesasFixasMensais(dsMes, dsAno, idFuncionario);
         if (despesasFixasMensais.isEmpty()) {
-            dto.setVlSaldoInicialMes(VALOR_ZERO);
-            dto.setVlSaldoPositivo(VALOR_ZERO);
-            dto.setVlTotalDespesas(VALOR_ZERO);
-            dto.setVlTotalPendentePagamento(VALOR_ZERO);
-            dto.setVlSaldoDisponivelMes(VALOR_ZERO);
-            dto.setStatusSaldoMes(POSITIVO);
-            dto.setPcUtilizacaoDespesasMes(PERC_ZERO);
+            preencherDTOComValoresZerados(dto);
             return dto;
         }
 
-        var idDespesa = despesasFixasMensais.get(0).getIdDespesa();
-        var idDespesaAnterior = (idDespesa - 1);
-        var saldoInicialMes = repository.getCalculoSaldoInicialMES(idDespesa, idFuncionario);
-        var receita = calcularReceitaPositivaMes(repository.getCalculoReceitaPositivaMES(idDespesa, idFuncionario));
-        var despesa = repository.getCalculoReceitaNegativaMES(idDespesa, idFuncionario);
-        var despesaPoupancaPositiva = repository.getCalculoDespesaTipoPoupanca(idDespesa, idFuncionario);
-        var pendente = repository.getCalculoReceitaPendentePgtoMES(idDespesa, idFuncionario);
+        int idDespesa = despesasFixasMensais.get(0).getIdDespesa();
+        int idDespesaAnterior = idDespesa - 1;
+
+        BigDecimal saldoInicialMes = repository.getCalculoSaldoInicialMES(idDespesa, idFuncionario);
+        BigDecimal receita = calcularReceitaPositivaMes(repository.getCalculoReceitaPositivaMES(idDespesa, idFuncionario));
+        BigDecimal despesa = repository.getCalculoReceitaNegativaMES(idDespesa, idFuncionario);
+        BigDecimal despesaPoupancaPositiva = repository.getCalculoDespesaTipoPoupanca(idDespesa, idFuncionario);
+        BigDecimal pendente = repository.getCalculoReceitaPendentePgtoMES(idDespesa, idFuncionario);
+
         // subtrai do saldo disponivel (só para exibição) a soma da despesa tipo poupanca positiva enquanto estiver pendente de pagamento - 07/08/2024
-        var saldoDisponivelMes = receita.subtract(despesa).subtract(despesaPoupancaPositiva);
+        BigDecimal saldoDisponivel = receita.subtract(despesa).subtract(despesaPoupancaPositiva);
+
+        RelatorioDespesasReceitasDAO relatorio = obterRelatorioDespesasReceitas(idDespesa, idFuncionario);
+        List<LancamentosMensaisDAO> lancamentosMensais = obterLancamentosMensais(idDespesa, idDespesaAnterior, idFuncionario, receita);
 
         dto.setIdDespesa(idDespesa);
         dto.setDsMesReferencia(dsMes);
         dto.setDsAnoReferencia(dsAno);
+        dto.setVlSaldoInicialMes(convertToMoedaBR(saldoInicialMes));
         dto.setVlSaldoPositivo(convertToMoedaBR(receita));
         dto.setVlTotalDespesas(convertToMoedaBR(despesa));
         dto.setVlTotalPendentePagamento(convertToMoedaBR(pendente));
-        dto.setVlSaldoInicialMes(convertToMoedaBR(saldoInicialMes));
+        dto.setVlSaldoDisponivelMes(convertToMoedaBR(saldoDisponivel));
         dto.setPcUtilizacaoDespesasMes(new DecimalFormat("00").format(calculaPorcentagem(receita, despesa, 3)).concat("%"));
-        dto.setVlSaldoDisponivelMes(convertToMoedaBR(saldoDisponivelMes));
-        dto.setDespesasFixasMensais(despesasFixasMensais);
-        dto.setStatusSaldoMes(saldoDisponivelMes.toString().contains("-") ? NEGATIVO : POSITIVO);
-        dto.setLancamentosMensais(this.obterLancamentosMensais(idDespesa, idDespesaAnterior, idFuncionario, receita));
+        dto.setStatusSaldoMes(saldoDisponivel.signum() < 0 ? NEGATIVO : POSITIVO);
 
-        /*Especifico para aplicação VB6*/
+        dto.setDespesasFixasMensais(despesasFixasMensais);
+        dto.setLancamentosMensais(lancamentosMensais);
+        dto.setRelatorioDespesasReceitas(relatorio);
+
+        // Compatibilidade com VB6
         dto.setSizeDespesasFixasMensaisVB(despesasFixasMensais.size());
-        dto.setSizeLancamentosMensaisVB(dto.getLancamentosMensais().size());
+        dto.setSizeLancamentosMensaisVB(lancamentosMensais.size());
 
         return dto;
+    }
+
+    private void preencherDTOComValoresZerados(LancamentosFinanceirosDTO dto) {
+        dto.setVlSaldoInicialMes(VALOR_ZERO);
+        dto.setVlSaldoPositivo(VALOR_ZERO);
+        dto.setVlTotalDespesas(VALOR_ZERO);
+        dto.setVlTotalPendentePagamento(VALOR_ZERO);
+        dto.setVlSaldoDisponivelMes(VALOR_ZERO);
+        dto.setStatusSaldoMes(POSITIVO);
+        dto.setPcUtilizacaoDespesasMes(PERC_ZERO);
+        dto.setRelatorioDespesasReceitas(new RelatorioDespesasReceitasDAO());
+    }
+
+    private String formatarPorcentagem(BigDecimal valor) {
+        return new DecimalFormat("0.0").format(valor) + "%";
+    }
+
+    private RelatorioDespesasReceitasDAO obterRelatorioDespesasReceitas(Integer idDespesa, Integer idFuncionario) {
+        int idDespesaInicial = (idDespesa - 5);
+        int totalMeses = (idDespesa - idDespesaInicial + 1);
+
+        String[] meses = new String[totalMeses];
+        BigDecimal[] receitas = new BigDecimal[totalMeses];
+        BigDecimal[] despesas = new BigDecimal[totalMeses];
+
+        for (int i = 0; i < totalMeses; i++) {
+            int idAtual = idDespesa - i;
+
+            receitas[i] = calcularReceitaPositivaMes(repository.getCalculoReceitaPositivaMES(idAtual, idFuncionario));
+            despesas[i] = repository.getCalculoReceitaNegativaMES(idAtual, idFuncionario);
+            meses[i] = repository.getMesAnoExtensoPorID(idAtual, idFuncionario);
+        }
+
+        RelatorioDespesasReceitasDAO relatorio = new RelatorioDespesasReceitasDAO();
+        relatorio.setMeses(meses);
+        relatorio.setReceitas(receitas);
+        relatorio.setDespesas(despesas);
+
+        return relatorio;
     }
 
     private List<LancamentosMensaisDAO> obterLancamentosMensais(Integer idDespesa, Integer idDespesaAnterior, Integer idFuncionario, BigDecimal receitaMes) {
         List<LancamentosMensaisDAO> lancamentosMensaisList = new ArrayList<>();
 
         for (LancamentosMensaisDAO detalhes : repository.getLancamentosMensais(idDespesa, idFuncionario)) {
-            var idDetalheDespesa = detalhes.getIdDetalheDespesa();
+            int idDetalheDespesa = detalhes.getIdDetalheDespesa();
             detalhes.setIdDespesa(idDespesa);
 
-            var bLinhaSeparacao = detalhes.getTpLinhaSeparacao();
-            if (bLinhaSeparacao.equalsIgnoreCase("S")) {
+            if ("S".equalsIgnoreCase(detalhes.getTpLinhaSeparacao())) {
                 lancamentosMensaisList.add(detalhes);
                 continue;
             }
 
-            var bDespesaRelatorio = detalhes.getTpRelatorio();
-            if (bDespesaRelatorio.equalsIgnoreCase("S")) {
+            if ("S".equalsIgnoreCase(detalhes.getTpRelatorio())) {
                 detalhes.setVlTotalDespesa(repository.getCalculoDespesaTipoRelatorio(idDespesa, idDetalheDespesa, idFuncionario));
             }
 
-            var bRefValorDespesaMesAnterior = detalhes.getTpReferenciaSaldoMesAnterior();
-            if (bRefValorDespesaMesAnterior.equalsIgnoreCase("S")) {
+            if ("S".equalsIgnoreCase(detalhes.getTpReferenciaSaldoMesAnterior())) {
                 var vlLimiteMesAnterior = repository.getCalculoTotalDespesa(idDespesaAnterior, idDetalheDespesa, idFuncionario);
                 detalhes.setVlLimite(vlLimiteMesAnterior.toString());
             }
@@ -98,20 +134,24 @@ public class LancamentosFinanceirosServices {
             detalhes.setVlTotalDespesaPaga(repository.getCalculoTotalDespesaPaga(idDespesa, idDetalheDespesa, idFuncionario));
             detalhes.setStatusPagamento(repository.getStatusDetalheDespesaPendentePagamento(idDespesa, idDetalheDespesa, idFuncionario) ? PENDENTE : PAGO);
 
-            if (detalhes.getTpEmprestimo().equalsIgnoreCase("N")) {
+            if ("N".equalsIgnoreCase(detalhes.getTpEmprestimo())) {
+                BigDecimal limite = convertStringToDecimal(detalhes.getVlLimite());
+                BigDecimal totalDespesa = detalhes.getVlTotalDespesa();
+
                 //Percentual baseado no teto definido de gasto para a despesa (ou referencia mês anterior)
-                var percentual = calculaPorcentagem(convertStringToDecimal(detalhes.getVlLimite()), detalhes.getVlTotalDespesa());
-                detalhes.setPercentualUtilizacao(new DecimalFormat("0.0").format(percentual).concat("%"));
-                detalhes.setStatusPercentual(this.percentualUtilizacao(percentual));
+                BigDecimal percentual = calculaPorcentagem(limite, totalDespesa);
+                detalhes.setPercentualUtilizacao(formatarPorcentagem(percentual));
+                detalhes.setStatusPercentual(percentualUtilizacao(percentual));
 
                 //Percentual calculado automaticamente com base no valor total da receita do mês
-                var percentualReceita = calculaPorcentagem(convertStringToDecimal(receitaMes.toString()), detalhes.getVlTotalDespesa());
-                detalhes.setPercentualReceita(new DecimalFormat("0.0").format(percentualReceita).concat("%"));
-                detalhes.setStatusPercentualReceita(this.percentualUtilizacaoReceita(percentualReceita));
+                BigDecimal percentualReceita = calculaPorcentagem(receitaMes, totalDespesa);
+                detalhes.setPercentualReceita(formatarPorcentagem(percentualReceita));
+                detalhes.setStatusPercentualReceita(percentualUtilizacaoReceita(percentualReceita));
             }
 
-            if (detalhes.getDsNomeDespesa().equalsIgnoreCase(DESCRICAO_DESPESA_EMPRESTIMO)) {
-                detalhes.setDsNomeDespesa(repository.getTituloDespesaEmprestimoPorID(detalhes.getIdEmprestimo(), idFuncionario));
+            if (DESCRICAO_DESPESA_EMPRESTIMO.equalsIgnoreCase(detalhes.getDsNomeDespesa())) {
+                String tituloEmprestimo = repository.getTituloDespesaEmprestimoPorID(detalhes.getIdEmprestimo(), idFuncionario);
+                detalhes.setDsNomeDespesa(tituloEmprestimo);
             }
 
             detalhes.setSVlTotalDespesa(convertToMoedaBR(detalhes.getVlTotalDespesa()));
@@ -264,33 +304,24 @@ public class LancamentosFinanceirosServices {
     }
 
     public TituloDespesaResponse getTituloDespesa(Integer idFuncionario) {
-        var tituloDespesaList = repository.getTituloDespesa(idFuncionario);
+        List<String> tituloDespesa = repository.getTituloDespesa(idFuncionario);
 
-        List<String> tituloDespesa = new ArrayList<>();
-        for (String titulo : tituloDespesaList) {
-            tituloDespesa.add(titulo);
-        }
+        TituloDespesaResponse response = new TituloDespesaResponse();
+        response.setSizeTituloDespesaVB(tituloDespesa.size());
+        response.setTituloDespesa(tituloDespesa);
 
-        TituloDespesaResponse tituloDespesaResponse = new TituloDespesaResponse();
-        tituloDespesaResponse.setSizeTituloDespesaVB(tituloDespesa.size());
-        tituloDespesaResponse.setTituloDespesa(tituloDespesa);
-
-        return tituloDespesaResponse;
+        return response;
     }
 
+
     public TituloDespesaResponse getTituloEmprestimo(Integer idFuncionario) {
-        var tituloList = repository.getTituloDespesaEmprestimoAReceber(idFuncionario);
+        List<String> tituloDespesa = repository.getTituloDespesaEmprestimoAReceber(idFuncionario);
 
-        List<String> tituloDespesa = new ArrayList<>();
-        for (String titulo : tituloList) {
-            tituloDespesa.add(titulo);
-        }
+        TituloDespesaResponse response = new TituloDespesaResponse();
+        response.setSizeTituloDespesaVB(tituloDespesa.size());
+        response.setTituloDespesa(tituloDespesa);
 
-        TituloDespesaResponse tituloDespesaResponse = new TituloDespesaResponse();
-        tituloDespesaResponse.setSizeTituloDespesaVB(tituloDespesa.size());
-        tituloDespesaResponse.setTituloDespesa(tituloDespesa);
-
-        return tituloDespesaResponse;
+        return response;
     }
 
     public TituloDespesaResponse getTituloDespesaRelatorio(Integer idDespesa, Integer idFuncionario) {

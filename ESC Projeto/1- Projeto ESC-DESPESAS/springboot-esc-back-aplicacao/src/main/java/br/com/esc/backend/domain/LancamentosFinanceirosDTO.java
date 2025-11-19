@@ -26,6 +26,7 @@ public class LancamentosFinanceirosDTO {
     private String statusSaldoMes;
     private Integer sizeDespesasFixasMensaisVB;
     private Integer sizeLancamentosMensaisVB;
+    private RelatorioDespesasReceitasDAO relatorioDespesasReceitas;
     private List<DespesasFixasMensaisDAO> despesasFixasMensais;
     private List<LancamentosMensaisDAO> lancamentosMensais;
 }

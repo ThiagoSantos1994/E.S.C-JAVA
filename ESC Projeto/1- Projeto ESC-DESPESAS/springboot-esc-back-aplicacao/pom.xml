@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>br.com.esc</groupId>
 	<artifactId>springboot-esc-back-aplicacao</artifactId>
-	<version>1.0.22-SNAPSHOT</version>
+	<version>1.0.23-SNAPSHOT</version>
 	<name>springboot-esc-back-aplicacao</name>
 	<description>Componente backend para aplicacao E.S.C</description>
 	<properties>
