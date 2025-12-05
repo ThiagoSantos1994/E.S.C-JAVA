@@ -5,6 +5,7 @@ SET
     vl_Limite = :mensal.vlLimite,
     id_OrdemExibicao = :mensal.idOrdemExibicao,
     id_Emprestimo = :mensal.idEmprestimo,
+    id_Consolidacao = :mensal.idConsolidacao,
     tp_Reprocessar = :mensal.tpReprocessar,
     tp_Emprestimo = :mensal.tpEmprestimo,
     tp_Poupanca = :mensal.tpPoupanca,

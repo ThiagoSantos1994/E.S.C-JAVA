@@ -19,6 +19,8 @@ public interface AplicacaoRepository {
 
     List<LancamentosMensaisDAO> getLancamentosMensais(Integer idDespesa, Integer idFuncionario);
 
+    List<LancamentosMensaisDAO> getLancamentosMensaisConsolidados(Integer idDespesa, Integer idConsolidacao, Integer idFuncionario);
+
     List<DespesasMensaisDAO> getDespesasMensais(Integer idDespesa, Integer idFuncionario, Integer idDetalheDespesa);
 
     DespesasMensaisDAO getDespesaMensalPorFiltro(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
@@ -394,4 +396,6 @@ public interface AplicacaoRepository {
     void deleteParcelaDetalheDespesasMensais(Integer idDespesaParcelada, Integer idParcela, Integer idFuncionario);
 
     void deleteLembrete(Integer idLembrete, Integer idFuncionario);
+
+    void desassociarConsolidacaoDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 }

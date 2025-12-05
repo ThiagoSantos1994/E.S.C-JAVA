@@ -41,6 +41,11 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlQuery
+    @UseRowMapper(LancamentosMensaisRowMapper.class)
+    List<LancamentosMensaisDAO> getLancamentosMensaisConsolidados(Integer idDespesa, Integer idConsolidacao, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
     @UseRowMapper(DespesasMensaisRowMapper.class)
     List<DespesasMensaisDAO> getDespesasMensais(Integer idDespesa, Integer idFuncionario, Integer idDetalheDespesa);
 
@@ -827,4 +832,8 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlUpdate
     void deleteLembrete(Integer idLembrete, Integer idFuncionario);
+
+    @Override
+    @SqlUpdate
+    void desassociarConsolidacaoDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 }

@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static br.com.esc.backend.utils.DataUtils.anoAtual;
 import static br.com.esc.backend.utils.MotorCalculoUtils.*;
@@ -34,7 +36,6 @@ public class LancamentosFinanceirosServices {
         }
 
         int idDespesa = despesasFixasMensais.get(0).getIdDespesa();
-        int idDespesaAnterior = idDespesa - 1;
 
         BigDecimal saldoInicialMes = repository.getCalculoSaldoInicialMES(idDespesa, idFuncionario);
         BigDecimal receita = calcularReceitaPositivaMes(repository.getCalculoReceitaPositivaMES(idDespesa, idFuncionario));
@@ -46,7 +47,7 @@ public class LancamentosFinanceirosServices {
         BigDecimal saldoDisponivel = receita.subtract(despesa).subtract(despesaPoupancaPositiva);
 
         RelatorioDespesasReceitasDAO relatorio = obterRelatorioDespesasReceitas(idDespesa, idFuncionario);
-        List<LancamentosMensaisDAO> lancamentosMensais = obterLancamentosMensais(idDespesa, idDespesaAnterior, idFuncionario, receita);
+        List<LancamentosMensaisDAO> lancamentosMensais = obterLancamentosMensais(idDespesa, idFuncionario, receita);
 
         dto.setIdDespesa(idDespesa);
         dto.setDsMesReferencia(dsMes);
@@ -109,12 +110,39 @@ public class LancamentosFinanceirosServices {
         return relatorio;
     }
 
-    private List<LancamentosMensaisDAO> obterLancamentosMensais(Integer idDespesa, Integer idDespesaAnterior, Integer idFuncionario, BigDecimal receitaMes) {
+    private List<LancamentosMensaisDAO> obterLancamentosMensais(Integer idDespesa, Integer idFuncionario, BigDecimal receitaMes) {
+        List<LancamentosMensaisDAO> lancamentosMensaisList = parserLancamentosMensais(
+                repository.getLancamentosMensais(idDespesa, idFuncionario), receitaMes);
+
+        var isContemDespesasConsolidadas = lancamentosMensaisList.stream()
+                .filter(d -> isNotNull(d.getIdConsolidacao()) && d.getIdConsolidacao() > 0)
+                .filter(d -> d.getTpDespesaConsolidacao().equals("N"))
+                .filter(d -> d.getTpLinhaSeparacao().equals("N"))
+                .count();
+
+        if (isContemDespesasConsolidadas > 0) {
+            return mapearLancamentosMensaisComConsolidacao(lancamentosMensaisList, receitaMes);
+        } else {
+            return lancamentosMensaisList;
+        }
+    }
+
+    public List<LancamentosMensaisDAO> obterLancamentosMensaisConsolidados(Integer idDespesa, Integer idConsolidacao, Integer idFuncionario) {
+        BigDecimal receitaMes = calcularReceitaPositivaMes(repository.getCalculoReceitaPositivaMES(idDespesa, idFuncionario));
+
+        List<LancamentosMensaisDAO> lancamentosMensaisDAOList = parserLancamentosMensais(repository.getLancamentosMensaisConsolidados(idDespesa, idConsolidacao, idFuncionario), receitaMes);
+
+        return lancamentosMensaisDAOList;
+    }
+
+    private List<LancamentosMensaisDAO> parserLancamentosMensais(List<LancamentosMensaisDAO> lancamentosMensaisDAOList, BigDecimal receitaMes) {
         List<LancamentosMensaisDAO> lancamentosMensaisList = new ArrayList<>();
 
-        for (LancamentosMensaisDAO detalhes : repository.getLancamentosMensais(idDespesa, idFuncionario)) {
+        for (LancamentosMensaisDAO detalhes : lancamentosMensaisDAOList) {
+            int idDespesa = detalhes.getIdDespesa();
+            int idDespesaAnterior = idDespesa - 1;
             int idDetalheDespesa = detalhes.getIdDetalheDespesa();
-            detalhes.setIdDespesa(idDespesa);
+            int idFuncionario = detalhes.getIdFuncionario();
 
             if ("S".equalsIgnoreCase(detalhes.getTpLinhaSeparacao())) {
                 lancamentosMensaisList.add(detalhes);
@@ -157,11 +185,74 @@ public class LancamentosFinanceirosServices {
             detalhes.setSVlTotalDespesa(convertToMoedaBR(detalhes.getVlTotalDespesa()));
             detalhes.setSVlTotalDespesaPaga(convertToMoedaBR(detalhes.getVlTotalDespesaPaga()));
             detalhes.setSVlTotalDespesaPendente(convertToMoedaBR(detalhes.getVlTotalDespesaPendente()));
+            detalhes.setIdConsolidacao(detalhes.getIdConsolidacao());
+            detalhes.setTpDespesaConsolidacao(detalhes.getTpDespesaConsolidacao());
 
             lancamentosMensaisList.add(detalhes);
         }
 
-        return lancamentosMensaisList;
+        return lancamentosMensaisList.stream()
+                .sorted(Comparator.comparing(LancamentosMensaisDAO::getIdOrdemExibicao)) // ordena pelo campo
+                .collect(Collectors.toList());
+    }
+
+    private List<LancamentosMensaisDAO> mapearLancamentosMensaisComConsolidacao(List<LancamentosMensaisDAO> lancamentosMensais, BigDecimal receitaMes) {
+        List<LancamentosMensaisDAO> newLancamentosMensais = new ArrayList<>();
+
+        //Retorna a lista de despesas de consolidacação
+        List<LancamentosMensaisDAO> listDespesasTipoConsolidacao = lancamentosMensais.stream()
+                .filter(d -> isNotNull(d.getIdConsolidacao()) && d.getIdConsolidacao() > 0)
+                .filter(d -> d.getTpDespesaConsolidacao().equals("S"))
+                .filter(d -> d.getTpLinhaSeparacao().equals("N"))
+                .collect(Collectors.toList());
+
+        for (LancamentosMensaisDAO despesaConsolidacao : listDespesasTipoConsolidacao) {
+            //Busca as despesas consolidadas vinculadas a despesa de consolidacao
+            List<LancamentosMensaisDAO> despesasConsolidadasList = lancamentosMensais.stream()
+                    .filter(d -> d.getIdConsolidacao().equals(despesaConsolidacao.getIdConsolidacao()))
+                    .filter(d -> d.getTpDespesaConsolidacao().equals("N"))
+                    .collect(Collectors.toList());
+
+            BigDecimal valorTotalDespesa = despesasConsolidadasList.stream()
+                    .map(dc -> dc.getVlTotalDespesa())
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            BigDecimal valorTotalDespesaPendente = despesasConsolidadasList.stream()
+                    .map(dc -> dc.getVlTotalDespesaPendente())
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            BigDecimal valorTotalDespesaPaga = despesasConsolidadasList.stream()
+                    .map(dc -> dc.getVlTotalDespesaPaga())
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            despesaConsolidacao.setVlTotalDespesa(valorTotalDespesa);
+            despesaConsolidacao.setSVlTotalDespesa(convertToMoedaBR(valorTotalDespesa));
+
+            despesaConsolidacao.setVlTotalDespesaPendente(valorTotalDespesaPendente);
+            despesaConsolidacao.setSVlTotalDespesaPendente(convertToMoedaBR(valorTotalDespesaPendente));
+
+            despesaConsolidacao.setVlTotalDespesaPaga(valorTotalDespesaPaga);
+            despesaConsolidacao.setSVlTotalDespesaPaga(convertToMoedaBR(valorTotalDespesaPaga));
+
+            BigDecimal percentualReceita = calculaPorcentagem(receitaMes, valorTotalDespesa);
+            despesaConsolidacao.setPercentualReceita(formatarPorcentagem(percentualReceita));
+            despesaConsolidacao.setStatusPercentualReceita(percentualUtilizacaoReceita(percentualReceita));
+
+            despesaConsolidacao.setStatusPagamento(valorTotalDespesaPendente.compareTo(BigDecimal.ZERO) == 0 ? PAGO : PENDENTE);
+            newLancamentosMensais.add(despesaConsolidacao);
+        }
+
+        List<LancamentosMensaisDAO> listDespesasComuns = lancamentosMensais.stream()
+                .filter(d -> d.getIdConsolidacao() == 0)
+                .filter(d -> d.getTpDespesaConsolidacao().equals("N"))
+                .collect(Collectors.toList());
+
+        newLancamentosMensais.addAll(listDespesasComuns);
+
+        //retorna a nova lista de lançamentos mensais ordenando pelo idOrdemExibicao
+        return newLancamentosMensais.stream()
+                .sorted(Comparator.comparing(LancamentosMensaisDAO::getIdOrdemExibicao)) // ordena pelo campo
+                .collect(Collectors.toList());
     }
 
     public void gravarDespesasFixasMensais(DespesasFixasMensaisRequest request) {

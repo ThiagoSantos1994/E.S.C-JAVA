@@ -18,10 +18,14 @@ public class LancamentosMensaisRowMapper implements RowMapper<LancamentosMensais
                 .dsNomeDespesa(rs.getString("ds_NomeDespesa"))
                 .vlLimite(rs.getString("vl_Limite"))
                 .vlTotalDespesa(rs.getBigDecimal("vl_TotalDespesa"))
+                .idDespesa(rs.getInt("id_Despesa"))
                 .idDetalheDespesa(rs.getInt("id_DetalheDespesa"))
+                .idFuncionario(rs.getInt("id_Funcionario"))
                 .idEmprestimo(rs.getInt("id_Emprestimo"))
+                .idConsolidacao(rs.getInt("id_Consolidacao"))
                 .idOrdemExibicao(rs.getInt("id_OrdemExibicao"))
                 .tpEmprestimo(rs.getString("tp_Emprestimo"))
+                .tpEmprestimoAPagar(rs.getString("tp_EmprestimoAPagar"))
                 .tpPoupanca(rs.getString("tp_Poupanca"))
                 .tpAnotacao(rs.getString("tp_Anotacao"))
                 .tpDebitoAutomatico(rs.getString("tp_DebitoAutomatico"))
@@ -32,6 +36,7 @@ public class LancamentosMensaisRowMapper implements RowMapper<LancamentosMensais
                 .tpReferenciaSaldoMesAnterior(rs.getString("tp_ReferenciaSaldoMesAnterior"))
                 .tpDespesaCompartilhada(rs.getString("tp_DespesaCompartilhada"))
                 .tpDebitoCartao(rs.getString("tp_DebitoCartao"))
+                .tpDespesaConsolidacao(rs.getString("tp_DespesaConsolidacao"))
                 .build();
     }
 }

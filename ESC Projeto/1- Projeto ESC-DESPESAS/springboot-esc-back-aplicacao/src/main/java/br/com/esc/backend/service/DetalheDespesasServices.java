@@ -234,6 +234,62 @@ public class DetalheDespesasServices {
         }
     }
 
+    public List<PagamentoDespesasRequest> obterDetalheDespesasParaPagamento(LancamentosMensaisDAO despesa) {
+        var detalheDespesas = this.obterDetalheDespesaMensal(despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdFuncionario(), null, true)
+                .getDetalheDespesaMensal();
+
+        List<PagamentoDespesasRequest> listDespesasRequest = new ArrayList<>();
+        for (DetalheDespesasMensaisDAO detalhe : detalheDespesas) {
+            var request = PagamentoDespesasRequest.builder()
+                    .idDespesa(detalhe.getIdDespesa())
+                    .idDetalheDespesa(detalhe.getIdDetalheDespesa())
+                    .idDespesaParcelada(isNull(detalhe.getIdDespesaParcelada()) ? 0 : detalhe.getIdDespesaParcelada())
+                    .idConsolidacao(detalhe.getIdConsolidacao())
+                    .idParcela(isNull(detalhe.getIdParcela()) ? 0 : detalhe.getIdParcela())
+                    .idOrdem(detalhe.getIdOrdem())
+                    .idFuncionario(detalhe.getIdFuncionario())
+                    .vlTotal(detalhe.getVlTotal())
+                    .vlTotalPago(detalhe.getVlTotal())
+                    .tpStatus(detalhe.getTpStatus())
+                    .isProcessamentoAdiantamentoParcelas(false)
+                    .dsObservacoes("Pagamento realizado em ".concat(DataUtils.dataHoraAtual()))
+                    .build();
+
+            listDespesasRequest.add(request);
+        }
+
+        return listDespesasRequest;
+    }
+
+    public List<PagamentoDespesasRequest> obterDetalheDespesasParaDesfazerPagamento(LancamentosMensaisDAO despesa) {
+        var detalheDespesas = this.obterDetalheDespesaMensal(despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdFuncionario(), null, true)
+                .getDetalheDespesaMensal();
+
+        List<PagamentoDespesasRequest> listDespesasRequest = new ArrayList<>();
+        for (DetalheDespesasMensaisDAO detalhe : detalheDespesas) {
+            var isDespesaConsolidada = (detalhe.getIdConsolidacao() > 0);
+
+            var request = PagamentoDespesasRequest.builder()
+                    .idDespesa(detalhe.getIdDespesa())
+                    .idDetalheDespesa(detalhe.getIdDetalheDespesa())
+                    .idDespesaParcelada(isNull(detalhe.getIdDespesaParcelada()) ? 0 : detalhe.getIdDespesaParcelada())
+                    .idParcela(isNull(detalhe.getIdParcela()) ? 0 : detalhe.getIdParcela())
+                    .idConsolidacao(detalhe.getIdConsolidacao())
+                    .idOrdem(detalhe.getIdOrdem())
+                    .idFuncionario(detalhe.getIdFuncionario())
+                    .vlTotal(isDespesaConsolidada ? VALOR_ZERO : detalhe.getVlTotal())
+                    .vlTotalPago(VALOR_ZERO)
+                    .tpStatus(detalhe.getTpStatus())
+                    .dsObservacoes("")
+                    .isProcessamentoAdiantamentoParcelas(false)
+                    .build();
+
+            listDespesasRequest.add(request);
+        }
+
+        return listDespesasRequest;
+    }
+
     private void gravarDetalheDespesasMensaisObservacao(DetalheDespesasMensaisDAO detalheDAO) {
         //Valida se existem observacoes inseridas pelo editor de valores, caso sim, concatena com as observações existentes na base.
         if (!isEmpty(detalheDAO.getDsObservacoesEditorValores())) {
@@ -285,6 +341,15 @@ public class DetalheDespesasServices {
 
             if (mensaisDAO.getTpEmprestimo().equals("S") || mensaisDAO.getTpEmprestimoAPagar().equals("S")) {
                 mensaisDAO.setIdEmprestimo(mensaisDAO.getIdDetalheDespesa());
+            }
+        }
+
+        if (isNotNull(mensaisDAO.getTpDespesaConsolidacao()) && mensaisDAO.getTpDespesaConsolidacao().equalsIgnoreCase("S")) {
+            //Operação especifica para a criação de uma nova despesa do tipo consolidação (25/11/2025)
+            mensaisDAO.setIdConsolidacao(mensaisDAO.getIdDetalheDespesa());
+        } else {
+            if (isEmpty(mensaisDAO.getIdConsolidacao())) {
+                mensaisDAO.setIdConsolidacao(0);
             }
         }
 

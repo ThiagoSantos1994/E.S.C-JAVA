@@ -7,6 +7,7 @@ INSERT INTO tbd_DespesaMensal
     id_OrdemExibicao,
     id_Funcionario,
     id_Emprestimo,
+    id_Consolidacao,
     tp_Reprocessar,
     tp_Emprestimo,
     tp_Poupanca,
@@ -19,7 +20,8 @@ INSERT INTO tbd_DespesaMensal
     tp_Relatorio,
     tp_DebitoCartao,
     tp_EmprestimoAPagar,
-    tp_ReferenciaSaldoMesAnterior
+    tp_ReferenciaSaldoMesAnterior,
+    tp_DespesaConsolidacao
     )
 VALUES (
     :despesa.idDespesa,
@@ -29,6 +31,7 @@ VALUES (
     :despesa.idOrdemExibicao,
     :despesa.idFuncionario,
     :despesa.idEmprestimo,
+    :despesa.idConsolidacao,
     :despesa.tpReprocessar,
     :despesa.tpEmprestimo,
     :despesa.tpPoupanca,
@@ -41,5 +44,6 @@ VALUES (
     :despesa.tpRelatorio,
     :despesa.tpDebitoCartao,
     :despesa.tpEmprestimoAPagar,
-    :despesa.tpReferenciaSaldoMesAnterior
+    :despesa.tpReferenciaSaldoMesAnterior,
+    :despesa.tpDespesaConsolidacao
 )

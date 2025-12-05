@@ -16,6 +16,8 @@ public class LancamentosMensaisDAO {
     private Integer idDetalheDespesa;
     private Integer idOrdemExibicao;
     private Integer idEmprestimo;
+    private Integer idConsolidacao;
+    private Integer idFuncionario;
     private String dsTituloDespesa;
     private String dsNomeDespesa;
     private String vlLimite;
@@ -31,6 +33,7 @@ public class LancamentosMensaisDAO {
     private String percentualReceita;
     private String statusPercentualReceita;
     private String tpEmprestimo;
+    private String tpEmprestimoAPagar;
     private String tpPoupanca;
     private String tpAnotacao;
     private String tpDebitoAutomatico;
@@ -41,4 +44,5 @@ public class LancamentosMensaisDAO {
     private String tpRelatorio;
     private String tpReferenciaSaldoMesAnterior;
     private String tpDespesaCompartilhada;
+    private String tpDespesaConsolidacao;
 }

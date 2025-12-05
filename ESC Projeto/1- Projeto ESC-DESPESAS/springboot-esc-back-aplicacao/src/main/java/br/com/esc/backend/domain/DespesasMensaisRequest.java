@@ -18,6 +18,7 @@ public class DespesasMensaisRequest {
     private Integer idOrdemExibicao;
     private Integer idFuncionario;
     private Integer idEmprestimo;
+    private Integer idConsolidacao;
     private String tpReprocessar;
     private String tpEmprestimo;
     private String tpPoupanca;
@@ -33,4 +34,5 @@ public class DespesasMensaisRequest {
     private String tpReferenciaSaldoMesAnterior;
     private String tpVisualizacaoTemp;
     private String tpDespesaCompartilhada;
+    private String tpDespesaConsolidacao;
 }

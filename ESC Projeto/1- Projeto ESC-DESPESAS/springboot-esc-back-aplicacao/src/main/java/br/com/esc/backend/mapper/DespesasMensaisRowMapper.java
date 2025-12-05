@@ -34,6 +34,7 @@ public class DespesasMensaisRowMapper implements RowMapper<DespesasMensaisDAO> {
                 .idOrdemExibicao(rs.getInt("id_OrdemExibicao"))
                 .idFuncionario(rs.getInt("id_Funcionario"))
                 .idEmprestimo(rs.getInt("id_Emprestimo"))
+                .idConsolidacao(rs.getInt("id_Consolidacao"))
                 .tpReprocessar(rs.getString("tp_Reprocessar"))
                 .tpEmprestimo(rs.getString("tp_Emprestimo"))
                 .tpPoupanca(rs.getString("tp_Poupanca"))
@@ -49,6 +50,7 @@ public class DespesasMensaisRowMapper implements RowMapper<DespesasMensaisDAO> {
                 .tpReferenciaSaldoMesAnterior(rs.getString("tp_ReferenciaSaldoMesAnterior"))
                 .tpVisualizacaoTemp(rs.getString("tp_VisualizacaoTemp"))
                 .tpDespesaCompartilhada(rs.getString("tp_DespesaCompartilhada"))
+                .tpDespesaConsolidacao(rs.getString("tp_DespesaConsolidacao"))
                 .build();
     }
 }

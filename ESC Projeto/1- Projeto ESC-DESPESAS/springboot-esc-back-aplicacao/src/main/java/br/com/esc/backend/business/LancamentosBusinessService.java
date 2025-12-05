@@ -2,6 +2,7 @@ package br.com.esc.backend.business;
 
 import br.com.esc.backend.domain.*;
 import br.com.esc.backend.exception.CamposObrigatoriosException;
+import br.com.esc.backend.exception.ErroNegocioException;
 import br.com.esc.backend.repository.AplicacaoRepository;
 import br.com.esc.backend.service.*;
 import br.com.esc.backend.utils.DataUtils;
@@ -20,12 +21,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static br.com.esc.backend.service.DetalheDespesasServices.isDetalheDespesaTipoRelatorio;
-import static br.com.esc.backend.service.DetalheDespesasServices.parserOrdem;
 import static br.com.esc.backend.service.LembreteServices.validarCamposEntradaLembrete;
 import static br.com.esc.backend.utils.DataUtils.anoSeguinte;
-import static br.com.esc.backend.utils.ObjectUtils.isEmpty;
 import static br.com.esc.backend.utils.ObjectUtils.isNull;
-import static br.com.esc.backend.utils.VariaveisGlobais.VALOR_ZERO;
 
 
 @Service
@@ -51,6 +49,12 @@ public class LancamentosBusinessService {
         result.setLabelQuitacaoParcelasMes(detalheDespesasServices.obterExtratoDespesasMes(result.getIdDespesa(), null, idFuncionario, "lancamentosMensais").getMensagem());
 
         return result;
+    }
+
+    @SneakyThrows
+    public List<LancamentosMensaisDAO> obterDespesasMensaisConsolidadas(Integer idDespesa, Integer idConsolidacao, Integer idFuncionario) {
+        log.info("Consultando despesas mensais consolidadas >>>  idDespesa = {} - idConsolidacao = {} - idFuncionario = {}", idDespesa, idConsolidacao, idFuncionario);
+        return lancamentosServices.obterLancamentosMensaisConsolidados(idDespesa, idConsolidacao, idFuncionario);
     }
 
     @SneakyThrows
@@ -89,6 +93,7 @@ public class LancamentosBusinessService {
     @SneakyThrows
     public void deleteDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario) {
         log.info("Excluindo despesa mensal - request: idDespesa= {} - idDetalheDespesa= {} - idOrdem= {} - idFuncionario= {}", idDespesa, idDetalheDespesa, idOrdem, idFuncionario);
+        repository.desassociarConsolidacaoDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario);
         repository.deleteDespesasMensaisPorFiltro(idDespesa, idDetalheDespesa, idOrdem, idFuncionario);
     }
 
@@ -191,7 +196,8 @@ public class LancamentosBusinessService {
         DespesasMensaisDAO mensaisDAO = new DespesasMensaisDAO();
         BeanUtils.copyProperties(mensaisDAO, request);
 
-        if (request.getTpLinhaSeparacao().equalsIgnoreCase("S") && request.getIdDetalheDespesa().equals(-1)) {
+        if ((request.getTpLinhaSeparacao().equalsIgnoreCase("S") || request.getTpDespesaConsolidacao().equalsIgnoreCase("S"))
+                && request.getIdDetalheDespesa().equals(-1)) {
             mensaisDAO.setIdDetalheDespesa(this.retornaNovaChaveKey("DETALHEDESPESA").getNovaChave());
         }
         detalheDespesasServices.gravarDespesasMensais(mensaisDAO);
@@ -226,63 +232,47 @@ public class LancamentosBusinessService {
 
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
-    public void processarPagamentoDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String observacaoPagamento) {
-        log.info("Processando pagamento despesa mensal - Filtros: idDespesa: {} - idDetalheDespesa: {} - idFuncionario: {} - observacaoPagamento: {}", idDespesa, idDetalheDespesa, idFuncionario, observacaoPagamento);
-        var detalheDespesas = detalheDespesasServices.obterDetalheDespesaMensal(idDespesa, idDetalheDespesa, idFuncionario, null, true)
-                .getDetalheDespesaMensal();
-
-        List<PagamentoDespesasRequest> listDespesasRequest = new ArrayList<>();
-        for (DetalheDespesasMensaisDAO despesa : detalheDespesas) {
-            var request = PagamentoDespesasRequest.builder()
-                    .idDespesa(despesa.getIdDespesa())
-                    .idDetalheDespesa(despesa.getIdDetalheDespesa())
-                    .idDespesaParcelada(isNull(despesa.getIdDespesaParcelada()) ? 0 : despesa.getIdDespesaParcelada())
-                    .idConsolidacao(despesa.getIdConsolidacao())
-                    .idParcela(isNull(despesa.getIdParcela()) ? 0 : despesa.getIdParcela())
-                    .idOrdem(despesa.getIdOrdem())
-                    .idFuncionario(despesa.getIdFuncionario())
-                    .vlTotal(despesa.getVlTotal())
-                    .vlTotalPago(despesa.getVlTotal())
-                    .tpStatus(despesa.getTpStatus())
-                    .dsObservacoes(isEmpty(observacaoPagamento) ? "Pagamento realizado em ".concat(DataUtils.dataHoraAtual()) : observacaoPagamento)
-                    .isProcessamentoAdiantamentoParcelas(false)
-                    .build();
-
-            listDespesasRequest.add(request);
+    public void processarDesfazerPagamentoDetalheDespesa(List<PagamentoDespesasRequest> request) {
+        for (PagamentoDespesasRequest despesa : request) {
+            log.info("Processando rollback pagamento detalhe despesa mensal - Request: {}", despesa);
+            detalheDespesasServices.desfazerBaixaPagamentoDespesas(despesa);
+            detalheDespesasServices.desfazerBaixaPagamentoDespesasConsolidadas(despesa);
         }
-
-        this.processarPagamentoDetalheDespesa(listDespesasRequest);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
-    public void desfazerPagamentoDespesas(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario) {
-        log.info("Desfazendo pagamento despesa mensal - Filtros: idDespesa: {} - idDetalheDespesa: {} - idFuncionario: {}", idDespesa, idDetalheDespesa, idFuncionario);
-        var detalheDespesas = repository.getDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario, parserOrdem(null));
+    public void processarPagamentoDespesa(List<LancamentosMensaisDAO> lancamentosMensaisList) {
+        for (LancamentosMensaisDAO despesa : lancamentosMensaisList) {
+            var isDespesaConsolidacao = despesa.getTpDespesaConsolidacao().equals("S");
 
-        for (DetalheDespesasMensaisDAO despesa : detalheDespesas) {
-            var isDespesaConsolidada = (despesa.getIdConsolidacao() > 0);
-
-            var request = PagamentoDespesasRequest.builder()
-                    .idDespesa(despesa.getIdDespesa())
-                    .idDetalheDespesa(despesa.getIdDetalheDespesa())
-                    .idDespesaParcelada(isNull(despesa.getIdDespesaParcelada()) ? 0 : despesa.getIdDespesaParcelada())
-                    .idParcela(isNull(despesa.getIdParcela()) ? 0 : despesa.getIdParcela())
-                    .idConsolidacao(despesa.getIdConsolidacao())
-                    .idOrdem(despesa.getIdOrdem())
-                    .idFuncionario(despesa.getIdFuncionario())
-                    .vlTotal(isDespesaConsolidada ? VALOR_ZERO : despesa.getVlTotal())
-                    .vlTotalPago(VALOR_ZERO)
-                    .tpStatus(despesa.getTpStatus())
-                    .dsObservacoes("")
-                    .isProcessamentoAdiantamentoParcelas(false)
-                    .build();
-
-            detalheDespesasServices.desfazerBaixaPagamentoDespesas(request);
-            detalheDespesasServices.desfazerBaixaPagamentoDespesasConsolidadas(request);
+            if (isDespesaConsolidacao) {
+                List<LancamentosMensaisDAO> lancamentosMensais = repository.getLancamentosMensaisConsolidados(despesa.getIdDespesa(), despesa.getIdConsolidacao(), despesa.getIdFuncionario());
+                for (LancamentosMensaisDAO mensaisDAO : lancamentosMensais) {
+                    this.processarPagamentoDetalheDespesa(detalheDespesasServices.obterDetalheDespesasParaPagamento(mensaisDAO));
+                }
+            } else {
+                this.processarPagamentoDetalheDespesa(detalheDespesasServices.obterDetalheDespesasParaPagamento(despesa));
+            }
         }
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
+    public void desfazerPagamentoDespesas(List<LancamentosMensaisDAO> lancamentosMensaisList) {
+        for (LancamentosMensaisDAO despesa : lancamentosMensaisList) {
+            var isDespesaConsolidacao = despesa.getTpDespesaConsolidacao().equals("S");
+
+            if (isDespesaConsolidacao) {
+                List<LancamentosMensaisDAO> lancamentosMensais = repository.getLancamentosMensaisConsolidados(despesa.getIdDespesa(), despesa.getIdConsolidacao(), despesa.getIdFuncionario());
+                for (LancamentosMensaisDAO mensaisDAO : lancamentosMensais) {
+                    this.processarDesfazerPagamentoDetalheDespesa(detalheDespesasServices.obterDetalheDespesasParaDesfazerPagamento(mensaisDAO));
+                }
+            } else {
+                this.processarDesfazerPagamentoDetalheDespesa(detalheDespesasServices.obterDetalheDespesasParaDesfazerPagamento(despesa));
+            }
+        }
+    }
 
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
@@ -686,7 +676,7 @@ public class LancamentosBusinessService {
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
     public void associarDespesaDetalheDespesasConsolidacao(Integer idConsolidacao, List<DetalheDespesasMensaisRequest> request) {
-        log.info("Associando despesa a consolidacao >>> - idConsolidacao: {} - request: {}", idConsolidacao, request);
+        log.info("Associando detalhe despesa a consolidacao >>> - idConsolidacao: {} - request: {}", idConsolidacao, request);
         for (DetalheDespesasMensaisRequest detalhe : request) {
             var isDespesaExistente = repository.getDetalhesConsolidacao(idConsolidacao, detalhe.getIdFuncionario()).stream()
                     .filter(d -> d.getIdDespesaParcelada().equals(detalhe.getIdDespesaParcelada()))
@@ -701,6 +691,31 @@ public class LancamentosBusinessService {
             }
 
             consolidacaoService.associarConsolidacaoDetalheDespesaMensal(detalhe.getIdDespesa(), detalhe.getIdDetalheDespesa(), idConsolidacao, detalhe.getIdFuncionario());
+        }
+
+        final var idDespesaRef = request.get(0).getIdDespesa();
+        final var idFuncionarioRef = request.get(0).getIdFuncionario();
+
+        this.lancamentosServices.ordenarListaDespesasMensais(idDespesaRef, idFuncionarioRef);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
+    public void associarDespesaMensalConsolidacao(Integer idConsolidacao, List<DespesasMensaisRequest> request) {
+        log.info("Associando despesa a consolidacao >>> - idConsolidacao: {} - request: {}", idConsolidacao, request);
+        for (DespesasMensaisRequest despesa : request) {
+            DespesasMensaisDAO isDespesaExistente = repository.getDespesaMensalPorFiltro(despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdFuncionario());
+
+            if (ObjectUtils.isEmpty(isDespesaExistente)) {
+                throw new ErroNegocioException("Despesa inexistente na base de dados, não será possivel associar a um grupo de consolidacao.");
+            }
+
+            DespesasMensaisDAO mensaisDAO = new DespesasMensaisDAO();
+            BeanUtils.copyProperties(mensaisDAO, despesa);
+
+            mensaisDAO.setIdConsolidacao(idConsolidacao);
+            mensaisDAO.setTpDespesaConsolidacao("N");
+            detalheDespesasServices.gravarDespesasMensais(mensaisDAO);
         }
     }
 
@@ -775,6 +790,10 @@ public class LancamentosBusinessService {
             log.info("========= Reutilizando ChaveKey existente sem uso, tipoChave: {} chave: {} =========", tipoChave, keySemUsoDAO.getChave());
             keyDAO.setNovaChave(keySemUsoDAO.getChave());
         }
+
+        //Alterado a logica em 24/11/25 para não considerar o reuso de chaves existentes sem uso.
+        //log.info("========= Nova ChaveKey gerada com sucesso, tipoChave: {} novaChave: {} =========", tipoChave, keyDAO.getNovaChave());
+        //repository.updateChaveKeyUtilizada(keyDAO.getIdChaveKey());
 
         return keyDAO;
     }

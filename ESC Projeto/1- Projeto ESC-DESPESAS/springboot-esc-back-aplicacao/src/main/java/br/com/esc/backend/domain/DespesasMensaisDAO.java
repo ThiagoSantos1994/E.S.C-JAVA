@@ -23,8 +23,10 @@ public class DespesasMensaisDAO {
     private Integer idOrdemExibicao;
     private Integer idFuncionario;
     private Integer idEmprestimo;
+    private Integer idConsolidacao;
     private String tpReprocessar;
     private String tpEmprestimo;
+    private String tpEmprestimoAPagar;
     private String tpPoupanca;
     private String tpAnotacao;
     private String tpDebitoAutomatico;
@@ -34,8 +36,8 @@ public class DespesasMensaisDAO {
     private String tpPoupancaNegativa;
     private String tpRelatorio;
     private String tpDebitoCartao;
-    private String tpEmprestimoAPagar;
     private String tpReferenciaSaldoMesAnterior;
     private String tpVisualizacaoTemp;
     private String tpDespesaCompartilhada;
+    private String tpDespesaConsolidacao;
 }

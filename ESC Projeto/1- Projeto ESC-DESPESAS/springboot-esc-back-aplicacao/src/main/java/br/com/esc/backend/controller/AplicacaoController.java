@@ -31,6 +31,16 @@ public class AplicacaoController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping(path = "/lancamentosMensais/consolidados/consultar", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<LancamentosMensaisDAO>> obterLancamentosMensais(
+            @RequestParam("idDespesa") Integer idDespesa,
+            @RequestParam("idConsolidacao") Integer idConsolidacao,
+            @RequestParam("idFuncionario") Integer idFuncionario) {
+
+        var response = service.obterDespesasMensaisConsolidadas(idDespesa, idConsolidacao, idFuncionario);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping(path = "/lancamentosFinanceiros/detalheDespesasMensais/consultar", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DetalheDespesasMensaisDTO> obterDetalheDespesasMensais(
             @RequestParam("idDespesa") Integer idDespesa,
@@ -358,6 +368,13 @@ public class AplicacaoController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @PostMapping(path = "/lancamentosFinanceiros/despesasMensais/consolidacao/associar", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> associarDespesasMensaisConsolidacao(@RequestParam("idConsolidacao") Integer idConsolidacao,
+                                                                    @RequestBody List<DespesasMensaisRequest> request) {
+        service.associarDespesaMensalConsolidacao(idConsolidacao, request);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @PostMapping(path = "/lancamentosFinanceiros/detalheDespesasMensais/observacoes/gravar", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> gravarObservacoesDetalheDespesa(@RequestBody ObservacoesDetalheDespesaRequest request) {
         service.gravarObservacoesDetalheDespesa(request);
@@ -522,35 +539,16 @@ public class AplicacaoController {
     }
 
     @PostMapping(path = "/lancamentosFinanceiros/baixarPagamentoDespesa", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> processarPagamentoDespesa(
-            @RequestParam("idDespesa") Integer idDespesa,
-            @RequestParam("idDetalheDespesa") Integer idDetalheDespesa,
-            @RequestParam("idFuncionario") Integer idFuncionario,
-            @RequestParam("observacaoPagamento") String observacaoPagamento) {
+    public ResponseEntity<Void> processarPagamentoDespesa(@RequestBody List<LancamentosMensaisDAO> request) {
 
-        service.processarPagamentoDespesa(idDespesa, idDetalheDespesa, idFuncionario, observacaoPagamento);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @PostMapping(path = "/v2/lancamentosFinanceiros/baixarPagamentoDespesa", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> processarPagamentoDespesaV2(
-            @RequestBody List<LancamentosMensaisDAO> request,
-            @RequestParam("idFuncionario") Integer idFuncionario) {
-
-        for (LancamentosMensaisDAO despesa : request) {
-            service.processarPagamentoDespesa(despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), idFuncionario, null);
-        }
+        service.processarPagamentoDespesa(request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping(path = "/lancamentosFinanceiros/desfazerPagamentoDespesa", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> desfazerPagamentoDespesa(
-            @RequestBody List<LancamentosMensaisDAO> request,
-            @RequestParam("idFuncionario") Integer idFuncionario) {
+    public ResponseEntity<Void> desfazerPagamentoDespesa(@RequestBody List<LancamentosMensaisDAO> request) {
 
-        for (LancamentosMensaisDAO despesa : request) {
-            service.desfazerPagamentoDespesas(despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), idFuncionario);
-        }
+        service.desfazerPagamentoDespesas(request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
