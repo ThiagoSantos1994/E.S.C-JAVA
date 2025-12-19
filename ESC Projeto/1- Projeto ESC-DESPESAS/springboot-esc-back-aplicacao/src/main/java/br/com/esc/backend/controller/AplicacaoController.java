@@ -375,6 +375,15 @@ public class AplicacaoController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @PostMapping(path = "/lancamentosFinanceiros/despesasMensais/consolidacao/desassociar", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> desassociarDespesasMensaisConsolidacao(@RequestParam("idDespesa") Integer idDespesa,
+                                                                       @RequestParam("idDetalheDespesa") Integer idDetalheDespesa,
+                                                                       @RequestParam("idConsolidacao") Integer idConsolidacao,
+                                                                       @RequestParam("idFuncionario") Integer idFuncionario) {
+        service.desassociarDespesaMensalConsolidacao(idDespesa, idDetalheDespesa, idConsolidacao, idFuncionario);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @PostMapping(path = "/lancamentosFinanceiros/detalheDespesasMensais/observacoes/gravar", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> gravarObservacoesDetalheDespesa(@RequestBody ObservacoesDetalheDespesaRequest request) {
         service.gravarObservacoesDetalheDespesa(request);
@@ -656,9 +665,10 @@ public class AplicacaoController {
     public ResponseEntity<Void> alterarTituloDespesa(
             @RequestParam("idDetalheDespesa") Integer idDetalheDespesa,
             @RequestParam("idFuncionario") Integer idFuncionario,
-            @RequestParam("novoTituloDespesa") String novoTituloDespesa) {
+            @RequestParam("novoTituloDespesa") String novoTituloDespesa,
+            @RequestParam("anoReferencia") String anoReferencia) {
 
-        service.alterarTituloDespesa(idDetalheDespesa, idFuncionario, novoTituloDespesa);
+        service.alterarTituloDespesa(idDetalheDespesa, idFuncionario, novoTituloDespesa, anoReferencia);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

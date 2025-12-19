@@ -380,8 +380,8 @@ public class LancamentosFinanceirosServices {
         return OK;
     }
 
-    public void alterarTituloDespesa(Integer idDetalheDespesa, Integer idFuncionario, String dsNomeDespesa) {
-        repository.updateTituloDespesasMensais(idDetalheDespesa, idFuncionario, dsNomeDespesa, anoAtual());
+    public void alterarTituloDespesa(Integer idDetalheDespesa, Integer idFuncionario, String dsNomeDespesa, String anoReferencia) {
+        repository.updateTituloDespesasMensais(idDetalheDespesa, idFuncionario, dsNomeDespesa, anoReferencia);
     }
 
     public String validaTituloDespesaDuplicado(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String dsTituloDespesa) {

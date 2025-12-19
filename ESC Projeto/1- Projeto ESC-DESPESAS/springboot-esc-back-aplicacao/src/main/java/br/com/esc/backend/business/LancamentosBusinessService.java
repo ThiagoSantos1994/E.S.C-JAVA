@@ -382,9 +382,9 @@ public class LancamentosBusinessService {
 
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
-    public void alterarTituloDespesa(Integer idDetalheDespesa, Integer idFuncionario, String dsNomeDespesa) {
+    public void alterarTituloDespesa(Integer idDetalheDespesa, Integer idFuncionario, String dsNomeDespesa, String anoReferencia) {
         log.info("Alterando titulo despesas >> idDetalheDespesa: {} para: {}", idDetalheDespesa, dsNomeDespesa);
-        lancamentosServices.alterarTituloDespesa(idDetalheDespesa, idFuncionario, dsNomeDespesa);
+        lancamentosServices.alterarTituloDespesa(idDetalheDespesa, idFuncionario, dsNomeDespesa, anoReferencia);
     }
 
     @SneakyThrows
@@ -717,6 +717,25 @@ public class LancamentosBusinessService {
             mensaisDAO.setTpDespesaConsolidacao("N");
             detalheDespesasServices.gravarDespesasMensais(mensaisDAO);
         }
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
+    public void desassociarDespesaMensalConsolidacao(Integer idDespesa, Integer idDetalheDespesa, Integer idConsolidacao, Integer idFuncionario) {
+        log.info("Desassociando despesa da consolidacao >>> - idDespesa: {} - idConsolidacao: {}", idDespesa, idConsolidacao);
+
+        List<DespesasMensaisDAO> despesa = repository.getDespesasMensais(idDespesa, idFuncionario, idDetalheDespesa);
+
+        if (ObjectUtils.isEmpty(despesa)) {
+            throw new ErroNegocioException("Despesa inexistente na base de dados, não será possivel desassociar do grupo de consolidacao.");
+        }
+
+        DespesasMensaisDAO mensaisDAO = new DespesasMensaisDAO();
+        BeanUtils.copyProperties(mensaisDAO, despesa.get(0));
+
+        mensaisDAO.setIdConsolidacao(0);
+        mensaisDAO.setTpDespesaConsolidacao("N");
+        detalheDespesasServices.gravarDespesasMensais(mensaisDAO);
     }
 
     @Transactional(rollbackFor = Exception.class)
