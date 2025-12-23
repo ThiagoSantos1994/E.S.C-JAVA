@@ -36,6 +36,11 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlQuery
+    @UseRowMapper(CategoriaDespesaRowMapper.class)
+    List<CategoriaDespesasDAO> getSubTotalCategoriaDespesaAno(Integer dsAno, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
     @UseRowMapper(LancamentosMensaisRowMapper.class)
     List<LancamentosMensaisDAO> getLancamentosMensais(Integer idDespesa, Integer idFuncionario);
 

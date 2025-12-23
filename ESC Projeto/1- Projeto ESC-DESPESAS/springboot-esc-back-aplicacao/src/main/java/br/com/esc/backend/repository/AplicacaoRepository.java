@@ -17,6 +17,8 @@ public interface AplicacaoRepository {
 
     List<CategoriaDespesasDAO> getSubTotalCategoriaDespesa(Integer idDespesa, Integer idFuncionario);
 
+    List<CategoriaDespesasDAO> getSubTotalCategoriaDespesaAno(Integer dsAno, Integer idFuncionario);
+
     List<LancamentosMensaisDAO> getLancamentosMensais(Integer idDespesa, Integer idFuncionario);
 
     List<LancamentosMensaisDAO> getLancamentosMensaisConsolidados(Integer idDespesa, Integer idConsolidacao, Integer idFuncionario);

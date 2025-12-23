@@ -475,6 +475,13 @@ public class LancamentosBusinessService {
                 .build();
     }
 
+    public CategoriaDespesasResponse obterSubTotalCategoriaDespesaAno(Integer dsAno, Integer idFuncionario) {
+        log.info("Consultando subTotal categorias despesa >>> dsAno = {} - idFuncionario= {}", dsAno, idFuncionario);
+        return CategoriaDespesasResponse.builder()
+                .categorias(detalheDespesasServices.getSubTotalCategoriaDespesaAno(dsAno, idFuncionario))
+                .build();
+    }
+
     public DetalheDespesasParceladasResponse obterDespesaParceladaPorID(Integer idDespesaParcelada, Integer idFuncionario, Boolean isPendentes) {
         log.info("Consultando detalhe despesa parcelada por filtros >>> idDespesaParcelada= {} - idFuncionario= {}", idDespesaParcelada, idFuncionario);
         return despesasParceladasServices.obterDespesaParceladaPorFiltros(idDespesaParcelada, null, idFuncionario, isPendentes);

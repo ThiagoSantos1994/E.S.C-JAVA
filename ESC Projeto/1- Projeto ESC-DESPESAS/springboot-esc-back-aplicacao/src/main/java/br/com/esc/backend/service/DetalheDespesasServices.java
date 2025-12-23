@@ -335,6 +335,10 @@ public class DetalheDespesasServices {
         return repository.getSubTotalCategoriaDespesa(idDespesa, idFuncionario);
     }
 
+    public List<CategoriaDespesasDAO> getSubTotalCategoriaDespesaAno(Integer dsAno, Integer idFuncionario) {
+        return repository.getSubTotalCategoriaDespesaAno(dsAno, idFuncionario);
+    }
+
     public void gravarDespesasMensais(DespesasMensaisDAO mensaisDAO) {
         if (mensaisDAO.getTpLinhaSeparacao().equals("N")) {
             mensaisDAO.setIdEmprestimo(0);

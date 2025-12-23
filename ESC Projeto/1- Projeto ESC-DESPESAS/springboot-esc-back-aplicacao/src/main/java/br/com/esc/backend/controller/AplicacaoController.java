@@ -60,6 +60,14 @@ public class AplicacaoController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping(path = "/lancamentosFinanceiros/categoriaDespesa/subTotal/anual", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<CategoriaDespesasResponse> obterSubTotalCategoriaDespesaAnual(
+            @RequestParam("dsAno") Integer dsAno,
+            @RequestParam("idFuncionario") Integer idFuncionario) {
+        var response = service.obterSubTotalCategoriaDespesaAno(dsAno, idFuncionario);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping(path = "/lancamentosFinanceiros/obterNovaChaveKey", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ChaveKeyDAO> obterNovaChaveKey(
             @RequestParam("tipoChave") String tipoChave) {
