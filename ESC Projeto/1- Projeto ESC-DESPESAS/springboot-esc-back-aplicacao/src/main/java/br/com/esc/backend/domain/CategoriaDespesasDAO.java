@@ -12,4 +12,6 @@ import lombok.NoArgsConstructor;
 public class CategoriaDespesasDAO {
     private String nomeCategoria;
     private String vlDespesa;
+
+
 }

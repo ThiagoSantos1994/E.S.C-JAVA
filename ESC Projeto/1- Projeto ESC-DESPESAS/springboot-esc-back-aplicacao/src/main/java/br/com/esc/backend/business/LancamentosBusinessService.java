@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 import static br.com.esc.backend.service.DetalheDespesasServices.isDetalheDespesaTipoRelatorio;
 import static br.com.esc.backend.service.LembreteServices.validarCamposEntradaLembrete;
 import static br.com.esc.backend.utils.DataUtils.anoSeguinte;
+import static br.com.esc.backend.utils.MotorCalculoUtils.convertToMoedaBR;
 import static br.com.esc.backend.utils.ObjectUtils.isNull;
 
 
@@ -477,8 +478,14 @@ public class LancamentosBusinessService {
 
     public CategoriaDespesasResponse obterSubTotalCategoriaDespesaAno(Integer dsAno, Integer idFuncionario) {
         log.info("Consultando subTotal categorias despesa >>> dsAno = {} - idFuncionario= {}", dsAno, idFuncionario);
+
+        List<CategoriaDespesasDAO> categoriasList = detalheDespesasServices.getSubTotalCategoriaDespesaAno(dsAno, idFuncionario);
+        categoriasList.add(new CategoriaDespesasDAO("_______________", "_______________"));
+        categoriasList.add(new CategoriaDespesasDAO("Receita ANO", convertToMoedaBR(repository.getCalculoReceitaPositivaANO(dsAno, idFuncionario))));
+        categoriasList.add(new CategoriaDespesasDAO("Despesa ANO", convertToMoedaBR(repository.getCalculoReceitaNegativaANO(dsAno, idFuncionario))));
+
         return CategoriaDespesasResponse.builder()
-                .categorias(detalheDespesasServices.getSubTotalCategoriaDespesaAno(dsAno, idFuncionario))
+                .categorias(categoriasList)
                 .build();
     }
 
