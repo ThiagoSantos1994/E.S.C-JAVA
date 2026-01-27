@@ -652,9 +652,10 @@ public class AplicacaoController {
             @RequestParam("idDespesa") Integer idDespesa,
             @RequestParam("idDetalheDespesa") Integer idDetalheDespesa,
             @RequestParam("idFuncionario") Integer idFuncionario,
-            @RequestParam("tituloDespesa") String tituloDespesa) {
+            @RequestParam("tituloDespesa") String tituloDespesa,
+            @RequestParam("anoReferencia") String anoReferencia) {
 
-        var response = service.validaTituloDespesaDuplicado(idDespesa, idDetalheDespesa, idFuncionario, tituloDespesa);
+        var response = service.validaTituloDespesaDuplicado(idDespesa, idDetalheDespesa, idFuncionario, tituloDespesa, anoReferencia);
         return ResponseEntity.ok(response);
     }
 

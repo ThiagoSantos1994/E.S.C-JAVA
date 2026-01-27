@@ -389,8 +389,8 @@ public class LancamentosBusinessService {
     }
 
     @SneakyThrows
-    public StringResponse validaTituloDespesaDuplicado(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String dsTituloDespesa) {
-        var response = lancamentosServices.validaTituloDespesaDuplicado(idDespesa, idDetalheDespesa, idFuncionario, dsTituloDespesa);
+    public StringResponse validaTituloDespesaDuplicado(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String dsTituloDespesa, String anoReferencia) {
+        var response = lancamentosServices.validaTituloDespesaDuplicado(idDespesa, idDetalheDespesa, idFuncionario, dsTituloDespesa, anoReferencia);
 
         log.info("Validando Titulo Duplicado >> Response: {}", response);
         return StringResponse.builder()

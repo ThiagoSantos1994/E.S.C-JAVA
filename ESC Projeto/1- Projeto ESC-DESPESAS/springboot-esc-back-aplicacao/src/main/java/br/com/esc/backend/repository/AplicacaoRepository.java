@@ -151,7 +151,7 @@ public interface AplicacaoRepository {
 
     Integer getIDDetalheDespesaPorTitulo(String dsNomeDespesa, Integer idFuncionario);
 
-    Integer getValidaTituloDespesaDuplicado(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String dsTituloDespesa);
+    Integer getValidaTituloDespesaDuplicado(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String dsTituloDespesa, String anoReferencia);
 
     List<String> getTituloDespesa(Integer idFuncionario);
 

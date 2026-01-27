@@ -384,8 +384,8 @@ public class LancamentosFinanceirosServices {
         repository.updateTituloDespesasMensais(idDetalheDespesa, idFuncionario, dsNomeDespesa, anoReferencia);
     }
 
-    public String validaTituloDespesaDuplicado(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String dsTituloDespesa) {
-        Integer response = repository.getValidaTituloDespesaDuplicado(idDespesa, idDetalheDespesa, idFuncionario, dsTituloDespesa);
+    public String validaTituloDespesaDuplicado(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String dsTituloDespesa, String anoReferencia) {
+        Integer response = repository.getValidaTituloDespesaDuplicado(idDespesa, idDetalheDespesa, idFuncionario, dsTituloDespesa, anoReferencia);
 
         if (response > 0) {
             return TITULO_DESPESA_DUPLICADO;
