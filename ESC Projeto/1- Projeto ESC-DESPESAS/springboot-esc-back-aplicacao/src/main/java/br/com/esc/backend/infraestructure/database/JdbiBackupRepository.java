@@ -22,4 +22,22 @@ public interface JdbiBackupRepository extends BackupRepository {
     @Override
     @SqlUpdate
     void deleteDadosTabela(@Define("tabela") String tabela);
+
+    @SqlUpdate
+    void setIdentityInsertRaw(@Define("tabela") String tabela, @Define("estado") String estado);
+
+    @Override
+    default void setIdentityInsert(String tabela, boolean enable) {
+        setIdentityInsertRaw(tabela, enable ? "ON" : "OFF");
+    }
+
+    @Override
+    @SqlQuery
+    List<String> getColunasTabela(@Define("nomeTabela") String nomeTabela);
+
+    @Override
+    @SqlUpdate
+    void insertDadosComColunas(@Define("baseBackup") String baseBackup,
+                               @Define("basePrincipal") String basePrincipal,
+                               @Define("colunas") String colunas);
 }
