@@ -4,7 +4,6 @@ import br.com.esc.backend.facade.AutenticacaoFacade;
 import br.com.esc.backend.domain.StringResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lombok.var;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

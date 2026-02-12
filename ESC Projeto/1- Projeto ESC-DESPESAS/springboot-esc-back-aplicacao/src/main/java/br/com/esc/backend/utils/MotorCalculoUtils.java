@@ -1,7 +1,6 @@
 package br.com.esc.backend.utils;
 
 import lombok.extern.slf4j.Slf4j;
-import lombok.var;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;

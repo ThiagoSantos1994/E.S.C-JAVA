@@ -1,6 +1,5 @@
 package br.com.esc.backend.utils;
 
-import lombok.var;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 
