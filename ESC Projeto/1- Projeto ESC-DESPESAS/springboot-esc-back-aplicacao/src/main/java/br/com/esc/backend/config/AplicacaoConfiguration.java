@@ -43,8 +43,23 @@ public class AplicacaoConfiguration {
 
     @Bean
     @Primary
-    AutenticacaoServices autenticacaoServices(AplicacaoRepository aplicacaoRepository, AutenticacaoRepository repository) {
-        return new AutenticacaoServices(aplicacaoRepository, repository);
+    AutenticacaoServices autenticacaoServices(
+            AutenticacaoRepository autenticacaoRepository,
+            AuditoriaAcessoService auditoriaAcessoService,
+            ConfiguracaoLancamentosService configuracaoLancamentosService) {
+        return new AutenticacaoServices(autenticacaoRepository, auditoriaAcessoService, configuracaoLancamentosService);
+    }
+
+    @Bean
+    @Primary
+    AuditoriaAcessoService auditoriaAcessoService(AutenticacaoRepository repository) {
+        return new AuditoriaAcessoService(repository);
+    }
+
+    @Bean
+    @Primary
+    ConfiguracaoLancamentosService configuracaoLancamentosService(AplicacaoRepository repository) {
+        return new ConfiguracaoLancamentosService(repository);
     }
 
     @Bean
