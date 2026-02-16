@@ -3,18 +3,18 @@ package br.com.esc.backend.utils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
 
-import static br.com.esc.backend.utils.ObjectUtils.isNull;
 import static br.com.esc.backend.utils.VariaveisGlobais.VALOR_ZERO;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Slf4j
 public class MotorCalculoUtils {
-    private static DecimalFormat decimalFormat = new DecimalFormat("###,###,##0.00");
+    private static final DecimalFormat decimalFormat = new DecimalFormat("###,###,##0.00");
 
     public static BigDecimal calcularReceitaPositivaMes(List<BigDecimal> listReceitas) {
         try {
@@ -38,14 +38,14 @@ public class MotorCalculoUtils {
         if (valorLimite.compareTo(BigDecimal.ZERO) == 0 || valorCalculado.compareTo(BigDecimal.ZERO) == 0) {
             return BigDecimal.ZERO;
         }
-        return valorCalculado.divide(valorLimite, 4, BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100));
+        return valorCalculado.divide(valorLimite, 4, RoundingMode.HALF_UP).multiply(new BigDecimal(100));
     }
 
     public static BigDecimal calculaPorcentagem(BigDecimal valorLimite, BigDecimal valorCalculado, Integer scale) {
         if (valorLimite.compareTo(BigDecimal.ZERO) == 0 || valorCalculado.compareTo(BigDecimal.ZERO) == 0) {
             return BigDecimal.ZERO;
         }
-        return valorCalculado.divide(valorLimite, scale, BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100));
+        return valorCalculado.divide(valorLimite, scale, RoundingMode.HALF_UP).multiply(new BigDecimal(100));
     }
 
     public static BigDecimal convertStringToDecimal(String valor) {
@@ -60,7 +60,7 @@ public class MotorCalculoUtils {
             dValor = Double.parseDouble(valor.trim().replace("- ", "-").replace(",", "."));
         }
 
-        if (dValor <= 0 || isNull(dValor)) {
+        if (dValor <= 0) {
             return BigDecimal.ZERO;
         }
 

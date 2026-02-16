@@ -33,11 +33,11 @@ public class ControllerExceptionHandler {
     }
 
     private static ErroRepresentation getErroRepresentation(Exception e) {
-        log.error("ExceptionHandler | Erro ao realizar operação no backend: {}", e);
+        log.error("ExceptionHandler | Erro ao realizar operação no backend: ", e);
 
-        var erro = new ErroRepresentation();
+        ErroRepresentation erro = new ErroRepresentation();
         erro.setCodigo(HttpStatus.BAD_REQUEST.value());
-        erro.setMensagem("Ocorreu um erro no servidor >>>> trace: " + e.getCause());
+        erro.setMensagem("Ocorreu um erro interno no servidor. Contate o suporte técnico.");
 
         return erro;
     }
@@ -45,7 +45,7 @@ public class ControllerExceptionHandler {
     private static ErroRepresentation getErroNegocioRepresentation(Exception e) {
         log.error("ExceptionHandler | Erro de negocio: {}", e.getMessage());
 
-        var erro = new ErroRepresentation();
+        ErroRepresentation erro = new ErroRepresentation();
         erro.setCodigo(HttpStatus.NO_CONTENT.value());
         erro.setMensagem(e.getMessage());
 
@@ -55,7 +55,7 @@ public class ControllerExceptionHandler {
     private static ErroRepresentation getCamposObrigatoriosException(Exception e) {
         log.error("ExceptionHandler | Erro ao realizar operação no backend: {}", e.getMessage());
 
-        var erro = new ErroRepresentation();
+        ErroRepresentation erro = new ErroRepresentation();
         erro.setCodigo(HttpStatus.NO_CONTENT.value());
         erro.setMensagem(e.getMessage());
 

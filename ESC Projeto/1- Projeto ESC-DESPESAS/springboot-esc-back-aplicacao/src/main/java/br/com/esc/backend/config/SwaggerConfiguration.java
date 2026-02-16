@@ -25,7 +25,8 @@ import org.springframework.context.annotation.Import;
         DespesasParceladasSwagger.class,
         DetalheDespesasSwagger.class,
         LancamentosMensaisSwagger.class,
-        LancamentosFinanceirosSwagger.class
+        LancamentosFinanceirosSwagger.class,
+        SenhaSwagger.class
 })
 public class SwaggerConfiguration {
     // Configuração centralizada

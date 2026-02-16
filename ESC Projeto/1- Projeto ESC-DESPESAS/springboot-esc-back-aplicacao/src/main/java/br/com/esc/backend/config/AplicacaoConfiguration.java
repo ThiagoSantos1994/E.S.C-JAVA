@@ -7,6 +7,7 @@ import br.com.esc.backend.service.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 public class AplicacaoConfiguration {
@@ -46,8 +47,9 @@ public class AplicacaoConfiguration {
     AutenticacaoServices autenticacaoServices(
             AutenticacaoRepository autenticacaoRepository,
             AuditoriaAcessoService auditoriaAcessoService,
-            ConfiguracaoLancamentosService configuracaoLancamentosService) {
-        return new AutenticacaoServices(autenticacaoRepository, auditoriaAcessoService, configuracaoLancamentosService);
+            ConfiguracaoLancamentosService configuracaoLancamentosService,
+            PasswordEncoder passwordEncoder) {
+        return new AutenticacaoServices(autenticacaoRepository, auditoriaAcessoService, configuracaoLancamentosService, passwordEncoder);
     }
 
     @Bean

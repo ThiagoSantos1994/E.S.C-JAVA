@@ -7,6 +7,7 @@ import br.com.esc.backend.repository.AutenticacaoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import static br.com.esc.backend.utils.DataUtils.dataAtual;
@@ -20,9 +21,18 @@ public class AutenticacaoServices {
     private final AutenticacaoRepository repository;
     private final AuditoriaAcessoService auditoriaAcessoService;
     private final ConfiguracaoLancamentosService configuracaoLancamentosService;
+    private final PasswordEncoder passwordEncoder;
 
     @Value("${prop.tempoLimiteSessao}")
     private Integer tempoLimiteSessao;
+
+    /**
+     * Habilita migração gradual de senhas em texto plano para BCrypt.
+     * Quando true, aceita tanto senhas em texto plano quanto BCrypt.
+     * Defina como false após migrar todas as senhas para BCrypt.
+     */
+    @Value("${prop.seguranca.permitirSenhaTextoPlano:true}")
+    private Boolean permitirSenhaTextoPlano;
 
     public AutenticacaoResponse autenticarUsuario(LoginRequest request) {
         log.info("Iniciando autenticacao >> usuario: {}", request.getUsuario());
@@ -73,11 +83,40 @@ public class AutenticacaoServices {
     }
 
     private void validarSenha(String senhaFornecida, String senhaArmazenada) {
-        // TODO: Migrar para BCrypt: passwordEncoder.matches(senhaFornecida, senhaArmazenada)
-        if (!senhaFornecida.equalsIgnoreCase(senhaArmazenada)) {
-            log.warn("Tentativa de login com senha invalida");
+        // Verifica se a senha armazenada é um hash BCrypt (começa com $2a$, $2b$ ou $2y$)
+        if (isBCryptHash(senhaArmazenada)) {
+            // Senha já está em formato BCrypt - usar passwordEncoder.matches()
+            if (!passwordEncoder.matches(senhaFornecida, senhaArmazenada)) {
+                log.warn("Tentativa de login com senha invalida (BCrypt)");
+                throw new CredenciaisInvalidasException();
+            }
+            log.info("Senha validada com sucesso usando BCrypt");
+        } else if (permitirSenhaTextoPlano) {
+            // Migração gradual: aceita senha em texto plano temporariamente
+            if (!senhaFornecida.equals(senhaArmazenada)) {
+                log.warn("Tentativa de login com senha invalida (texto plano)");
+                throw new CredenciaisInvalidasException();
+            }
+            log.warn("ATENCAO: Senha em texto plano detectada. Recomenda-se migrar para BCrypt.");
+        } else {
+            // Migração desabilitada - rejeitar senhas em texto plano
+            log.error("Senha em texto plano rejeitada. Configuracao prop.seguranca.permitirSenhaTextoPlano=false");
             throw new CredenciaisInvalidasException();
         }
+    }
+
+    /**
+     * Verifica se a string é um hash BCrypt válido.
+     * Hashes BCrypt começam com $2a$, $2b$ ou $2y$ seguido de custo e hash.
+     *
+     * @param hash string a ser verificada
+     * @return true se for um hash BCrypt válido
+     */
+    private boolean isBCryptHash(String hash) {
+        if (hash == null || hash.length() < 60) {
+            return false;
+        }
+        return hash.startsWith("$2a$") || hash.startsWith("$2b$") || hash.startsWith("$2y$");
     }
 
     private void validarStatusUsuario(LoginDAO usuario) {

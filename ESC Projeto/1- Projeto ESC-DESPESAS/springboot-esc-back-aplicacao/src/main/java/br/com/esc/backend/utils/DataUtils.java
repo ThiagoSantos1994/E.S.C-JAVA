@@ -26,9 +26,14 @@ public class DataUtils {
             return "";
         }
 
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        Date data = new Date(ref);
-        return simpleDateFormat.format(data);
+        try {
+            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy/MM/dd");
+            SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy");
+            Date data = inputFormat.parse(ref);
+            return outputFormat.format(data);
+        } catch (ParseException e) {
+            return ref;
+        }
     }
 
     public static String formatarDataEUA(String ref) {
@@ -36,9 +41,14 @@ public class DataUtils {
             return "";
         }
 
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd");
-        Date data = new Date(ref);
-        return simpleDateFormat.format(data);
+        try {
+            SimpleDateFormat inputFormat = new SimpleDateFormat("dd/MM/yyyy");
+            SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy/MM/dd");
+            Date data = inputFormat.parse(ref);
+            return outputFormat.format(data);
+        } catch (ParseException e) {
+            return ref;
+        }
     }
 
     public static String formatarDataEUA(Date ref) {
@@ -69,13 +79,13 @@ public class DataUtils {
     }
 
     public static String anoAtual() {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("YYYY");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy");
         Date ano = new Date(System.currentTimeMillis());
         return simpleDateFormat.format(ano);
     }
 
     public static String anoSeguinte() {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("YYYY");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy");
         Date ano = new Date(System.currentTimeMillis());
         return valueOf(parseInt(simpleDateFormat.format(ano)) + 1);
     }
@@ -85,9 +95,8 @@ public class DataUtils {
     }
 
     public static String retornaMesAnterior(String dsMes) {
-        var dsMesAnterior = (parseInt(dsMes) - 1 < 1 ? 12 : parseInt(dsMes) - 1);
-        var result = (dsMesAnterior <= 9 ? "0" + dsMesAnterior : valueOf(dsMesAnterior));
-        return result;
+        int dsMesAnterior = (parseInt(dsMes) - 1 < 1 ? 12 : parseInt(dsMes) - 1);
+        return (dsMesAnterior <= 9 ? "0" + dsMesAnterior : valueOf(dsMesAnterior));
     }
 
     public static String parserMesToString(Integer dsMes) {
@@ -102,11 +111,15 @@ public class DataUtils {
     }
 
     public static String retornaDataPersonalizadaEmDias(String data, Integer qtdeDias) throws ParseException {
-        Date a = new Date(data);
-        a.setDate(a.getDate() + qtdeDias);
+        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy/MM/dd");
+        Date dataOriginal = inputFormat.parse(data);
 
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd");
-        return simpleDateFormat.format(a);
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(dataOriginal);
+        cal.add(Calendar.DAY_OF_MONTH, qtdeDias);
+
+        SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy/MM/dd");
+        return outputFormat.format(cal.getTime());
     }
 
     public static String convertDateToString(Date date) {
@@ -119,11 +132,11 @@ public class DataUtils {
         return simpleDateFormat.format(date);
     }
 
-    public static Days diferencaEmDias(String referencia) throws ParseException {
+    public static Days diferencaEmDias(String referencia) {
         DateTime dataAtual = new DateTime();
-        var dia = parseInt(referencia.substring(8, 10));
-        var mes = parseInt(referencia.substring(5, 7));
-        var ano = parseInt(referencia.substring(0, 4));
+        int dia = parseInt(referencia.substring(8, 10));
+        int mes = parseInt(referencia.substring(5, 7));
+        int ano = parseInt(referencia.substring(0, 4));
 
         DateTime dataReferencia = new DateTime(ano, mes, dia, 0, 0);
 
