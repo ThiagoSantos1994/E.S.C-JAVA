@@ -1,5 +1,6 @@
 package br.com.esc.backend.business;
 
+import br.com.esc.backend.config.RetryOnDeadlock;
 import br.com.esc.backend.domain.*;
 import br.com.esc.backend.repository.AplicacaoRepository;
 import br.com.esc.backend.service.DetalheDespesasServices;
@@ -47,6 +48,7 @@ public class LancamentosFinanceirosBusiness {
         lancamentosServices.ordenarListaDespesasMensais(idDespesa, idFuncionario);
     }
 
+    @RetryOnDeadlock
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
     public void deleteDespesaFixaMensal(Integer idDespesa, Integer idOrdem, Integer idFuncionario) {
@@ -55,6 +57,7 @@ public class LancamentosFinanceirosBusiness {
         this.ordenarListaDespesasMensais(idDespesa, idFuncionario);
     }
 
+    @RetryOnDeadlock
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
     public void deleteDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario) {
@@ -63,6 +66,7 @@ public class LancamentosFinanceirosBusiness {
         repository.deleteDespesasMensaisPorFiltro(idDespesa, idDetalheDespesa, idOrdem, idFuncionario);
     }
 
+    @RetryOnDeadlock
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
     public void alterarOrdemRegistroDespesas(Integer idDespesa, Integer iOrdemAtual, Integer iOrdemNova, Integer idFuncionario) {
@@ -70,6 +74,7 @@ public class LancamentosFinanceirosBusiness {
         lancamentosServices.alterarOrdemRegistroDespesas(idDespesa, iOrdemAtual, iOrdemNova, idFuncionario);
     }
 
+    @RetryOnDeadlock
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
     public void alterarOrdemRegistroDespesasFixas(Integer idDespesa, Integer iOrdemAtual, Integer iOrdemNova, Integer idFuncionario) {
@@ -102,6 +107,7 @@ public class LancamentosFinanceirosBusiness {
                 .build();
     }
 
+    @RetryOnDeadlock
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
     public void alterarTituloDespesa(Integer idDetalheDespesa, Integer idFuncionario, String dsNomeDespesa, String anoReferencia) {
@@ -119,6 +125,7 @@ public class LancamentosFinanceirosBusiness {
                 .build();
     }
 
+    @RetryOnDeadlock
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
     public void alterarDespesaMensalReferencia(Integer idDespesa, Integer idDetalheDespesa, Integer idDetalheDespesaNova, Integer idFuncionario) {
@@ -140,6 +147,7 @@ public class LancamentosFinanceirosBusiness {
         return lancamentosServices.getTituloDespesaRelatorio(idDespesa, idFuncionario);
     }
 
+    @RetryOnDeadlock
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
     public void limparDadosTemporarios(Integer idFuncionario) {

@@ -1,5 +1,6 @@
 package br.com.esc.backend.business;
 
+import br.com.esc.backend.config.RetryOnDeadlock;
 import br.com.esc.backend.domain.DespesaFixaTemporariaResponse;
 import br.com.esc.backend.domain.DetalheDespesasMensaisDAO;
 import br.com.esc.backend.domain.ParcelasDAO;
@@ -26,6 +27,7 @@ public class ImportacaoBusiness {
     private final DespesasParceladasBusiness despesasParceladasBusiness;
     private final LancamentosFinanceirosBusiness lancamentosFinanceirosBusiness;
 
+    @RetryOnDeadlock
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
     public void processarImportacaoDespesasMensais(Integer idDespesa, Integer idFuncionario, String dsMes, String dsAno) {
@@ -35,6 +37,7 @@ public class ImportacaoBusiness {
         lancamentosFinanceirosBusiness.ordenarListaDespesasMensais(idDespesa, idFuncionario);
     }
 
+    @RetryOnDeadlock
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
     public void processarImportacaoDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String dsMes, String dsAno, Boolean bReprocessarTodosValores) {
@@ -43,6 +46,7 @@ public class ImportacaoBusiness {
         despesasParceladasBusiness.atualizaStatusDespesasParceladasEmAberto(idFuncionario);
     }
 
+    @RetryOnDeadlock
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
     public void processarImportacaoDespesaParcelada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idConsolidacao, Integer idFuncionario) {
@@ -57,6 +61,7 @@ public class ImportacaoBusiness {
         despesasParceladasBusiness.atualizaStatusDespesasParceladasEmAberto(idFuncionario);
     }
 
+    @RetryOnDeadlock
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
     public void incluirDespesaParceladaAmortizada(Integer idDespesa, Integer idDetalheDespesa, List<ParcelasDAO> parcelas, Integer idFuncionario) {
@@ -65,6 +70,7 @@ public class ImportacaoBusiness {
         despesasParceladasBusiness.atualizaStatusDespesasParceladasEmAberto(idFuncionario);
     }
 
+    @RetryOnDeadlock
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
     public DespesaFixaTemporariaResponse gerarTemporariamenteDespesasMensais(Integer sMes, Integer sAno, Integer idFuncionario) {
@@ -72,6 +78,7 @@ public class ImportacaoBusiness {
         return importacaoServices.gerarTemporariamenteDespesasMensais(sMes, sAno, idFuncionario);
     }
 
+    @RetryOnDeadlock
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
     public void deleteTodosLancamentosMensais(Integer idDespesa, Integer idFuncionario) {

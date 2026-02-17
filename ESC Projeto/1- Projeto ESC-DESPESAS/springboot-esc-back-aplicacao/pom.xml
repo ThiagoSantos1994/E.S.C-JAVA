@@ -120,6 +120,12 @@
 			<artifactId>spring-security-crypto</artifactId>
 		</dependency>
 
+		<!-- Spring AOP para Aspects (tratamento de deadlock com retry) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>com.microsoft.sqlserver</groupId>
 			<artifactId>mssql-jdbc</artifactId>

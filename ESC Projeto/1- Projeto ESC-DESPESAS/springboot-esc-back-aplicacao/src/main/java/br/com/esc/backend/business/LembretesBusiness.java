@@ -1,5 +1,6 @@
 package br.com.esc.backend.business;
 
+import br.com.esc.backend.config.RetryOnDeadlock;
 import br.com.esc.backend.domain.LembretesDAO;
 import br.com.esc.backend.domain.TituloLembretesDAO;
 import br.com.esc.backend.repository.AplicacaoRepository;
@@ -29,6 +30,7 @@ public class LembretesBusiness {
         return lembreteServices.getLembreteDetalhe(idLembrete, idFuncionario);
     }
 
+    @RetryOnDeadlock
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
     public void baixarLembretesMonitor(List<TituloLembretesDAO> request, String tipoBaixa) {
@@ -36,6 +38,7 @@ public class LembretesBusiness {
         lembreteServices.baixarLembretesMonitor(request, tipoBaixa);
     }
 
+    @RetryOnDeadlock
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
     public void gravarLembrete(LembretesDAO request) {
@@ -50,6 +53,7 @@ public class LembretesBusiness {
         lembreteServices.gravarLembrete(request);
     }
 
+    @RetryOnDeadlock
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
     public void excluirLembrete(LembretesDAO request) {
@@ -57,6 +61,7 @@ public class LembretesBusiness {
         repository.deleteLembrete(request.getIdLembrete(), request.getIdFuncionario());
     }
 
+    @RetryOnDeadlock
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
     public List<TituloLembretesDAO> obterListaMonitorLembretes(Integer idFuncionario) {

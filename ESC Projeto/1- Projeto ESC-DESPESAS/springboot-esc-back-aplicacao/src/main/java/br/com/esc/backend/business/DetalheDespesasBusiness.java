@@ -1,5 +1,6 @@
 package br.com.esc.backend.business;
 
+import br.com.esc.backend.config.RetryOnDeadlock;
 import br.com.esc.backend.domain.*;
 import br.com.esc.backend.repository.AplicacaoRepository;
 import br.com.esc.backend.service.ConsolidacaoService;
@@ -38,6 +39,7 @@ public class DetalheDespesasBusiness {
         detalheDespesasServices.ordenarListaDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario, ordem);
     }
 
+    @RetryOnDeadlock
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
     public void deleteDetalheDespesasMensais(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario) {
@@ -45,6 +47,7 @@ public class DetalheDespesasBusiness {
         detalheDespesasServices.deleteDetalheDespesasMensais(idDespesa, idDetalheDespesa, idOrdem, idFuncionario);
     }
 
+    @RetryOnDeadlock
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
     public void deleteDetalheDespesasMensaisV2(List<DetalheDespesasMensaisRequest> request) {
@@ -89,6 +92,7 @@ public class DetalheDespesasBusiness {
         }
     }
 
+    @RetryOnDeadlock
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
     public void processarPagamentoDetalheDespesa(List<PagamentoDespesasRequest> request) {
@@ -99,6 +103,7 @@ public class DetalheDespesasBusiness {
         }
     }
 
+    @RetryOnDeadlock
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
     public void processarDesfazerPagamentoDetalheDespesa(List<PagamentoDespesasRequest> request) {
@@ -109,6 +114,7 @@ public class DetalheDespesasBusiness {
         }
     }
 
+    @RetryOnDeadlock
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
     public void processarPagamentoDespesa(List<LancamentosMensaisDAO> lancamentosMensaisList) {
@@ -126,6 +132,7 @@ public class DetalheDespesasBusiness {
         }
     }
 
+    @RetryOnDeadlock
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
     public void desfazerPagamentoDespesas(List<LancamentosMensaisDAO> lancamentosMensaisList) {
