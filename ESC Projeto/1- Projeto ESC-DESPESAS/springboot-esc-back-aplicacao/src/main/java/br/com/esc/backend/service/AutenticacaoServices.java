@@ -26,14 +26,6 @@ public class AutenticacaoServices {
     @Value("${prop.tempoLimiteSessao}")
     private Integer tempoLimiteSessao;
 
-    /**
-     * Habilita migração gradual de senhas em texto plano para BCrypt.
-     * Quando true, aceita tanto senhas em texto plano quanto BCrypt.
-     * Defina como false após migrar todas as senhas para BCrypt.
-     */
-    @Value("${prop.seguranca.permitirSenhaTextoPlano:true}")
-    private Boolean permitirSenhaTextoPlano;
-
     public AutenticacaoResponse autenticarUsuario(LoginRequest request) {
         log.info("Iniciando autenticacao >> usuario: {}", request.getUsuario());
 
@@ -91,13 +83,6 @@ public class AutenticacaoServices {
                 throw new CredenciaisInvalidasException();
             }
             log.info("Senha validada com sucesso usando BCrypt");
-        } else if (permitirSenhaTextoPlano) {
-            // Migração gradual: aceita senha em texto plano temporariamente
-            if (!senhaFornecida.equals(senhaArmazenada)) {
-                log.warn("Tentativa de login com senha invalida (texto plano)");
-                throw new CredenciaisInvalidasException();
-            }
-            log.warn("ATENCAO: Senha em texto plano detectada. Recomenda-se migrar para BCrypt.");
         } else {
             // Migração desabilitada - rejeitar senhas em texto plano
             log.error("Senha em texto plano rejeitada. Configuracao prop.seguranca.permitirSenhaTextoPlano=false");

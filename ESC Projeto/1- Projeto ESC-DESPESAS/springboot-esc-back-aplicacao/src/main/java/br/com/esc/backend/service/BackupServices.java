@@ -190,8 +190,11 @@ public class BackupServices {
         }
 
         return StringResponse.builder()
-                .mensagem(String.format("Backup executado com avisos. Tabelas processadas com sucesso: %d. Verifique os logs para detalhes sobre as falhas.",
-                        resultado.getSuccessCount()))
+                .mensagem(String.format("Backup executado com avisos. \n" +
+                                "Tabelas processadas com sucesso: %d. \n" +
+                                "Tabelas não processadas: %d.\n" +
+                                " ** Verifique os logs para detalhes sobre as falhas. **",
+                        resultado.getSuccessCount(), resultado.getFailureCount()))
                 .build();
     }
 
