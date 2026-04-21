@@ -118,7 +118,7 @@ public class ConsolidacaoService {
         }
 
         return StringResponse.builder()
-                .nomeDespesaParcelada(buffer.toString())
+                .data(buffer.toString())
                 .build();
     }
 

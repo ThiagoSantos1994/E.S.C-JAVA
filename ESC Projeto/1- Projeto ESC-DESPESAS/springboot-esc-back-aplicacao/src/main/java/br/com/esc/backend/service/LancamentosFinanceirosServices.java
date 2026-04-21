@@ -317,7 +317,7 @@ public class LancamentosFinanceirosServices {
 
         log.info("Consultando MesAnoPorID >>> despesaID: {} - response: {}", idDespesa, result);
         return StringResponse.builder()
-                .mesAno(result)
+                .data(result)
                 .build();
     }
 

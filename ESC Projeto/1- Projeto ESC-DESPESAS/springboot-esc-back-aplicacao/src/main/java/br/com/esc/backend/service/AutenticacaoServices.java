@@ -47,7 +47,7 @@ public class AutenticacaoServices {
         return construirResposta(usuario);
     }
 
-    public StringResponse validarSessaoUsuario(Integer idFuncionario) {
+    public BooleanResponse validarSessaoUsuario(Integer idFuncionario) {
         log.info("Validando sessao >> idFuncionario: {}", idFuncionario);
 
         try {
@@ -55,22 +55,22 @@ public class AutenticacaoServices {
 
             if (!sessao.getDataLogin().equalsIgnoreCase(formatarDataBR(dataAtual()))) {
                 log.info("Sessao expirada >> Login de data diferente | idFuncionario: {}", idFuncionario);
-                return StringResponse.builder().isSessaoValida(false).build();
+                return BooleanResponse.builder().isValid(false).build();
             }
 
             if (sessao.getTempoLogado() >= tempoLimiteSessao) {
                 log.info("Sessao expirada >> Tempo excedido ({} >= {}) | idFuncionario: {}",
                         sessao.getTempoLogado(), tempoLimiteSessao, idFuncionario);
-                return StringResponse.builder().isSessaoValida(false).build();
+                return BooleanResponse.builder().isValid(false).build();
             }
 
             log.info("Sessao validada com sucesso >> idFuncionario: {} | tempoLogado: {}min",
                     idFuncionario, sessao.getTempoLogado());
-            return StringResponse.builder().isSessaoValida(true).build();
+            return BooleanResponse.builder().isValid(true).build();
 
         } catch (Exception e) {
             log.error("Erro ao validar sessao >> idFuncionario: {}", idFuncionario, e);
-            return StringResponse.builder().isSessaoValida(false).build();
+            return BooleanResponse.builder().isValid(false).build();
         }
     }
 

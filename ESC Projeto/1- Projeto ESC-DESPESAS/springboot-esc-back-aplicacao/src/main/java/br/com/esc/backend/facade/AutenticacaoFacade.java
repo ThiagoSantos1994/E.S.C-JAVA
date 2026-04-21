@@ -1,6 +1,7 @@
 package br.com.esc.backend.facade;
 
 import br.com.esc.backend.domain.AutenticacaoResponse;
+import br.com.esc.backend.domain.BooleanResponse;
 import br.com.esc.backend.domain.LoginRequest;
 import br.com.esc.backend.domain.StringResponse;
 import br.com.esc.backend.service.AutenticacaoServices;
@@ -19,7 +20,7 @@ public class AutenticacaoFacade {
         return autenticacaoServices.autenticarUsuario(request);
     }
 
-    public StringResponse validaSessaoUsuario(Integer idFuncionario) {
+    public BooleanResponse validaSessaoUsuario(Integer idFuncionario) {
         return autenticacaoServices.validarSessaoUsuario(idFuncionario);
     }
 }

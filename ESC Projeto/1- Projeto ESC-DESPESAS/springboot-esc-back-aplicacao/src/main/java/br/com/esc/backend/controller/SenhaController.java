@@ -1,5 +1,6 @@
 package br.com.esc.backend.controller;
 
+import br.com.esc.backend.domain.BooleanResponse;
 import br.com.esc.backend.domain.StringResponse;
 import br.com.esc.backend.service.PasswordService;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +37,7 @@ public class SenhaController {
         String hash = passwordService.gerarHashSenha(senha);
 
         return ResponseEntity.ok(StringResponse.builder()
-                .mensagem(hash)
+                .data(hash)
                 .build());
     }
 
@@ -56,8 +57,7 @@ public class SenhaController {
         boolean valido = passwordService.validarSenha(senha, hash);
 
         return ResponseEntity.ok(StringResponse.builder()
-                .mensagem(valido ? "Senha válida" : "Senha inválida")
-                .isSessaoValida(valido)
+                .data(valido ? "Senha válida" : "Senha inválida")
                 .build());
     }
 
@@ -72,8 +72,7 @@ public class SenhaController {
         boolean isBCrypt = passwordService.isBCryptHash(valor);
 
         return ResponseEntity.ok(StringResponse.builder()
-                .mensagem(isBCrypt ? "Formato BCrypt válido" : "Não é formato BCrypt (texto plano ou outro)")
-                .isSessaoValida(isBCrypt)
+                .data(isBCrypt ? "Formato BCrypt válido" : "Não é formato BCrypt (texto plano ou outro)")
                 .build());
     }
 }

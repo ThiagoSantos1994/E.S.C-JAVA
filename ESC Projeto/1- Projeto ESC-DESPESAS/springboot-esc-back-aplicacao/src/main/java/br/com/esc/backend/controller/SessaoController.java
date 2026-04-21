@@ -1,5 +1,6 @@
 package br.com.esc.backend.controller;
 
+import br.com.esc.backend.domain.BooleanResponse;
 import br.com.esc.backend.facade.AutenticacaoFacade;
 import br.com.esc.backend.domain.StringResponse;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,7 @@ public class SessaoController {
     private final AutenticacaoFacade autenticacaoFacade;
 
     @GetMapping(path = "/validar", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<StringResponse> validaSessaoUsuario(
+    public ResponseEntity<BooleanResponse> validaSessaoUsuario(
             @RequestParam("idFuncionario") Integer idFuncionario) {
         var response = autenticacaoFacade.validaSessaoUsuario(idFuncionario);
         return ResponseEntity.ok(response);

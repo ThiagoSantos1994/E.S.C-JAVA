@@ -179,18 +179,18 @@ public class BackupServices {
     private StringResponse construirResposta(BackupResult resultado) {
         if (resultado.isAllSuccess()) {
             return StringResponse.builder()
-                    .mensagem("Backup executado com sucesso! Total de tabelas processadas: " + resultado.getSuccessCount())
+                    .data("Backup executado com sucesso! Total de tabelas processadas: " + resultado.getSuccessCount())
                     .build();
         }
 
         if (resultado.isAllFailure()) {
             return StringResponse.builder()
-                    .mensagem("Erro: Falha ao executar o backup. Verifique os logs para mais detalhes.")
+                    .data("Erro: Falha ao executar o backup. Verifique os logs para mais detalhes.")
                     .build();
         }
 
         return StringResponse.builder()
-                .mensagem(String.format("Backup executado com avisos. \n" +
+                .data(String.format("Backup executado com avisos. \n" +
                                 "Tabelas processadas com sucesso: %d. \n" +
                                 "Tabelas não processadas: %d.\n" +
                                 " ** Verifique os logs para detalhes sobre as falhas. **",

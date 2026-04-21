@@ -93,7 +93,7 @@ public class LancamentosFinanceirosBusiness {
 
         log.info("Validando despesa existente tipo Debito Cartao >> response: {}", response);
         return StringResponse.builder()
-                .mensagem(response)
+                .data(response)
                 .build();
     }
 
@@ -103,7 +103,7 @@ public class LancamentosFinanceirosBusiness {
         var response = lancamentosServices.validarAlteracaoTituloDespesa(idDespesa, idDetalheDespesa, idFuncionario, novoNomeDespesa);
 
         return StringResponse.builder()
-                .mensagem(response)
+                .data(response)
                 .build();
     }
 
@@ -121,7 +121,7 @@ public class LancamentosFinanceirosBusiness {
 
         log.info("Validando Titulo Duplicado >> Response: {}", response);
         return StringResponse.builder()
-                .mensagem(response)
+                .data(response)
                 .build();
     }
 

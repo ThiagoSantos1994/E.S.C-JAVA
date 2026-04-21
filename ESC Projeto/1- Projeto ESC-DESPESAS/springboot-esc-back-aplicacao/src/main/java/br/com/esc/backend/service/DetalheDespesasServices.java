@@ -46,7 +46,7 @@ public class DetalheDespesasServices {
                     convertToMoedaBR(convertStringToDecimal(repository.getValorTotalDespesa(idDespesa, idDetalheDespesa, idFuncionario))));
 
             despesaMensal.get(0).setVlLimiteExibicao((despesaMensal.get(0).getTpReferenciaSaldoMesAnterior().equalsIgnoreCase("S")) ?
-                    this.obterSubTotalDespesa((idDespesa - 1), idDetalheDespesa, idFuncionario, (despesaTipoRelatorio.equals("S") ? "relatorio" : "default")).getVlSubTotalDespesa() :
+                    this.obterSubTotalDespesa((idDespesa - 1), idDetalheDespesa, idFuncionario, (despesaTipoRelatorio.equals("S") ? "relatorio" : "default")).getData() :
                     despesaMensal.get(0).getVlLimite());
 
             despesaMensal.get(0).setDsExtratoDespesa(this.obterExtratoDespesasMes(idDespesa, idDetalheDespesa, idFuncionario, "detalheDespesas").getMensagem());
@@ -211,7 +211,7 @@ public class DetalheDespesasServices {
             var logsDAO = this.getHistoricoDetalheDespesa(detalheDAO.getIdDetalheDespesaLog(), detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdFuncionario());
 
             StringBuilder sbLogs = new StringBuilder();
-            sbLogs.append((isEmpty(logsDAO.getHistorico()) ? "" : logsDAO.getHistorico()));
+            sbLogs.append((isEmpty(logsDAO.getData()) ? "" : logsDAO.getData()));
             sbLogs.append((detalheDAO.getVlTotal().concat(" - ").concat(DataUtils.dataHoraAtual())).concat("\n").replace("\\n", "\n"));
 
             var qtdeLogs = repository.getQuantidadeLogsDetalheDespesa(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdDetalheDespesaLog(), detalheDAO.getIdFuncionario());
@@ -292,7 +292,7 @@ public class DetalheDespesasServices {
     private void gravarDetalheDespesasMensaisObservacao(DetalheDespesasMensaisDAO detalheDAO) {
         //Valida se existem observacoes inseridas pelo editor de valores, caso sim, concatena com as observações existentes na base.
         if (!isEmpty(detalheDAO.getDsObservacoesEditorValores())) {
-            var observacoesDAO = this.getObservacoesDetalheDespesa(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdObservacao(), detalheDAO.getIdFuncionario()).getObservacoes();
+            var observacoesDAO = this.getObservacoesDetalheDespesa(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdObservacao(), detalheDAO.getIdFuncionario()).getData();
 
             StringBuilder sbObservacoes = new StringBuilder();
             sbObservacoes.append((isEmpty(observacoesDAO) ? "" : observacoesDAO));
@@ -402,14 +402,14 @@ public class DetalheDespesasServices {
 
         log.info("Consultando observacoes detalhe despesa >>> despesaID: {} - response: {}", idDespesa, result);
         return StringResponse.builder()
-                .observacoes(result)
+                .data(result)
                 .build();
     }
 
     public StringResponse getHistoricoDetalheDespesa(Integer idDetalheDespesaLog, Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario) {
         log.info("Consultando historico (Log) detalhe despesa >>> despesaID: {} - idDetalheDespesa: {} - idDetalheDespesaLog: {}", idDespesa, idDetalheDespesa, idDetalheDespesaLog);
         return StringResponse.builder()
-                .historico(repository.getLogsDetalheDespesa(idDetalheDespesaLog, idDespesa, idDetalheDespesa, idFuncionario))
+                .data(repository.getLogsDetalheDespesa(idDetalheDespesaLog, idDespesa, idDetalheDespesa, idFuncionario))
                 .build();
     }
 
@@ -592,7 +592,7 @@ public class DetalheDespesasServices {
         }
 
         return StringResponse.builder()
-                .vlSubTotalDespesa(convertDecimalToString(result))
+                .data(convertDecimalToString(result))
                 .build();
 
     }

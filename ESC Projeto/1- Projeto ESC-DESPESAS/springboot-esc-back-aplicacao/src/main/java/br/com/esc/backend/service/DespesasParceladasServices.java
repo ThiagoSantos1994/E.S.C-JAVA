@@ -46,7 +46,7 @@ public class DespesasParceladasServices {
                 .qtdeParcelas(qtdeParcelas)
                 .qtdeParcelasPagas(repository.getQuantidadeParcelasPagas(idDespesaParcelada, idFuncionario))
                 .parcelaAtual(isEmpty(parcelaAtual) ? "000/" + qtdeParcelas : parcelaAtual.concat("/") + qtdeParcelas)
-                .valorParcelaAtual(this.obterValorDespesa(idDespesaParcelada, 0, mesAnoAtual(), idFuncionario).getVlDespesaParcelada())
+                .valorParcelaAtual(this.obterValorDespesa(idDespesaParcelada, 0, mesAnoAtual(), idFuncionario).getData())
                 .valorTotalDespesa(valorDespesa)
                 .valorTotalDespesaPaga(repository.getValorTotalDespesaParceladaPaga(idDespesaParcelada, idFuncionario))
                 .valorTotalDespesaPendente(repository.getValorTotalDespesaParceladaPendente(idDespesaParcelada, idFuncionario))
@@ -236,7 +236,7 @@ public class DespesasParceladasServices {
 
         log.info("NomeDespesaResponse: {}", nomeDespesa);
         return StringResponse.builder()
-                .nomeDespesaParcelada(nomeDespesa)
+                .data(nomeDespesa)
                 .build();
     }
 
@@ -270,10 +270,10 @@ public class DespesasParceladasServices {
                 .build();
     }
 
-    public StringResponse validarTituloDespesaParceladaExistente(String dsTituloDespesaParcelada, Integer idDespesaParcelada, Integer idFuncionario) {
+    public BooleanResponse validarTituloDespesaParceladaExistente(String dsTituloDespesaParcelada, Integer idDespesaParcelada, Integer idFuncionario) {
         var response = repository.getValidaTituloDespesaParceladaExistente(dsTituloDespesaParcelada, idDespesaParcelada, idFuncionario).compareTo(0) != 0;
-        return StringResponse.builder()
-                .isTituloJaExistente(response)
+        return BooleanResponse.builder()
+                .isValid(response)
                 .build();
     }
 
@@ -329,7 +329,7 @@ public class DespesasParceladasServices {
             valorDespesa = repository.getDespesaParcelada(idDespesaParcelada, null, idFuncionario).getVlFatura();
 
             return StringResponse.builder()
-                    .vlDespesaParcelada(valorDespesa)
+                    .data(valorDespesa)
                     .build();
         }
 
@@ -346,7 +346,7 @@ public class DespesasParceladasServices {
         }
 
         return StringResponse.builder()
-                .vlDespesaParcelada(valorDespesa)
+                .data(valorDespesa)
                 .build();
     }
 
@@ -423,7 +423,7 @@ public class DespesasParceladasServices {
         }
 
         return StringResponse.builder()
-                .relatorioDespesas(buffer.toString())
+                .data(buffer.toString())
                 .build();
     }
 

@@ -73,7 +73,7 @@ public class DespesasParceladasController {
     }
 
     @GetMapping(path = "/despesasParceladas/validarTituloDespesaParceladaExistente", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<StringResponse> validarTituloDespesaParceladaExistente(
+    public ResponseEntity<BooleanResponse> validarTituloDespesaParceladaExistente(
             @RequestParam("dsTituloDespesaParcelada") String dsTituloDespesaParcelada,
             @RequestParam("idDespesaParcelada") Integer idDespesaParcelada,
             @RequestParam("idFuncionario") Integer idFuncionario) {
@@ -82,7 +82,7 @@ public class DespesasParceladasController {
     }
 
     @GetMapping(path = "/despesasParceladas/validaDespesaExistente", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<StringResponse> validaDespesaParceladaExistente(
+    public ResponseEntity<BooleanResponse> validaDespesaParceladaExistente(
             @RequestParam("dsTituloDespesaParcelada") String dsTituloDespesaParcelada,
             @RequestParam("idFuncionario") Integer idFuncionario) {
         var response = service.validaDespesaParceladaExistente(dsTituloDespesaParcelada, idFuncionario);

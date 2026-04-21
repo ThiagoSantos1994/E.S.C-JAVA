@@ -115,7 +115,7 @@ public class DespesasParceladasBusiness {
     }
 
     @SneakyThrows
-    public StringResponse validarTituloDespesaParceladaExistente(String dsTituloDespesaParcelada, Integer idDespesaParcelada, Integer idFuncionario) {
+    public BooleanResponse validarTituloDespesaParceladaExistente(String dsTituloDespesaParcelada, Integer idDespesaParcelada, Integer idFuncionario) {
         log.info("Validando se o titulo da despesa parcelada ja existe na base de dados - Filtros >>> dsTituloDespesaParcelada: {}", dsTituloDespesaParcelada);
         return despesasParceladasServices.validarTituloDespesaParceladaExistente(dsTituloDespesaParcelada, idDespesaParcelada, idFuncionario);
     }
@@ -134,20 +134,20 @@ public class DespesasParceladasBusiness {
         log.info("Obtendo calculo valor total despesa parcelada em aberto - valor: {}", result);
 
         return StringResponse.builder()
-                .vlCalculo(result)
+                .data(result)
                 .build();
     }
 
     @SneakyThrows
-    public StringResponse validaDespesaParceladaExistente(String dsTituloDespesaParcelada, Integer idFuncionario) {
+    public BooleanResponse validaDespesaParceladaExistente(String dsTituloDespesaParcelada, Integer idFuncionario) {
         log.info("Validando se a despesa parcelada existe na base - dsTituloDespesaParcelada: {} - idFuncionario: {}", dsTituloDespesaParcelada, idFuncionario);
         var response = repository.getDespesaParcelada(null, dsTituloDespesaParcelada, idFuncionario);
 
         boolean result = !ObjectUtils.isEmpty(response);
 
         log.info("Response: Despesa Existente ?? - {}", result);
-        return StringResponse.builder()
-                .isDespesaExistente(result)
+        return BooleanResponse.builder()
+                .isValid(result)
                 .build();
     }
 
