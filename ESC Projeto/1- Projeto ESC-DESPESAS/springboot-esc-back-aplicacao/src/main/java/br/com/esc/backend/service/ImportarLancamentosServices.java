@@ -244,12 +244,9 @@ public class ImportarLancamentosServices {
             } else {
                 dao.setIdDespesaParcelada(0);
                 dao.setIdParcela(0);
-                dao.setTpAnotacao("N");
                 dao.setTpParcelaAdiada("N");
 
-                if (bReprocessarTodosValores) {
-                    dao.setVlTotal(dao.getVlTotal().trim());
-                } else {
+                if (!bReprocessarTodosValores) {
                     dao.setVlTotal(dao.getTpReprocessar().equalsIgnoreCase("N") ? VALOR_ZERO : dao.getVlTotal().trim());
                 }
             }
@@ -261,8 +258,6 @@ public class ImportarLancamentosServices {
             dao.setIdDespesa(idDespesa);
             dao.setIdObservacao(0);
             dao.setIdDetalheDespesaLog(0);
-            dao.setIdConsolidacao(dao.getIdConsolidacao());
-            dao.setIdDespesaConsolidacao(dao.getIdDespesaConsolidacao());
 
             detalheDespesasList.add(dao);
         }
