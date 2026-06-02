@@ -27,6 +27,7 @@ public class LancamentosMensaisDAO {
     private String sVlTotalDespesa;
     private String sVlTotalDespesaPendente;
     private String sVlTotalDespesaPaga;
+    private String sAvgDespesa;
     private String statusPagamento;
     private String percentualUtilizacao;
     private String statusPercentual;

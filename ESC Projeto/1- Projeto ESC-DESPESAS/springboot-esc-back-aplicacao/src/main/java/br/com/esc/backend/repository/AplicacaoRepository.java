@@ -127,6 +127,10 @@ public interface AplicacaoRepository {
 
     Integer getMaxIdDespesa(Integer idFuncionario);
 
+    String getAnoPorID(Integer idDespesa, Integer idFuncionario);
+
+    Integer getQtdeMesesProcessadosAno(String anoReferencia, Integer idFuncionario);
+
     String getMesAnoPorID(Integer idDespesa, Integer idFuncionario);
 
     String getMesAnoPorIDTemp(Integer idDespesa, Integer idFuncionario);
@@ -196,6 +200,8 @@ public interface AplicacaoRepository {
     ConfiguracaoLancamentosResponse getConfiguracaoLancamentos(Integer idFuncionario);
 
     String getValorTotalDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+
+    String getSubTotalValorDespesa(Integer idDespesa, Integer idDetalheDespesa, String anoReferencia, Integer idFuncionario);
 
     Boolean getStatusDetalheDespesaPendentePagamento(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 

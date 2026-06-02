@@ -308,6 +308,14 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlQuery
+    String getAnoPorID(Integer idDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
+    Integer getQtdeMesesProcessadosAno(String anoReferencia, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
     String getMesAnoPorID(Integer idDespesa, Integer idFuncionario);
 
     @Override
@@ -424,6 +432,10 @@ public interface JdbiRepository extends AplicacaoRepository {
     @Override
     @SqlQuery
     String getValorTotalDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
+    String getSubTotalValorDespesa(Integer idDespesa, Integer idDetalheDespesa, String anoReferencia, Integer idFuncionario);
 
     @Override
     @SqlQuery

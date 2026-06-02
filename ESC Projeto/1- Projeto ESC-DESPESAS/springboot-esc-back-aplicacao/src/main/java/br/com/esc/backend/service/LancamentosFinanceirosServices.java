@@ -7,13 +7,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static br.com.esc.backend.utils.DataUtils.anoAtual;
 import static br.com.esc.backend.utils.MotorCalculoUtils.*;
 import static br.com.esc.backend.utils.ObjectUtils.*;
 import static br.com.esc.backend.utils.VariaveisGlobais.*;
@@ -46,7 +46,7 @@ public class LancamentosFinanceirosServices {
         BigDecimal saldoDisponivel = receita.subtract(despesa).subtract(despesaPoupancaPositiva);
 
         RelatorioDespesasReceitasDAO relatorio = obterRelatorioDespesasReceitas(idDespesa, idFuncionario);
-        List<LancamentosMensaisDAO> lancamentosMensais = obterLancamentosMensais(idDespesa, idFuncionario, receita);
+        List<LancamentosMensaisDAO> lancamentosMensais = obterLancamentosMensais(idDespesa, idFuncionario, receita, dsAno);
 
         dto.setIdDespesa(idDespesa);
         dto.setDsMesReferencia(dsMes);
@@ -109,9 +109,9 @@ public class LancamentosFinanceirosServices {
         return relatorio;
     }
 
-    private List<LancamentosMensaisDAO> obterLancamentosMensais(Integer idDespesa, Integer idFuncionario, BigDecimal receitaMes) {
+    private List<LancamentosMensaisDAO> obterLancamentosMensais(Integer idDespesa, Integer idFuncionario, BigDecimal receitaMes, String anoReferencia) {
         List<LancamentosMensaisDAO> lancamentosMensaisList = parserLancamentosMensais(
-                repository.getLancamentosMensais(idDespesa, idFuncionario), receitaMes);
+                repository.getLancamentosMensais(idDespesa, idFuncionario), receitaMes, anoReferencia);
 
         var isContemDespesasConsolidadas = lancamentosMensaisList.stream()
                 .filter(d -> isNotNull(d.getIdConsolidacao()) && d.getIdConsolidacao() > 0)
@@ -129,13 +129,15 @@ public class LancamentosFinanceirosServices {
     public List<LancamentosMensaisDAO> obterLancamentosMensaisConsolidados(Integer idDespesa, Integer idConsolidacao, Integer idFuncionario) {
         BigDecimal receitaMes = calcularReceitaPositivaMes(repository.getCalculoReceitaPositivaMES(idDespesa, idFuncionario));
 
-        List<LancamentosMensaisDAO> lancamentosMensaisDAOList = parserLancamentosMensais(repository.getLancamentosMensaisConsolidados(idDespesa, idConsolidacao, idFuncionario), receitaMes);
+        String anoReferencia = repository.getAnoPorID(idDespesa, idFuncionario);
 
-        return lancamentosMensaisDAOList;
+        return parserLancamentosMensais(repository.getLancamentosMensaisConsolidados(idDespesa, idConsolidacao, idFuncionario), receitaMes, anoReferencia);
     }
 
-    private List<LancamentosMensaisDAO> parserLancamentosMensais(List<LancamentosMensaisDAO> lancamentosMensaisDAOList, BigDecimal receitaMes) {
+    private List<LancamentosMensaisDAO> parserLancamentosMensais(List<LancamentosMensaisDAO> lancamentosMensaisDAOList, BigDecimal receitaMes, String anoReferencia) {
         List<LancamentosMensaisDAO> lancamentosMensaisList = new ArrayList<>();
+
+        int mesesProcessados = repository.getQtdeMesesProcessadosAno(anoReferencia, lancamentosMensaisDAOList.get(0).getIdFuncionario());
 
         for (LancamentosMensaisDAO detalhes : lancamentosMensaisDAOList) {
             int idDespesa = detalhes.getIdDespesa();
@@ -187,6 +189,12 @@ public class LancamentosFinanceirosServices {
             detalhes.setIdConsolidacao(detalhes.getIdConsolidacao());
             detalhes.setTpDespesaConsolidacao(detalhes.getTpDespesaConsolidacao());
 
+            // Retorna a media de gasto por despesa dentro do ano de referencia
+            detalhes.setSAvgDespesa(convertToMoedaBR(
+                    convertStringToDecimal(repository.getSubTotalValorDespesa(idDespesa, idDetalheDespesa, anoReferencia, idFuncionario))
+                            .divide(new BigDecimal(mesesProcessados), 2, RoundingMode.HALF_UP)
+            ));
+
             lancamentosMensaisList.add(detalhes);
         }
 
@@ -213,15 +221,17 @@ public class LancamentosFinanceirosServices {
                     .collect(Collectors.toList());
 
             BigDecimal valorTotalDespesa = despesasConsolidadasList.stream()
-                    .map(dc -> dc.getVlTotalDespesa())
+                    .map(LancamentosMensaisDAO::getVlTotalDespesa)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
             BigDecimal valorTotalDespesaPendente = despesasConsolidadasList.stream()
-                    .map(dc -> dc.getVlTotalDespesaPendente())
+                    .filter(dc -> dc.getTpLinhaSeparacao().equals("N"))
+                    .map(LancamentosMensaisDAO::getVlTotalDespesaPendente)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
             BigDecimal valorTotalDespesaPaga = despesasConsolidadasList.stream()
-                    .map(dc -> dc.getVlTotalDespesaPaga())
+                    .filter(dc -> dc.getTpLinhaSeparacao().equals("N"))
+                    .map(LancamentosMensaisDAO::getVlTotalDespesaPaga)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
             despesaConsolidacao.setVlTotalDespesa(valorTotalDespesa);
