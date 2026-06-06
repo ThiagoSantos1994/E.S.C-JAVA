@@ -26,6 +26,7 @@ public class LancamentosFinanceirosBusiness {
 
         var result = lancamentosServices.obterLancamentosFinanceiros(dsMes, dsAno, idFuncionario);
         result.setLabelQuitacaoParcelasMes(detalheDespesasServices.obterExtratoDespesasMes(result.getIdDespesa(), null, idFuncionario, "lancamentosMensais").getMensagem());
+        result.setLabelNovasParcelasMes(detalheDespesasServices.obterExtratoDespesasMes(result.getIdDespesa(), null, idFuncionario, "novasParcelas").getMensagem());
 
         return result;
     }

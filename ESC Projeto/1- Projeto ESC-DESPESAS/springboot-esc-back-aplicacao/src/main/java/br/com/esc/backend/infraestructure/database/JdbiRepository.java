@@ -354,6 +354,11 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlQuery
+    @UseRowMapper(ExtratoDespesasRowMapper.class)
+    ExtratoDespesasDAO getExtratoNovasDespesasParceladasMes(String dsMes, String dsAno, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
     Integer getValidaTituloDespesaDuplicado(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String dsTituloDespesa, String anoReferencia);
 
     @Override

@@ -149,6 +149,8 @@ public interface AplicacaoRepository {
 
     ExtratoDespesasDAO getExtratoDespesasParceladasMes(String dsMes, String dsAno, Integer idFuncionario);
 
+    ExtratoDespesasDAO getExtratoNovasDespesasParceladasMes(String dsMes, String dsAno, Integer idFuncionario);
+
     Integer getValidaDespesaExistenteDebitoCartao(Integer idDespesa, Integer idFuncionario);
 
     Integer getValidaDespesaExistente(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
