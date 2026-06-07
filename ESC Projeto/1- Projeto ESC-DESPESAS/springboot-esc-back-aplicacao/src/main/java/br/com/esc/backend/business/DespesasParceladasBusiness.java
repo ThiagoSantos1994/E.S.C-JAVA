@@ -188,7 +188,7 @@ public class DespesasParceladasBusiness {
                     despesasParceladasServices.desfazerFluxoParcelasAdiadas(consolidacao.getIdDespesa(), consolidacao.getIdDetalheDespesa(), consolidacao.getIdDespesaParcelada(), consolidacao.getIdParcela(), consolidacao.getIdFuncionario());
                 }
                 /*Altera a flag de ParcelaAdiada no detalhe das despesas mensais tipo consolidacao, desfaz a baixa o pagamento e desmarca como despesa de anotacao*/
-                repository.updateDetalheDespesasMensaisDespesaConsolidadaAdiadaDesfazer(despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdConsolidacao(), despesa.getIdFuncionario());
+                repository.updateDetalheDespesasMensaisConsolidadaAdiadaDesfazer(despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdConsolidacao(), despesa.getIdFuncionario());
             }
         }
     }

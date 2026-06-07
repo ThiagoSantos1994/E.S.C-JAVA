@@ -41,6 +41,7 @@ public class LancamentosFinanceirosServices {
         BigDecimal despesa = repository.getCalculoReceitaNegativaMES(idDespesa, idFuncionario);
         BigDecimal despesaPoupancaPositiva = repository.getCalculoDespesaTipoPoupanca(idDespesa, idFuncionario);
         BigDecimal pendente = repository.getCalculoReceitaPendentePgtoMES(idDespesa, idFuncionario);
+        BigDecimal saldoUtilizadoMes = despesa.subtract(saldoInicialMes);
 
         // subtrai do saldo disponivel (só para exibição) a soma da despesa tipo poupanca positiva enquanto estiver pendente de pagamento - 07/08/2024
         BigDecimal saldoDisponivel = receita.subtract(despesa).subtract(despesaPoupancaPositiva);
@@ -54,6 +55,7 @@ public class LancamentosFinanceirosServices {
         dto.setVlSaldoInicialMes(convertToMoedaBR(saldoInicialMes));
         dto.setVlSaldoPositivo(convertToMoedaBR(receita));
         dto.setVlTotalDespesas(convertToMoedaBR(despesa));
+        dto.setVlSaldoUtilizadoMes(convertToMoedaBR(saldoUtilizadoMes));
         dto.setVlTotalPendentePagamento(convertToMoedaBR(pendente));
         dto.setVlSaldoDisponivelMes(convertToMoedaBR(saldoDisponivel));
         dto.setPcUtilizacaoDespesasMes(new DecimalFormat("00").format(calculaPorcentagem(receita, despesa, 3)).concat("%"));
@@ -76,6 +78,7 @@ public class LancamentosFinanceirosServices {
         dto.setVlTotalDespesas(VALOR_ZERO);
         dto.setVlTotalPendentePagamento(VALOR_ZERO);
         dto.setVlSaldoDisponivelMes(VALOR_ZERO);
+        dto.setVlSaldoUtilizadoMes(VALOR_ZERO);
         dto.setStatusSaldoMes(POSITIVO);
         dto.setPcUtilizacaoDespesasMes(PERC_ZERO);
         dto.setRelatorioDespesasReceitas(new RelatorioDespesasReceitasDAO());

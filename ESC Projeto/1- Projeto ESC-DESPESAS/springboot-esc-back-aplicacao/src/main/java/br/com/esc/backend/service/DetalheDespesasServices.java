@@ -606,8 +606,11 @@ public class DetalheDespesasServices {
 
             mensagemBuffer.append(NESTE_MES_SERA_QUITADO);
             mensagemBuffer.append(extrato.getVlDespesas()).append("R$");
-        } else if (tipo.equalsIgnoreCase("novasParcelas")) {
-            extrato = repository.getExtratoNovasDespesasParceladasMes(mesAtual(), anoAtual(), idFuncionario);
+        } else if (tipo.equalsIgnoreCase("novasParcelas") && !isEmpty(idDespesa)) {
+            var mesDespesa = repository.getMesAnoPorID(idDespesa, idFuncionario).substring(0, 2);
+            var anoDespesa = repository.getAnoPorID(idDespesa, idFuncionario);
+
+            extrato = repository.getExtratoNovasDespesasParceladasMes(mesDespesa, anoDespesa, idFuncionario);
             var qtdeDespesas = extrato.getQtDespesas().toString();
             var somaParcelas = extrato.getVlDespesas().concat("R$ ");
 

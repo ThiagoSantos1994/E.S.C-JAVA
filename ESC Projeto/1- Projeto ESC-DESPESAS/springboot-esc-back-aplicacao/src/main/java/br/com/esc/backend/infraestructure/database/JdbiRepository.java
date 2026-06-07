@@ -705,7 +705,7 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlUpdate
-    void updateDetalheDespesasMensaisDespesaConsolidadaAdiadaDesfazer(Integer idDespesa, Integer idDetalheDespesa, Integer idConsolidacao, Integer idFuncionario);
+    void updateDetalheDespesasMensaisConsolidadaAdiadaDesfazer(Integer idDespesa, Integer idDetalheDespesa, Integer idConsolidacao, Integer idFuncionario);
 
     @Override
     @SqlUpdate

@@ -339,7 +339,7 @@ public interface AplicacaoRepository {
 
     void updateDetalheDespesasMensaisDespesaConsolidadaAdiada(Integer idDespesa, Integer idDetalheDespesa, Integer idConsolidacao, String vlTotalParcelaAdiantada, Integer idFuncionario);
 
-    void updateDetalheDespesasMensaisDespesaConsolidadaAdiadaDesfazer(Integer idDespesa, Integer idDetalheDespesa, Integer idConsolidacao, Integer idFuncionario);
+    void updateDetalheDespesasMensaisConsolidadaAdiadaDesfazer(Integer idDespesa, Integer idDetalheDespesa, Integer idConsolidacao, Integer idFuncionario);
 
     void updateDetalheDespesasMensaisSemRelatorio(Integer idDespesa, Integer idDespesaLinkRelatorio, Integer idFuncionario);
 
