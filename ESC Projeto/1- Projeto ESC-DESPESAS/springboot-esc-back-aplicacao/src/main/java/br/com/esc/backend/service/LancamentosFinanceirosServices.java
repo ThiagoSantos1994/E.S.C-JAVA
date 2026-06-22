@@ -189,6 +189,7 @@ public class LancamentosFinanceirosServices {
             detalhes.setSVlTotalDespesa(convertToMoedaBR(detalhes.getVlTotalDespesa()));
             detalhes.setSVlTotalDespesaPaga(convertToMoedaBR(detalhes.getVlTotalDespesaPaga()));
             detalhes.setSVlTotalDespesaPendente(convertToMoedaBR(detalhes.getVlTotalDespesaPendente()));
+            detalhes.setSVlTotalGastoMes(convertToMoedaBR(convertStringToDecimal(repository.getTotalGastoMesDetalheDespesa(detalhes.getIdDespesa(), detalhes.getIdDetalheDespesa(), detalhes.getIdFuncionario()))));
             detalhes.setIdConsolidacao(detalhes.getIdConsolidacao());
             detalhes.setTpDespesaConsolidacao(detalhes.getTpDespesaConsolidacao());
 

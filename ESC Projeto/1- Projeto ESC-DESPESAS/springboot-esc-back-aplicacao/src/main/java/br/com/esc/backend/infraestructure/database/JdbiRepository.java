@@ -448,6 +448,10 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlQuery
+    String getTotalGastoMesDetalheDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
     @UseRowMapper(LembretesRowMapper.class)
     List<LembretesDAO> getMonitorLembretes(Integer idFuncionario, String tpBaixado, @Define("whereSemanal") String sWhereSemanal);
 

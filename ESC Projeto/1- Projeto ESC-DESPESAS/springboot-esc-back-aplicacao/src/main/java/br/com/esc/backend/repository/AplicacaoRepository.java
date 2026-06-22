@@ -207,6 +207,8 @@ public interface AplicacaoRepository {
 
     Boolean getStatusDetalheDespesaPendentePagamento(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 
+    String getTotalGastoMesDetalheDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+
     List<LembretesDAO> getMonitorLembretes(Integer idFuncionario, String tpBaixado, String sWhereSemanal);
 
     List<TituloLembretesDAO> getTituloLembretes(Integer idFuncionario, String tpBaixado);
