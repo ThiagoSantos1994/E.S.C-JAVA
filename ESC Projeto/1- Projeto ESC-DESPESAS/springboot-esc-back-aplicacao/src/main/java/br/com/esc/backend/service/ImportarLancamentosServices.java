@@ -63,11 +63,11 @@ public class ImportarLancamentosServices {
         for (DetalheDespesasMensaisDAO detalheDespesa : this.processarDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario, dsMes, dsAno, bReprocessarTodosValores)) {
             if (this.isDetalheDespesaExistente(detalheDespesa)) {
                 if (bDespesaComStatusPago) {
-                    log.info("Despesa mensal com status PAGO, nao foi atualizado. >>>  {}", detalheDespesa);
+                    log.warn("Despesa mensal com status PAGO, nao foi atualizado. >>>  {}", detalheDespesa);
                     continue;
                 }
                 if (bDespesaComParcelaAdiada) {
-                    log.info("Despesa mensal com status adiantamento de parcela, nao foi atualizado. >>>  {}", detalheDespesa);
+                    log.warn("Despesa mensal com status adiantamento de parcela, nao foi atualizado. >>>  {}", detalheDespesa);
                     continue;
                 }
 
@@ -89,7 +89,7 @@ public class ImportarLancamentosServices {
                 }
 
                 log.info("Inserindo detalhe despesas mensais >>>  {}", detalheDespesa);
-                repository.insertDetalheDespesasMensais(asList(detalheDespesa));
+                repository.insertDetalheDespesasMensais(List.of(detalheDespesa));
 
                 if (bDespesaComParcelaAdiada) {
                     log.info("Despesa mensal com status adiantamento de parcela, realizando tratamento para gravar. >>>  {}", detalheDespesa);
@@ -206,7 +206,7 @@ public class ImportarLancamentosServices {
                                 .filter(d -> d.getTpParcelaAmortizada().equalsIgnoreCase("S"))
                                 .collect(Collectors.toList());
 
-                        if (parcelasAmortizadasDespesaAtualStream.size() == 0) {
+                        if (parcelasAmortizadasDespesaAtualStream.isEmpty()) {
                             log.info("Adicionando parcela amortizada na despesa mensal... Parcela: {}.", parcelaSemAmortizacao.getIdParcela());
                             parcelaSemAmortizacao.setTpParcelaAmortizada("S");
                             parcela = parcelaSemAmortizacao;
@@ -215,7 +215,7 @@ public class ImportarLancamentosServices {
                             repository.updateParcelaStatusAmortizado(idDespesaParcelada, parcela.getIdParcela(), idFuncionario);
                         } else {
                             var parcelaDespesaAtual = parcelasAmortizadasDespesaAtualStream.stream()
-                                    .collect(Collectors.maxBy(Comparator.comparingInt(DetalheDespesasMensaisDAO::getIdParcela)))
+                                    .max(Comparator.comparingInt(DetalheDespesasMensaisDAO::getIdParcela))
                                     .get().getIdParcela();
 
                             if (parcelaSemAmortizacao.getIdParcela() >= parcelaDespesaAtual) {

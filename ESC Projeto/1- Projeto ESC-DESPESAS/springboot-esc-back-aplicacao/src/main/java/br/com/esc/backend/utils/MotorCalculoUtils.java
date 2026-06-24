@@ -48,7 +48,9 @@ public class MotorCalculoUtils {
         return valorCalculado.divide(valorLimite, scale, RoundingMode.HALF_UP).multiply(new BigDecimal(100));
     }
 
-    public static BigDecimal convertStringToDecimal(String valor) {
+    public static BigDecimal convertStringToDecimal(String input) {
+        //Remove NBSP e espaço vazio e em branco da string.
+        var valor = input.replace("\u00a0", "").trim();
         if (valor.trim().equalsIgnoreCase("-") || isEmpty(valor)) {
             return BigDecimal.ZERO;
         }
@@ -87,6 +89,7 @@ public class MotorCalculoUtils {
         Locale localeBR = new Locale("pt", "BR");
         NumberFormat dinheiro = NumberFormat.getCurrencyInstance(localeBR);
 
-        return dinheiro.format(valor).replace("R$", "");
+        return dinheiro.format(valor).replace("R$", "")
+                .replace("\u00a0", "").trim();
     }
 }

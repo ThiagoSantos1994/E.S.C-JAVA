@@ -20,7 +20,6 @@ import static br.com.esc.backend.utils.DataUtils.mesAtual;
 import static br.com.esc.backend.utils.MotorCalculoUtils.*;
 import static br.com.esc.backend.utils.ObjectUtils.*;
 import static br.com.esc.backend.utils.VariaveisGlobais.*;
-import static java.util.Arrays.asList;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +35,7 @@ public class DetalheDespesasServices {
 
         var despesaMensal = repository.getDespesasMensais(idDespesa, idFuncionario, idDetalheDespesa);
 
-        if (despesaMensal.size() == 0) {
+        if (despesaMensal.isEmpty()) {
             return new DetalheDespesasMensaisDTO();
         } else {
             despesaTipoRelatorio = despesaMensal.get(0).getTpRelatorio();
@@ -193,7 +192,7 @@ public class DetalheDespesasServices {
             detalheDAO.setIdOrdem(idOrdemInclusao);
 
             log.info("Inserindo DetalheDespesaMensal: request = {}", detalheDAO);
-            repository.insertDetalheDespesasMensais(asList(detalheDAO));
+            repository.insertDetalheDespesasMensais(List.of(detalheDAO));
 
             if (bIsParcelaAdiada) {
                 var valorParcelaAdiada = repository.getMaxValorParcela(detalheDAO.getIdDespesaParcelada(), detalheDAO.getIdFuncionario());
@@ -294,9 +293,8 @@ public class DetalheDespesasServices {
         if (!isEmpty(detalheDAO.getDsObservacoesEditorValores())) {
             var observacoesDAO = this.getObservacoesDetalheDespesa(detalheDAO.getIdDespesa(), detalheDAO.getIdDetalheDespesa(), detalheDAO.getIdObservacao(), detalheDAO.getIdFuncionario()).getData();
 
-            StringBuilder sbObservacoes = new StringBuilder();
-            sbObservacoes.append((isEmpty(observacoesDAO) ? "" : observacoesDAO));
-            sbObservacoes.append(detalheDAO.getDsObservacoesEditorValores().replace("\\n", "\n"));
+            String sbObservacoes = (isEmpty(observacoesDAO) ? "" : observacoesDAO) +
+                    detalheDAO.getDsObservacoesEditorValores().replace("\\n", "\n");
 
             var request = ObservacoesDetalheDespesaRequest.builder()
                     .idObservacao(detalheDAO.getIdObservacao())
@@ -304,7 +302,7 @@ public class DetalheDespesasServices {
                     .idDetalheDespesa(detalheDAO.getIdDetalheDespesa())
                     .idFuncionario(detalheDAO.getIdFuncionario())
                     .idOrdem(detalheDAO.getIdOrdem())
-                    .dsObservacoes(sbObservacoes.toString())
+                    .dsObservacoes(sbObservacoes)
                     .build();
 
             this.gravarObservacoesDetalheDespesa(request);
@@ -598,7 +596,7 @@ public class DetalheDespesasServices {
     }
 
     public ExtratoDespesasDAO obterExtratoDespesasMes(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String tipo) {
-        StringBuffer mensagemBuffer = new StringBuffer();
+        StringBuilder mensagemBuffer = new StringBuilder();
         var extrato = new ExtratoDespesasDAO();
 
         if (tipo.equalsIgnoreCase("cadastroParcelas")) {
@@ -619,7 +617,7 @@ public class DetalheDespesasServices {
                     .concat(somaParcelas).concat(" em valor de parcela."));
         } else {
             var despesasFixas = repository.getDespesasFixasMensaisPorID(idDespesa, idFuncionario);
-            if (despesasFixas.size() == 0) {
+            if (despesasFixas.isEmpty()) {
                 extrato.setMensagem(SEM_DESPESA_MENSAGEM_PADRAO);
                 return extrato;
             }
@@ -685,18 +683,12 @@ public class DetalheDespesasServices {
                 .build();
 
         var detalheDespesasMensais = repository.getDetalheDespesaMensalPorFiltro(filtro);
-        if (isNull(detalheDespesasMensais)) {
-            return false;
-        }
-        return true;
+        return !isNull(detalheDespesasMensais);
     }
 
     private Boolean isDespesaExistente(DespesasMensaisDAO despesa) {
         var despesaMensal = repository.getDespesaMensalPorFiltro(despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdFuncionario());
-        if (isNull(despesaMensal)) {
-            return false;
-        }
-        return true;
+        return !isNull(despesaMensal);
     }
 
     private DespesasMensaisDAO mensaisDAOMapper(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario) {
