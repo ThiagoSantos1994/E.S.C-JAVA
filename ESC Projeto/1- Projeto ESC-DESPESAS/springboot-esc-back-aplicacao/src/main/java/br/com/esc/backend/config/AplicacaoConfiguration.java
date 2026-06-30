@@ -1,6 +1,5 @@
 package br.com.esc.backend.config;
 
-import br.com.esc.backend.business.LancamentosBusinessService;
 import br.com.esc.backend.repository.AplicacaoRepository;
 import br.com.esc.backend.repository.AutenticacaoRepository;
 import br.com.esc.backend.repository.BackupRepository;
@@ -8,34 +7,26 @@ import br.com.esc.backend.service.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 public class AplicacaoConfiguration {
 
     @Bean
     @Primary
-    LancamentosBusinessService lancamentosFinanceirosService(AplicacaoRepository repository, ImportarLancamentosServices importacaoBusiness,
-                                                             LancamentosFinanceirosServices lancamentosBusiness, DetalheDespesasServices detalheDespesasServices,
-                                                             DespesasParceladasServices despesasParceladasServices, BackupServices backupServices, AutenticacaoServices autenticacaoServices,
-                                                             LembreteServices lembreteServices, ConsolidacaoService consolidacaoService) {
-        return new LancamentosBusinessService(repository, importacaoBusiness, lancamentosBusiness, detalheDespesasServices, despesasParceladasServices, backupServices, autenticacaoServices, lembreteServices, consolidacaoService);
-    }
-
-    @Bean
-    @Primary
-    ImportarLancamentosServices importarLancamentosBusiness(AplicacaoRepository repository, DetalheDespesasServices detalheDespesasServices, ConsolidacaoService consolidacaoService) {
+    ImportarLancamentosServices importarLancamentosServices(AplicacaoRepository repository, DetalheDespesasServices detalheDespesasServices, ConsolidacaoService consolidacaoService) {
         return new ImportarLancamentosServices(repository, detalheDespesasServices, consolidacaoService);
     }
 
     @Bean
     @Primary
-    LancamentosFinanceirosServices lancamentosFinanceirosBusiness(AplicacaoRepository repository) {
+    LancamentosFinanceirosServices lancamentosFinanceirosServices(AplicacaoRepository repository) {
         return new LancamentosFinanceirosServices(repository);
     }
 
     @Bean
     @Primary
-    DetalheDespesasServices detalheDespesasBusiness(AplicacaoRepository repository, DespesasParceladasServices despesasParceladasServices, ConsolidacaoService consolidacaoService) {
+    DetalheDespesasServices detalheDespesasServices(AplicacaoRepository repository, DespesasParceladasServices despesasParceladasServices, ConsolidacaoService consolidacaoService) {
         return new DetalheDespesasServices(repository, despesasParceladasServices, consolidacaoService);
     }
 
@@ -53,8 +44,24 @@ public class AplicacaoConfiguration {
 
     @Bean
     @Primary
-    AutenticacaoServices autenticacaoServices(AplicacaoRepository aplicacaoRepository, AutenticacaoRepository repository) {
-        return new AutenticacaoServices(aplicacaoRepository, repository);
+    AutenticacaoServices autenticacaoServices(
+            AutenticacaoRepository autenticacaoRepository,
+            AuditoriaAcessoService auditoriaAcessoService,
+            ConfiguracaoLancamentosService configuracaoLancamentosService,
+            PasswordEncoder passwordEncoder) {
+        return new AutenticacaoServices(autenticacaoRepository, auditoriaAcessoService, configuracaoLancamentosService, passwordEncoder);
+    }
+
+    @Bean
+    @Primary
+    AuditoriaAcessoService auditoriaAcessoService(AutenticacaoRepository repository) {
+        return new AuditoriaAcessoService(repository);
+    }
+
+    @Bean
+    @Primary
+    ConfiguracaoLancamentosService configuracaoLancamentosService(AplicacaoRepository repository) {
+        return new ConfiguracaoLancamentosService(repository);
     }
 
     @Bean

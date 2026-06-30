@@ -4,12 +4,11 @@ import br.com.esc.backend.domain.*;
 import br.com.esc.backend.repository.AplicacaoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lombok.var;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static br.com.esc.backend.service.DetalheDespesasServices.parserOrdem;
@@ -108,24 +107,23 @@ public class ConsolidacaoService {
 
     public StringResponse obterRelatorioDespesasParceladasConsolidadas(Integer idDespesa, Integer idDetalheDespesa, Integer idConsolidacao, Integer idFuncionario) {
         var listDespesas = this.obterListDetalheDespesasConsolidadas(idDespesa, idDetalheDespesa, idConsolidacao, idFuncionario);
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
 
         for (DetalheDespesasMensaisDAO dao : listDespesas) {
-            StringBuilder builder = new StringBuilder();
-            builder.append(dao.getVlTotal().concat("R$ - ").concat(dao.getDsTituloDespesa()));
-            builder.append(System.lineSeparator());
+            String builder = dao.getVlTotal().concat("R$ - ").concat(dao.getDsTituloDespesa()) +
+                    System.lineSeparator();
 
             buffer.append(builder);
         }
 
         return StringResponse.builder()
-                .nomeDespesaParcelada(buffer.toString())
+                .data(buffer.toString())
                 .build();
     }
 
     public List<DetalheDespesasMensaisDAO> obterListDetalheDespesasConsolidadas(Integer idDespesa, Integer idDetalheDespesa, Integer idConsolidacao, Integer idFuncionario) {
         return aplicacaoRepository.getDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario, parserOrdem(null)).stream()
-                .filter(d -> d.getIdDespesaConsolidacao() == idConsolidacao)
+                .filter(d -> Objects.equals(d.getIdDespesaConsolidacao(), idConsolidacao))
                 .collect(Collectors.toList());
     }
 

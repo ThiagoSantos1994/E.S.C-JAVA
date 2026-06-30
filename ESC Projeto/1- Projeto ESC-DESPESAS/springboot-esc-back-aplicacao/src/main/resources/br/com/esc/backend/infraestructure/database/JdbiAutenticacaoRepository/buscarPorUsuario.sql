@@ -1,0 +1,11 @@
+SELECT
+    id_Login,
+    ds_NomeLogin,
+    ds_SenhaLogin,
+    tp_UsuarioBloqueado,
+    tp_FuncionarioExcluido,
+    tp_GravaSenha
+FROM
+    tbd_Login
+WHERE
+    ds_NomeLogin = :usuario

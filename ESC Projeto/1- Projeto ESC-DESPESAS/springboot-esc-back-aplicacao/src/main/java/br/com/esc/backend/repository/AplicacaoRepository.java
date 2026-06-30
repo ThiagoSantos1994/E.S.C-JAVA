@@ -127,6 +127,10 @@ public interface AplicacaoRepository {
 
     Integer getMaxIdDespesa(Integer idFuncionario);
 
+    String getAnoPorID(Integer idDespesa, Integer idFuncionario);
+
+    Integer getQtdeMesesProcessadosAno(String anoReferencia, Integer idFuncionario);
+
     String getMesAnoPorID(Integer idDespesa, Integer idFuncionario);
 
     String getMesAnoPorIDTemp(Integer idDespesa, Integer idFuncionario);
@@ -144,6 +148,8 @@ public interface AplicacaoRepository {
     ExtratoDespesasDAO getExtratoDespesasMes(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 
     ExtratoDespesasDAO getExtratoDespesasParceladasMes(String dsMes, String dsAno, Integer idFuncionario);
+
+    ExtratoDespesasDAO getExtratoNovasDespesasParceladasMes(String dsMes, String dsAno, Integer idFuncionario);
 
     Integer getValidaDespesaExistenteDebitoCartao(Integer idDespesa, Integer idFuncionario);
 
@@ -197,7 +203,11 @@ public interface AplicacaoRepository {
 
     String getValorTotalDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 
+    String getSubTotalValorDespesa(Integer idDespesa, Integer idDetalheDespesa, String anoReferencia, Integer idFuncionario);
+
     Boolean getStatusDetalheDespesaPendentePagamento(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+
+    String getTotalGastoMesDetalheDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 
     List<LembretesDAO> getMonitorLembretes(Integer idFuncionario, String tpBaixado, String sWhereSemanal);
 
@@ -331,7 +341,7 @@ public interface AplicacaoRepository {
 
     void updateDetalheDespesasMensaisDespesaConsolidadaAdiada(Integer idDespesa, Integer idDetalheDespesa, Integer idConsolidacao, String vlTotalParcelaAdiantada, Integer idFuncionario);
 
-    void updateDetalheDespesasMensaisDespesaConsolidadaAdiadaDesfazer(Integer idDespesa, Integer idDetalheDespesa, Integer idConsolidacao, Integer idFuncionario);
+    void updateDetalheDespesasMensaisConsolidadaAdiadaDesfazer(Integer idDespesa, Integer idDetalheDespesa, Integer idConsolidacao, Integer idFuncionario);
 
     void updateDetalheDespesasMensaisSemRelatorio(Integer idDespesa, Integer idDespesaLinkRelatorio, Integer idFuncionario);
 

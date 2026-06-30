@@ -12,4 +12,10 @@ public interface BackupRepository {
     void insertDadosBaseBackup(String baseBackup, String basePrincipal);
 
     void deleteDadosTabela(String tabela);
+
+    void setIdentityInsert(String tabela, boolean enable);
+
+    List<String> getColunasTabela(String nomeTabela);
+
+    void insertDadosComColunas(String baseBackup, String basePrincipal, String colunas);
 }

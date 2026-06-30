@@ -21,8 +21,10 @@ public class LancamentosFinanceirosDTO {
     private String vlTotalPendentePagamento;
     private String vlSaldoDisponivelMes;
     private String vlSaldoInicialMes;
+    private String vlSaldoUtilizadoMes;
     private String pcUtilizacaoDespesasMes;
     private String labelQuitacaoParcelasMes;
+    private String labelNovasParcelasMes;
     private String statusSaldoMes;
     private Integer sizeDespesasFixasMensaisVB;
     private Integer sizeLancamentosMensaisVB;

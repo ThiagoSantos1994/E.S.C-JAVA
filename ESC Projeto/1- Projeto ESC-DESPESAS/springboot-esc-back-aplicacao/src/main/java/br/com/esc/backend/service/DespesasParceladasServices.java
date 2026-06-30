@@ -6,7 +6,6 @@ import br.com.esc.backend.repository.AplicacaoRepository;
 import br.com.esc.backend.utils.DataUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lombok.var;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -47,7 +46,7 @@ public class DespesasParceladasServices {
                 .qtdeParcelas(qtdeParcelas)
                 .qtdeParcelasPagas(repository.getQuantidadeParcelasPagas(idDespesaParcelada, idFuncionario))
                 .parcelaAtual(isEmpty(parcelaAtual) ? "000/" + qtdeParcelas : parcelaAtual.concat("/") + qtdeParcelas)
-                .valorParcelaAtual(this.obterValorDespesa(idDespesaParcelada, 0, mesAnoAtual(), idFuncionario).getVlDespesaParcelada())
+                .valorParcelaAtual(this.obterValorDespesa(idDespesaParcelada, 0, mesAnoAtual(), idFuncionario).getData())
                 .valorTotalDespesa(valorDespesa)
                 .valorTotalDespesaPaga(repository.getValorTotalDespesaParceladaPaga(idDespesaParcelada, idFuncionario))
                 .valorTotalDespesaPendente(repository.getValorTotalDespesaParceladaPendente(idDespesaParcelada, idFuncionario))
@@ -237,7 +236,7 @@ public class DespesasParceladasServices {
 
         log.info("NomeDespesaResponse: {}", nomeDespesa);
         return StringResponse.builder()
-                .nomeDespesaParcelada(nomeDespesa)
+                .data(nomeDespesa)
                 .build();
     }
 
@@ -271,10 +270,10 @@ public class DespesasParceladasServices {
                 .build();
     }
 
-    public StringResponse validarTituloDespesaParceladaExistente(String dsTituloDespesaParcelada, Integer idDespesaParcelada, Integer idFuncionario) {
+    public BooleanResponse validarTituloDespesaParceladaExistente(String dsTituloDespesaParcelada, Integer idDespesaParcelada, Integer idFuncionario) {
         var response = repository.getValidaTituloDespesaParceladaExistente(dsTituloDespesaParcelada, idDespesaParcelada, idFuncionario).compareTo(0) != 0;
-        return StringResponse.builder()
-                .isTituloJaExistente(response)
+        return BooleanResponse.builder()
+                .isValid(response)
                 .build();
     }
 
@@ -330,7 +329,7 @@ public class DespesasParceladasServices {
             valorDespesa = repository.getDespesaParcelada(idDespesaParcelada, null, idFuncionario).getVlFatura();
 
             return StringResponse.builder()
-                    .vlDespesaParcelada(valorDespesa)
+                    .data(valorDespesa)
                     .build();
         }
 
@@ -347,7 +346,7 @@ public class DespesasParceladasServices {
         }
 
         return StringResponse.builder()
-                .vlDespesaParcelada(valorDespesa)
+                .data(valorDespesa)
                 .build();
     }
 
@@ -375,7 +374,7 @@ public class DespesasParceladasServices {
         }
 
         Integer iQtdeParcelasAtual = repository.getQuantidadeParcelas(despesa.getIdDespesaParcelada(), despesa.getIdFuncionario());
-        if (iQtdeParcelasAtual > 0 && despesa.getNrTotalParcelas().compareTo(iQtdeParcelasAtual) == 1) {
+        if (iQtdeParcelasAtual > 0 && despesa.getNrTotalParcelas().compareTo(iQtdeParcelasAtual) > 0) {
             //Atualiza o valor das parcelas existentes antes de gravar a(s) nova(s) parcela(s) reprocessada(s)
             log.info(">>Reprocessamento de Parcelas - atualizando Valor das Parcelas existentes.");
             repository.updateParcelasReprocessamento(despesa.getVlParcela(), despesa.getIdDespesaParcelada(), despesa.getIdFuncionario());
@@ -404,7 +403,7 @@ public class DespesasParceladasServices {
                 }
             }
 
-            parcela = validarCheckAmortizacao(parcela);
+            validarCheckAmortizacao(parcela);
 
             log.info("Atualizando Parcela >> Request: {}", parcela);
             repository.updateParcela(parcela);
@@ -413,18 +412,17 @@ public class DespesasParceladasServices {
 
     public StringResponse obterRelatorioDespesasParceladasQuitacao(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario) {
         var relatorioDAO = repository.getRelatorioDespesasParceladasQuitacao(idDespesa, idDetalheDespesa, idFuncionario);
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
 
         for (RelatorioDespesasParceladasQuitacaoDAO dao : relatorioDAO) {
-            StringBuilder builder = new StringBuilder();
-            builder.append(dao.getValorDespesa()).append("  -  ").append(dao.getDsTituloDespesaParcelada());
-            builder.append(System.lineSeparator());
+            String builder = dao.getValorDespesa() + "  -  " + dao.getDsTituloDespesaParcelada() +
+                    System.lineSeparator();
 
             buffer.append(builder);
         }
 
         return StringResponse.builder()
-                .relatorioDespesas(buffer.toString())
+                .data(buffer.toString())
                 .build();
     }
 
@@ -475,16 +473,14 @@ public class DespesasParceladasServices {
     }
 
     private ParcelasDAO validarCheckAmortizacao(ParcelasDAO parcela) {
-        ParcelasDAO parcelaEditada = parcela;
-
         /*Caso seja alterada a check de amortizacao pelo front, altera a observacao da parcela*/
         if (parcela.getTpParcelaAmortizada().equalsIgnoreCase("S") && parcela.getDsObservacoes().contains(STATUS_BAIXA_REALIZADA_PELO_SISTEMA)) {
-            parcelaEditada.setDsObservacoes(parcela.getDsObservacoes().replace("realizada", "<AMORTIZADA>"));
+            parcela.setDsObservacoes(parcela.getDsObservacoes().replace("realizada", "<AMORTIZADA>"));
         } else if (parcela.getTpParcelaAmortizada().equalsIgnoreCase("N") && parcela.getDsObservacoes().contains(STATUS_BAIXA_AMORTIZADA_PELO_SISTEMA)) {
-            parcelaEditada.setDsObservacoes(parcela.getDsObservacoes().replace("<AMORTIZADA>", "realizada"));
+            parcela.setDsObservacoes(parcela.getDsObservacoes().replace("<AMORTIZADA>", "realizada"));
         }
 
-        return parcelaEditada;
+        return parcela;
     }
 
     public static String opcaoVisualizacaoParcelas(Boolean isPendentes, Integer idDespesaParcelada) {

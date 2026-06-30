@@ -308,6 +308,14 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlQuery
+    String getAnoPorID(Integer idDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
+    Integer getQtdeMesesProcessadosAno(String anoReferencia, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
     String getMesAnoPorID(Integer idDespesa, Integer idFuncionario);
 
     @Override
@@ -343,6 +351,11 @@ public interface JdbiRepository extends AplicacaoRepository {
     @SqlQuery
     @UseRowMapper(ExtratoDespesasRowMapper.class)
     ExtratoDespesasDAO getExtratoDespesasParceladasMes(String dsMes, String dsAno, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
+    @UseRowMapper(ExtratoDespesasRowMapper.class)
+    ExtratoDespesasDAO getExtratoNovasDespesasParceladasMes(String dsMes, String dsAno, Integer idFuncionario);
 
     @Override
     @SqlQuery
@@ -427,7 +440,15 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlQuery
+    String getSubTotalValorDespesa(Integer idDespesa, Integer idDetalheDespesa, String anoReferencia, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
     Boolean getStatusDetalheDespesaPendentePagamento(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
+    String getTotalGastoMesDetalheDespesa(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario);
 
     @Override
     @SqlQuery
@@ -688,7 +709,7 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlUpdate
-    void updateDetalheDespesasMensaisDespesaConsolidadaAdiadaDesfazer(Integer idDespesa, Integer idDetalheDespesa, Integer idConsolidacao, Integer idFuncionario);
+    void updateDetalheDespesasMensaisConsolidadaAdiadaDesfazer(Integer idDespesa, Integer idDetalheDespesa, Integer idConsolidacao, Integer idFuncionario);
 
     @Override
     @SqlUpdate
