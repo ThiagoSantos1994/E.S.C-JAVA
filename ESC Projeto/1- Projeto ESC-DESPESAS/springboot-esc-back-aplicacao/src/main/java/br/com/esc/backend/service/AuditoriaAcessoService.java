@@ -21,14 +21,14 @@ public class AuditoriaAcessoService {
     private final AutenticacaoRepository repository;
 
     public void registrarAcesso(Integer idFuncionario) {
-        log.info("Registrando acesso >> idFuncionario: {}", idFuncionario);
+        log.info("<< Registrando acesso >>");
 
         String hostAcesso = obterDadosMaquina();
         String dataHora = dataHoraAtual();
 
         repository.insertAuditoriaAcesso(idFuncionario, dataHora, hostAcesso);
 
-        log.debug("Acesso registrado com sucesso >> idFuncionario: {} | host: {} | dataHora: {}",
+        log.info("Acesso registrado com sucesso >> idFuncionario: {} | host: {} | dataHora: {}",
                 idFuncionario, hostAcesso, dataHora);
     }
 

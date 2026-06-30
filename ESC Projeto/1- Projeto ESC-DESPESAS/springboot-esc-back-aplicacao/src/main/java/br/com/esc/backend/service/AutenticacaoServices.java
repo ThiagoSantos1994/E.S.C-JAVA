@@ -117,7 +117,7 @@ public class AutenticacaoServices {
     }
 
     private void processarPosAutenticacao(Integer idFuncionario) {
-        auditoriaAcessoService.registrarAcesso(idFuncionario);
+        //auditoriaAcessoService.registrarAcesso(idFuncionario); Migrado para Parametros Business (30/06/2026)
         configuracaoLancamentosService.validarViradaAutomatica(idFuncionario);
     }
 

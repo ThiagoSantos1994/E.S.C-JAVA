@@ -3,6 +3,7 @@ package br.com.esc.backend.business;
 import br.com.esc.backend.domain.ConfiguracaoLancamentosRequest;
 import br.com.esc.backend.domain.ConfiguracaoLancamentosResponse;
 import br.com.esc.backend.repository.AplicacaoRepository;
+import br.com.esc.backend.service.AuditoriaAcessoService;
 import br.com.esc.backend.utils.DataUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -22,6 +23,7 @@ public class ParametrosBusiness {
 
     private final AplicacaoRepository repository;
     private final LembretesBusiness lembretesBusiness;
+    private final AuditoriaAcessoService acessoService;
 
     public ConfiguracaoLancamentosResponse obterConfiguracaoLancamentos(Integer idFuncionario) {
         log.info("Obtendo parametros sistemicos");
@@ -29,6 +31,9 @@ public class ParametrosBusiness {
         var response = repository.getConfiguracaoLancamentos(idFuncionario);
         response.setQtdeLembretes(lembretesBusiness.obterListaMonitorLembretes(idFuncionario).size());
         response.setAnosReferenciaFiltro(this.obterListaAnosReferencia());
+
+        // Realiza o registro no login e toda vez que pressionar F5
+        acessoService.registrarAcesso(idFuncionario);
 
         return response;
     }
