@@ -6,6 +6,7 @@ import br.com.esc.backend.domain.LoginRequest;
 import br.com.esc.backend.exception.CredenciaisInvalidasException;
 import br.com.esc.backend.exception.UsuarioBloqueadoException;
 import br.com.esc.backend.facade.AutenticacaoFacade;
+import br.com.esc.backend.utils.AuthUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -31,7 +32,6 @@ public class LoginController {
             log.warn("Falha na autenticacao: credenciais invalidas >> usuario: {}", request.getUsuario());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(AutenticacaoResponse.builder()
-                            .idLogin(-1)
                             .mensagem(e.getMessage())
                             .autorizado(false)
                             .build());
@@ -39,7 +39,6 @@ public class LoginController {
             log.warn("Falha na autenticacao: usuario bloqueado >> usuario: {}", request.getUsuario());
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(AutenticacaoResponse.builder()
-                            .idLogin(-1)
                             .mensagem(e.getMessage())
                             .autorizado(false)
                             .build());
@@ -47,10 +46,8 @@ public class LoginController {
     }
 
     @DeleteMapping(path = "/limparDadosTemporarios", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> limparDadosTemporarios(
-            @RequestParam("idFuncionario") Integer idFuncionario) {
-
-        lancamentosFinanceirosBusiness.limparDadosTemporarios(idFuncionario);
+    public ResponseEntity<Void> limparDadosTemporarios() {
+        lancamentosFinanceirosBusiness.limparDadosTemporarios(AuthUtils.getUserId());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

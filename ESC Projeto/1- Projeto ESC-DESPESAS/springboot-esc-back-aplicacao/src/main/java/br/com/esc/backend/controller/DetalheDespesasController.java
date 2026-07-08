@@ -4,6 +4,7 @@ import br.com.esc.backend.business.ConsolidacaoBusiness;
 import br.com.esc.backend.business.DespesasParceladasBusiness;
 import br.com.esc.backend.business.DetalheDespesasBusiness;
 import br.com.esc.backend.domain.StringResponse;
+import br.com.esc.backend.utils.AuthUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -25,9 +26,8 @@ public class DetalheDespesasController {
     @GetMapping(path = "/despesasParceladas/obterRelatorioDespesasParceladasQuitacao", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StringResponse> obterRelatorioDespesasParceladasQuitacao(
             @RequestParam("idDespesa") Integer idDespesa,
-            @RequestParam("idDetalheDespesa") Integer idDetalheDespesa,
-            @RequestParam("idFuncionario") Integer idFuncionario) {
-        var response = despesasParceladasBusiness.obterRelatorioDespesasParceladasQuitacao(idDespesa, idDetalheDespesa, idFuncionario);
+            @RequestParam("idDetalheDespesa") Integer idDetalheDespesa) {
+        var response = despesasParceladasBusiness.obterRelatorioDespesasParceladasQuitacao(idDespesa, idDetalheDespesa, AuthUtils.getUserId());
         return ResponseEntity.ok(response);
     }
 
@@ -35,9 +35,8 @@ public class DetalheDespesasController {
     public ResponseEntity<StringResponse> obterRelatorioDespesasParceladasConsolidadas(
             @RequestParam("idDespesa") Integer idDespesa,
             @RequestParam("idDetalheDespesa") Integer idDetalheDespesa,
-            @RequestParam("idConsolidacao") Integer idConsolidacao,
-            @RequestParam("idFuncionario") Integer idFuncionario) {
-        var response = consolidacaoBusiness.obterRelatorioDespesasParceladasConsolidadas(idDespesa, idDetalheDespesa, idConsolidacao, idFuncionario);
+            @RequestParam("idConsolidacao") Integer idConsolidacao) {
+        var response = consolidacaoBusiness.obterRelatorioDespesasParceladasConsolidadas(idDespesa, idDetalheDespesa, idConsolidacao, AuthUtils.getUserId());
         return ResponseEntity.ok(response);
     }
 }

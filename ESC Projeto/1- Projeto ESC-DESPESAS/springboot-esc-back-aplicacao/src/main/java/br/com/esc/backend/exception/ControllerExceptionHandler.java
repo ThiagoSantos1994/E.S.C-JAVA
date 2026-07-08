@@ -46,7 +46,7 @@ public class ControllerExceptionHandler {
         log.error("ExceptionHandler | Erro de negocio: {}", e.getMessage());
 
         ErroRepresentation erro = new ErroRepresentation();
-        erro.setCodigo(HttpStatus.NO_CONTENT.value());
+        erro.setCodigo(HttpStatus.BAD_REQUEST.value());
         erro.setMensagem(e.getMessage());
 
         return erro;
@@ -56,7 +56,7 @@ public class ControllerExceptionHandler {
         log.error("ExceptionHandler | Erro ao realizar operação no backend: {}", e.getMessage());
 
         ErroRepresentation erro = new ErroRepresentation();
-        erro.setCodigo(HttpStatus.NO_CONTENT.value());
+        erro.setCodigo(HttpStatus.BAD_REQUEST.value());
         erro.setMensagem(e.getMessage());
 
         return erro;

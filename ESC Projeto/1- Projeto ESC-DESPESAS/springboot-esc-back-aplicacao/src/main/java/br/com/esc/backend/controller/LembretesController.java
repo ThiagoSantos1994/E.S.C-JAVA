@@ -3,6 +3,7 @@ package br.com.esc.backend.controller;
 import br.com.esc.backend.business.LembretesBusiness;
 import br.com.esc.backend.domain.LembretesDAO;
 import br.com.esc.backend.domain.TituloLembretesDAO;
+import br.com.esc.backend.utils.AuthUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -22,24 +23,21 @@ public class LembretesController {
 
     @GetMapping(path = "/detalhe", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LembretesDAO> obterDetalhesLembrete(
-            @RequestParam("idLembrete") Integer idLembrete,
-            @RequestParam("idFuncionario") Integer idFuncionario) {
-        var response = lembretesBusiness.obterDetalheLembrete(idLembrete, idFuncionario);
+            @RequestParam("idLembrete") Integer idLembrete) {
+        var response = lembretesBusiness.obterDetalheLembrete(idLembrete, AuthUtils.getUserId());
         return ResponseEntity.ok(response);
     }
 
     @GetMapping(path = "/monitor", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<TituloLembretesDAO>> obterMonitorLembretesEmAberto(
-            @RequestParam("idFuncionario") Integer idFuncionario) {
-        var response = lembretesBusiness.obterListaMonitorLembretes(idFuncionario);
+    public ResponseEntity<List<TituloLembretesDAO>> obterMonitorLembretesEmAberto() {
+        var response = lembretesBusiness.obterListaMonitorLembretes(AuthUtils.getUserId());
         return ResponseEntity.ok(response);
     }
 
     @GetMapping(path = "/obterTituloLembretes", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<TituloLembretesDAO>> obterTituloLembretes(
-            @RequestParam("idFuncionario") Integer idFuncionario,
             @RequestParam("tpBaixado") Boolean tpBaixado) {
-        var response = lembretesBusiness.obterTituloLembretes(idFuncionario, tpBaixado);
+        var response = lembretesBusiness.obterTituloLembretes(AuthUtils.getUserId(), tpBaixado);
         return ResponseEntity.ok(response);
     }
 

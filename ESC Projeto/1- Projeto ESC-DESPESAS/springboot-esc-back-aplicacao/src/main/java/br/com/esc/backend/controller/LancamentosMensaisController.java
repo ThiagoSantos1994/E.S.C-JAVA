@@ -2,6 +2,7 @@ package br.com.esc.backend.controller;
 
 import br.com.esc.backend.business.LancamentosFinanceirosBusiness;
 import br.com.esc.backend.domain.LancamentosMensaisDAO;
+import br.com.esc.backend.utils.AuthUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -24,10 +25,9 @@ public class LancamentosMensaisController {
     @GetMapping(path = "/consolidados/consultar", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<LancamentosMensaisDAO>> obterLancamentosMensais(
             @RequestParam("idDespesa") Integer idDespesa,
-            @RequestParam("idConsolidacao") Integer idConsolidacao,
-            @RequestParam("idFuncionario") Integer idFuncionario) {
+            @RequestParam("idConsolidacao") Integer idConsolidacao) {
 
-        var response = lancamentosFinanceirosBusiness.obterDespesasMensaisConsolidadas(idDespesa, idConsolidacao, idFuncionario);
+        var response = lancamentosFinanceirosBusiness.obterDespesasMensaisConsolidadas(idDespesa, idConsolidacao, AuthUtils.getUserId());
         return ResponseEntity.ok(response);
     }
 }

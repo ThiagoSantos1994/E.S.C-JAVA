@@ -47,9 +47,10 @@ public class AplicacaoConfiguration {
     AutenticacaoServices autenticacaoServices(
             AutenticacaoRepository autenticacaoRepository,
             AuditoriaAcessoService auditoriaAcessoService,
+            JwtService jwtService,
             ConfiguracaoLancamentosService configuracaoLancamentosService,
             PasswordEncoder passwordEncoder) {
-        return new AutenticacaoServices(autenticacaoRepository, auditoriaAcessoService, configuracaoLancamentosService, passwordEncoder);
+        return new AutenticacaoServices(autenticacaoRepository, auditoriaAcessoService, jwtService, configuracaoLancamentosService, passwordEncoder);
     }
 
     @Bean

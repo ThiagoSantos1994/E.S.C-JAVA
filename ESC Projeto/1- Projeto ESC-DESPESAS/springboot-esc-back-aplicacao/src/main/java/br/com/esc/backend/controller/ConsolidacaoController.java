@@ -5,6 +5,7 @@ import br.com.esc.backend.domain.ConsolidacaoDAO;
 import br.com.esc.backend.domain.ConsolidacaoDespesasRequest;
 import br.com.esc.backend.domain.TituloConsolidacao;
 import br.com.esc.backend.domain.TituloDespesaResponse;
+import br.com.esc.backend.utils.AuthUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -24,27 +25,24 @@ public class ConsolidacaoController {
 
     @GetMapping(path = "/importacao/consultarConsolidacoes", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TituloDespesaResponse> consultarConsolidacoesParaAssociacao(
-            @RequestParam("idFuncionario") Integer idFuncionario,
             @RequestParam("idDespesa") Integer idDespesa,
             @RequestParam("idDetalheDespesa") Integer idDetalheDespesa,
             @RequestParam("tipo") String tipo) {
-        var response = service.consultarConsolidacoesParaAssociacao(idFuncionario, idDespesa, idDetalheDespesa, tipo);
+        var response = service.consultarConsolidacoesParaAssociacao(AuthUtils.getUserId(), idDespesa, idDetalheDespesa, tipo);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping(path = "/obterTituloConsolidacoes", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<TituloConsolidacao>> obterTituloConsolidacoes(
-            @RequestParam("idFuncionario") Integer idFuncionario,
             @RequestParam("tpBaixado") Boolean tpBaixado) {
-        var response = service.obterTituloConsolidacoes(idFuncionario, tpBaixado);
+        var response = service.obterTituloConsolidacoes(AuthUtils.getUserId(), tpBaixado);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping(path = "/consultar", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ConsolidacaoDAO> obterDetalhesConsolidacao(
-            @RequestParam("idConsolidacao") Integer idConsolidacao,
-            @RequestParam("idFuncionario") Integer idFuncionario) {
-        var response = service.obterDetalheConsolidacao(idConsolidacao, idFuncionario);
+            @RequestParam("idConsolidacao") Integer idConsolidacao) {
+        var response = service.obterDetalheConsolidacao(idConsolidacao, AuthUtils.getUserId());
         return ResponseEntity.ok(response);
     }
 

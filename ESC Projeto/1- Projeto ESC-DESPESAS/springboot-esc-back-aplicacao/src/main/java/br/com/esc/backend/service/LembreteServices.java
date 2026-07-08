@@ -113,7 +113,7 @@ public class LembreteServices {
             var qtdeDiasParaExibicao = lembrete.getNumeroDias();
             var iQtdeDiasVisualizacao = diferencaEmDias(lembrete.getDataInicial()).getDays();
 
-            if (isRenovaAUTO && qtdeDiasParaExibicao > 0) {
+            if (qtdeDiasParaExibicao > 0) {
                 //Valida se a quantidade de dias restantes é menor a quantidade de dias para exibicao
                 if (iQtdeDiasVisualizacao > qtdeDiasParaExibicao) {
                     continue;
