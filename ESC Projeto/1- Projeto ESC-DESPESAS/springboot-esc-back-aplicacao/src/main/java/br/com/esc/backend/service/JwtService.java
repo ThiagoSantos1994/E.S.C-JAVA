@@ -28,7 +28,7 @@ public class JwtService {
                 .claim("username", usuario.getDsLogin())
                 .claim("permissions", List.of("READ", "WRITE", "DELETE"))
                 .issuedAt(new java.util.Date())
-                .expiration(new java.util.Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(20))) // 20 minutos de validade
+                .expiration(new java.util.Date(System.currentTimeMillis() + TimeUnit.HOURS.toMillis(1))) // 1 hora de validade
                 .signWith(secretKey)
                 .compact();
     }
