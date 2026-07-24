@@ -55,7 +55,7 @@ public class DetalheDespesasServices {
                 repository.getDetalheDespesasMensais(idDespesa, idDetalheDespesa, idFuncionario, parserOrdem(ordem)) :
                 repository.getDetalheDespesasMensaisTipoRelatorio(idDespesa, idDetalheDespesa, idFuncionario);
 
-        if (visualizarConsolidacao) {
+        if (visualizarConsolidacao && despesaTipoRelatorio.equals("N")) {
             detalheDespesasMensaisList = detalheDespesasMensaisList.stream()
                     .filter(d -> isNull(d.getIdDespesaConsolidacao()) || d.getIdDespesaConsolidacao() == 0)
                     .collect(Collectors.toList());

@@ -10,9 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AutenticacaoResponse {
-    private Integer idLogin;
     private String mensagem;
-    private String nomeUsuario;
-    private String autenticacao;
+    private String accessToken;
     private boolean autorizado;
 }

@@ -3,6 +3,7 @@ package br.com.esc.backend.controller;
 import br.com.esc.backend.business.ParametrosBusiness;
 import br.com.esc.backend.domain.ConfiguracaoLancamentosRequest;
 import br.com.esc.backend.domain.ConfiguracaoLancamentosResponse;
+import br.com.esc.backend.utils.AuthUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,9 +20,8 @@ public class ParametrosController {
     private final ParametrosBusiness parametrosBusiness;
 
     @GetMapping(path = "/obterConfiguracaoLancamentos/usuario", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ConfiguracaoLancamentosResponse> obterConfiguracaoLancamentos(
-            @RequestParam("idFuncionario") Integer idFuncionario) {
-        var response = parametrosBusiness.obterConfiguracaoLancamentos(idFuncionario);
+    public ResponseEntity<ConfiguracaoLancamentosResponse> obterConfiguracaoLancamentos() {
+        var response = parametrosBusiness.obterConfiguracaoLancamentos(AuthUtils.getUserId());
         return ResponseEntity.ok(response);
     }
 

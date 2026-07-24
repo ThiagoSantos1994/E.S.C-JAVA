@@ -33,7 +33,7 @@ public class ParametrosBusiness {
         response.setAnosReferenciaFiltro(this.obterListaAnosReferencia());
 
         // Realiza o registro no login e toda vez que pressionar F5
-        acessoService.registrarAcesso(idFuncionario);
+        //acessoService.registrarAcesso(idFuncionario);
 
         return response;
     }

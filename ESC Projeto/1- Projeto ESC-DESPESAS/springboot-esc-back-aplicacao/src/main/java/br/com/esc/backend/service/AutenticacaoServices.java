@@ -20,6 +20,7 @@ public class AutenticacaoServices {
 
     private final AutenticacaoRepository repository;
     private final AuditoriaAcessoService auditoriaAcessoService;
+    private final JwtService jwtService;
     private final ConfiguracaoLancamentosService configuracaoLancamentosService;
     private final PasswordEncoder passwordEncoder;
 
@@ -117,16 +118,14 @@ public class AutenticacaoServices {
     }
 
     private void processarPosAutenticacao(Integer idFuncionario) {
-        //auditoriaAcessoService.registrarAcesso(idFuncionario); Migrado para Parametros Business (30/06/2026)
+        auditoriaAcessoService.registrarAcesso(idFuncionario);
         configuracaoLancamentosService.validarViradaAutomatica(idFuncionario);
     }
 
     private AutenticacaoResponse construirResposta(LoginDAO usuario) {
         return AutenticacaoResponse.builder()
-                .idLogin(usuario.getIdLogin())
                 .mensagem("Usuario autenticado com sucesso!")
-                .nomeUsuario(usuario.getDsLogin())
-                .autenticacao("Bearer -") // TODO: Implementar JWT real
+                .accessToken("Bearer " + jwtService.generateToken(usuario))
                 .autorizado(true)
                 .build();
     }

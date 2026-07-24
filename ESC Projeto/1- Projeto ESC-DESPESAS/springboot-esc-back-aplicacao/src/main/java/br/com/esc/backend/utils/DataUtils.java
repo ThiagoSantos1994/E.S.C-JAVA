@@ -142,4 +142,11 @@ public class DataUtils {
 
         return Days.daysBetween(dataAtual, dataReferencia);
     }
+
+    public static String converterMilissegundosEmHoras(Long milissegundos) {
+        long segundos = milissegundos / 1000;     // converte ms para segundos
+        long horas = segundos / 3600;             // 1 hora = 3600 segundos
+        long minutos = (segundos % 3600) / 60;    // resto dividido por 60 dá os minutos
+        return horas + "h " + minutos + "min";
+    }
 }
