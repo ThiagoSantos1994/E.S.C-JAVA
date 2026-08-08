@@ -359,6 +359,13 @@ public class DespesasParceladasServices {
         repository.deleteDespesasParceladas(idDespesaParcelada, idFuncionario);
         repository.deleteTodasParcelas(idDespesaParcelada, idFuncionario);
         repository.deleteTodosDetalheDespesaParcelada(idDespesaParcelada, idFuncionario);
+
+        final var consolidacaoRequest = ConsolidacaoDespesasRequest.builder()
+                .idDespesaParcelada(idDespesaParcelada)
+                .idFuncionario(idFuncionario)
+                .build();
+
+        repository.deleteDespesaConsolidacao(consolidacaoRequest);
     }
 
     public void gravarDespesaParcelada(DespesaParceladaDAO despesa) {
