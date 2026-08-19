@@ -33,7 +33,7 @@ public class ChaveKeyBusiness {
         }
 
         ChaveKeySemUsoDAO keySemUsoDAO = repository.getChaveKeySemUso(keyDAO.getDsNomeColuna(), keyDAO.getDsNomeTabela());
-        if (keySemUsoDAO.getChave().equals(keyDAO.getNovaChave())) {
+        if (ObjectUtils.isEmpty(keySemUsoDAO) || keySemUsoDAO.getChave().equals(keyDAO.getNovaChave())) {
             log.info("========= Nova ChaveKey gerada com sucesso, tipoChave: {} novaChave: {} =========", tipoChave, keyDAO.getNovaChave());
             repository.updateChaveKeyUtilizada(keyDAO.getIdChaveKey());
         } else {

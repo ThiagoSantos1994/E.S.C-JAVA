@@ -43,6 +43,10 @@ public interface AplicacaoRepository {
 
     BigDecimal getCalculoReceitaPositivaANO(Integer dsAno, Integer idFuncionario);
 
+    BigDecimal getCalculoPoupancaPositivaANO(Integer dsAno, Integer idFuncionario);
+
+    BigDecimal getCalculoPoupancaNegativaANO(Integer dsAno, Integer idFuncionario);
+
     BigDecimal getCalculoReceitaNegativaMES(Integer idDespesa, Integer idFuncionario);
 
     BigDecimal getCalculoReceitaNegativaANO(Integer dsAno, Integer idFuncionario);

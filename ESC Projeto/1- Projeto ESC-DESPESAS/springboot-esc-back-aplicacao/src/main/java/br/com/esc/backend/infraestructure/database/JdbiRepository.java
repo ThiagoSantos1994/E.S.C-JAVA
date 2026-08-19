@@ -93,6 +93,14 @@ public interface JdbiRepository extends AplicacaoRepository {
 
     @Override
     @SqlQuery
+    BigDecimal getCalculoPoupancaPositivaANO(Integer dsAno, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
+    BigDecimal getCalculoPoupancaNegativaANO(Integer dsAno, Integer idFuncionario);
+
+    @Override
+    @SqlQuery
     BigDecimal getCalculoReceitaNegativaMES(Integer idDespesa, Integer idFuncionario);
 
     @Override

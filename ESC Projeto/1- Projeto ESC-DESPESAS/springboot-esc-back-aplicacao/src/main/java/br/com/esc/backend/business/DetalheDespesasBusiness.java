@@ -197,6 +197,9 @@ public class DetalheDespesasBusiness {
         categoriasList.add(new CategoriaDespesasDAO("_______________", "_______________"));
         categoriasList.add(new CategoriaDespesasDAO("Receita ANO", convertToMoedaBR(repository.getCalculoReceitaPositivaANO(dsAno, idFuncionario))));
         categoriasList.add(new CategoriaDespesasDAO("Despesa ANO", convertToMoedaBR(repository.getCalculoReceitaNegativaANO(dsAno, idFuncionario))));
+        categoriasList.add(new CategoriaDespesasDAO("_______________", "_______________"));
+        categoriasList.add(new CategoriaDespesasDAO("Poupança (+)", convertToMoedaBR(repository.getCalculoPoupancaPositivaANO(dsAno, idFuncionario))));
+        categoriasList.add(new CategoriaDespesasDAO("Poupança (-)", convertToMoedaBR(repository.getCalculoPoupancaNegativaANO(dsAno, idFuncionario))));
 
         return CategoriaDespesasResponse.builder()
                 .categorias(categoriasList)
