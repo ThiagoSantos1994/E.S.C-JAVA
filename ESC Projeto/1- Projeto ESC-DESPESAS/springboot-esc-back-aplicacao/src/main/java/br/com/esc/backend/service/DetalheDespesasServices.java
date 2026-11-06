@@ -123,6 +123,12 @@ public class DetalheDespesasServices {
                     repository.getParcelaPorDataVencimento(detalheDAO.getIdDespesaParcelada(), dataVencimento, detalheDAO.getIdFuncionario()) :
                     repository.getParcelasPorFiltro(detalheDAO.getIdDespesaParcelada(), detalheDAO.getIdParcela(), null, detalheDAO.getIdFuncionario(), opcaoVisualizacaoParcelas(false, detalheDAO.getIdDespesaParcelada())).get(0);
 
+            if (isNull(parcela)) {
+                //Isso pode acontecer quando existe uma despesa com X parcelas, e depois foi removida uma delas no cadastro de parcelas, e o usuário tenta gravar uma despesa mensal com a parcela que não existe mais.
+                log.warn("Não foi localizada parcela para a despesa parcelada: {} com data de vencimento: {}. Verifique o fluxo de parcelas e tente novamente.", detalheDAO.getIdDespesaParcelada(), dataVencimento);
+                return;
+            }
+
             bIsParcelaAmortizada = parcela.getTpParcelaAmortizada().equalsIgnoreCase("S");
 
             if (!bIsParcelaAmortizada) {
