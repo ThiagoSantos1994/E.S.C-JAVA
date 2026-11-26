@@ -94,6 +94,33 @@ public class DataUtils {
         return new SimpleDateFormat("dd/MM/yyyy").parse(sData);
     }
 
+    public static Date convertStringToGenericDate(String sData) throws ParseException {
+        if (isEmpty(sData)) {
+            throw new ParseException("Data não informada", 0);
+        }
+
+        String dataNormalizada = sData.trim();
+
+        // Aceita vigência no formato MM/yyyy e considera o dia 01.
+        if (dataNormalizada.matches("\\d{1,2}/\\d{4}")) {
+            dataNormalizada = "01/" + dataNormalizada;
+        }
+
+        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+        format.setLenient(false);
+        return format.parse(dataNormalizada);
+    }
+
+    public static Integer retornaMesToDate(Date date) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM");
+        return parseInt(simpleDateFormat.format(date));
+    }
+
+    public static Integer retornaAnoToDate(Date date) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy");
+        return parseInt(simpleDateFormat.format(date));
+    }
+
     public static String retornaMesAnterior(String dsMes) {
         int dsMesAnterior = (parseInt(dsMes) - 1 < 1 ? 12 : parseInt(dsMes) - 1);
         return (dsMesAnterior <= 9 ? "0" + dsMesAnterior : valueOf(dsMesAnterior));
@@ -108,6 +135,10 @@ public class DataUtils {
         cal.setTime(convertStringToDate(data));
         cal.add(Calendar.MONTH, qtdeMes);
         return cal.getTime();
+    }
+
+    public static String retornaPrimeiroDiaMes(String dataReferencia) {
+        return "01/".concat(dataReferencia).replace("-", "/");
     }
 
     public static String retornaDataPersonalizadaEmDias(String data, Integer qtdeDias) throws ParseException {

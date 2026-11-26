@@ -50,6 +50,8 @@ public class ImportacaoBusiness {
     @Transactional(rollbackFor = Exception.class)
     @SneakyThrows
     public void processarImportacaoDespesaParcelada(Integer idDespesa, Integer idDetalheDespesa, Integer idDespesaParcelada, Integer idConsolidacao, Integer idFuncionario) {
+        importacaoServices.validarDespesaEDetalheExistentes(idDespesa, idDetalheDespesa, idFuncionario);
+
         if (idConsolidacao > 0) {
             log.info("Iniciando processamento importacao consolidacao - Filtros: idDespesa= {} - idDetalheDespesa= {} - idDespesaParcelada= {} - idConsolidacao= {} - idFuncionario= {}", idDespesa, idDetalheDespesa, idDespesaParcelada, idConsolidacao, idFuncionario);
             importacaoServices.processarImportacaoConsolidacao(idDespesa, idDetalheDespesa, idConsolidacao, idFuncionario);

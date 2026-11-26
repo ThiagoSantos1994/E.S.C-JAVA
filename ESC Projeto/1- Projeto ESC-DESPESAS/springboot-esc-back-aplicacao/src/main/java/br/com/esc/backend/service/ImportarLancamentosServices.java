@@ -16,7 +16,6 @@ import static br.com.esc.backend.utils.DataUtils.*;
 import static br.com.esc.backend.utils.ObjectUtils.*;
 import static br.com.esc.backend.utils.VariaveisGlobais.*;
 import static java.lang.Integer.parseInt;
-import static java.util.Arrays.asList;
 
 @Service
 @RequiredArgsConstructor
@@ -400,6 +399,27 @@ public class ImportarLancamentosServices {
             } else {
                 log.info("Consolidacao importada na despesa anteriormente, importação não concluida!  >> idDespesa: {} - idDetalheDespesa: {} - idConsolidacao: {}", idDespesaRef, idDetalheDespesa, idConsolidacao);
             }
+        }
+    }
+
+    public void validarDespesaEDetalheExistentes(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario) {
+        var isDespesaExistente = detalheDespesasServices.isDespesaExistente(DespesasMensaisDAO.builder()
+                .idDespesa(idDespesa)
+                .idFuncionario(idFuncionario)
+                .build());
+
+        if (!isDespesaExistente) {
+            throw new ErroNegocioException("Despesa não foi localizada na base de dados. Desculpe, não será possivel gerar a despesa parcelada automatica.");
+        }
+
+        var isDetalheDespesaExistente = detalheDespesasServices.isDetalheDespesaExistente(DetalheDespesasMensaisDAO.builder()
+                .idDespesa(idDespesa)
+                .idDetalheDespesa(idDetalheDespesa)
+                .idFuncionario(idFuncionario)
+                .build());
+
+        if (!isDetalheDespesaExistente) {
+            throw new ErroNegocioException("Detalhe da despesa não foi localizado na base de dados. Desculpe, não será possivel gerar a despesa parcelada automatica.");
         }
     }
 

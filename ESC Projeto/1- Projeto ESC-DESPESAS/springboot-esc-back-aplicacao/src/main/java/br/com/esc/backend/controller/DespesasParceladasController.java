@@ -18,12 +18,12 @@ import java.util.List;
 @Slf4j
 public class DespesasParceladasController {
 
-    private final DespesasParceladasBusiness service;
+    private final DespesasParceladasBusiness business;
 
     @GetMapping(path = "/despesasParceladas/obterListaDespesas", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DespesasParceladasResponse> obterDespesasParceladas(
             @RequestParam("status") String status) {
-        var response = service.obterDespesasParceladas(AuthUtils.getUserId(), status);
+        var response = business.obterDespesasParceladas(AuthUtils.getUserId(), status);
         return ResponseEntity.ok(response);
     }
 
@@ -32,14 +32,14 @@ public class DespesasParceladasController {
             @RequestParam("idDespesaParcelada") Integer idDespesaParcelada,
             @RequestParam("idParcela") Integer idParcela,
             @RequestParam("mesAnoReferencia") String mesAnoReferencia) {
-        var response = service.obterValorDespesaParcelada(idDespesaParcelada, idParcela, mesAnoReferencia, AuthUtils.getUserId());
+        var response = business.obterValorDespesaParcelada(idDespesaParcelada, idParcela, mesAnoReferencia, AuthUtils.getUserId());
         return ResponseEntity.ok(response);
     }
 
     @GetMapping(path = "/despesasParceladas/consultar", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DetalheDespesasParceladasResponse> obterDespesaParceladaPorNome(
             @RequestParam("nomeDespesaParcelada") String nomeDespesaParcelada) {
-        var response = service.obterDespesaParceladaPorNome(nomeDespesaParcelada, AuthUtils.getUserId());
+        var response = business.obterDespesaParceladaPorNome(nomeDespesaParcelada, AuthUtils.getUserId());
         return ResponseEntity.ok(response);
     }
 
@@ -49,21 +49,21 @@ public class DespesasParceladasController {
             @RequestParam("valorParcela") String valorParcela,
             @RequestParam("qtdeParcelas") Integer qtdeParcelas,
             @RequestParam("dataReferencia") String dataReferencia) {
-        var response = service.gerarFluxoParcelas(idDespesaParcelada, valorParcela, qtdeParcelas, dataReferencia, AuthUtils.getUserId());
+        var response = business.gerarFluxoParcelas(idDespesaParcelada, valorParcela, qtdeParcelas, dataReferencia, AuthUtils.getUserId());
         return ResponseEntity.ok(response);
     }
 
     @GetMapping(path = "/despesasParceladas/consultarNomeDespesa", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StringResponse> consultarNomeDespesaParceladaPorFiltro(
             @RequestParam("idDespesaParcelada") Integer idDespesaParcelada) {
-        var response = service.consultarNomeDespesaParceladaPorFiltro(idDespesaParcelada, AuthUtils.getUserId());
+        var response = business.consultarNomeDespesaParceladaPorFiltro(idDespesaParcelada, AuthUtils.getUserId());
         return ResponseEntity.ok(response);
     }
 
     @GetMapping(path = "/despesasParceladas/importacao/consultarDespesasParceladas", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TituloDespesaResponse> consultarDespesasParceladasParaImportacao(
             @RequestParam("tipo") String tipo) {
-        var response = service.consultarDespesasParceladasParaImportacao(AuthUtils.getUserId(), tipo);
+        var response = business.consultarDespesasParceladasParaImportacao(AuthUtils.getUserId(), tipo);
         return ResponseEntity.ok(response);
     }
 
@@ -71,52 +71,52 @@ public class DespesasParceladasController {
     public ResponseEntity<BooleanResponse> validarTituloDespesaParceladaExistente(
             @RequestParam("dsTituloDespesaParcelada") String dsTituloDespesaParcelada,
             @RequestParam("idDespesaParcelada") Integer idDespesaParcelada) {
-        var response = service.validarTituloDespesaParceladaExistente(dsTituloDespesaParcelada, idDespesaParcelada, AuthUtils.getUserId());
+        var response = business.validarTituloDespesaParceladaExistente(dsTituloDespesaParcelada, idDespesaParcelada, AuthUtils.getUserId());
         return ResponseEntity.ok(response);
     }
 
     @GetMapping(path = "/despesasParceladas/validaDespesaExistente", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BooleanResponse> validaDespesaParceladaExistente(
             @RequestParam("dsTituloDespesaParcelada") String dsTituloDespesaParcelada) {
-        var response = service.validaDespesaParceladaExistente(dsTituloDespesaParcelada, AuthUtils.getUserId());
+        var response = business.validaDespesaParceladaExistente(dsTituloDespesaParcelada, AuthUtils.getUserId());
         return ResponseEntity.ok(response);
     }
 
     @GetMapping(path = "/despesasParceladas/obterCalculoValorTotalPendente", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StringResponse> obterCalculoValorTotalDespesaParceladaPendente() {
-        var response = service.obterCalculoValorTotalDespesaParceladaPendente(AuthUtils.getUserId());
+        var response = business.obterCalculoValorTotalDespesaParceladaPendente(AuthUtils.getUserId());
         return ResponseEntity.ok(response);
     }
 
     @GetMapping(path = "/despesasParceladas/obterRelatorioDespesasParceladasQuitacao", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StringResponse> obterRelatorioDespesasParceladasQuitacao(
             @RequestParam("idDespesa") Integer idDespesa) {
-        var response = service.obterRelatorioDespesasParceladasQuitacao(idDespesa, null, AuthUtils.getUserId());
+        var response = business.obterRelatorioDespesasParceladasQuitacao(idDespesa, null, AuthUtils.getUserId());
         return ResponseEntity.ok(response);
     }
 
     @GetMapping(path = "/despesasParceladas/obterParcelasParaAmortizacao", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ParcelasDAO>> obterParcelasParaAmortizacao(
             @RequestParam("idDespesaParcelada") Integer idDespesaParcelada) {
-        var response = service.obterParcelasParaAmortizacao(idDespesaParcelada, AuthUtils.getUserId());
+        var response = business.obterParcelasParaAmortizacao(idDespesaParcelada, AuthUtils.getUserId());
         return ResponseEntity.ok(response);
     }
 
     @PostMapping(path = "/despesasParceladas/gravar", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> gravarDespesasParceladas(@RequestBody DespesaParceladaDAO request) {
-        service.gravarDespesaParcelada(request);
+        business.gravarDespesaParcelada(request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping(path = "/despesasParceladas/parcelas/gravar", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> gravarParcela(@RequestBody List<ParcelasDAO> request) {
-        service.gravarParcela(request);
+        business.gravarParcela(request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping(path = "/despesasParceladas/parcelas/excluir", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> excluirParcela(@RequestBody List<ParcelasDAO> request) {
-        service.deleteParcela(request);
+        business.deleteParcela(request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -124,7 +124,7 @@ public class DespesasParceladasController {
     public ResponseEntity<Void> excluirDespesaParcelada(
             @RequestParam("idDespesaParcelada") Integer idDespesaParcelada) {
 
-        service.deleteDespesaParcelada(idDespesaParcelada, AuthUtils.getUserId());
+        business.deleteDespesaParcelada(idDespesaParcelada, AuthUtils.getUserId());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -133,7 +133,7 @@ public class DespesasParceladasController {
             @RequestParam("idDespesaParcelada") Integer idDespesaParcelada,
             @RequestParam("valorQuitacao") String valorQuitacao) {
 
-        service.quitarDespesaParcelada(idDespesaParcelada, AuthUtils.getUserId(), valorQuitacao);
+        business.quitarDespesaParcelada(idDespesaParcelada, AuthUtils.getUserId(), valorQuitacao);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -141,7 +141,7 @@ public class DespesasParceladasController {
     public ResponseEntity<DetalheDespesasParceladasResponse> obterDespesaParceladaPorID(
             @RequestParam("idDespesaParcelada") Integer idDespesaParcelada,
             @RequestParam("isPendentes") Boolean isPendentes) {
-        var response = service.obterDespesaParceladaPorID(idDespesaParcelada, AuthUtils.getUserId(), isPendentes);
+        var response = business.obterDespesaParceladaPorID(idDespesaParcelada, AuthUtils.getUserId(), isPendentes);
         return ResponseEntity.ok(response);
     }
 
@@ -151,7 +151,7 @@ public class DespesasParceladasController {
             @RequestParam("valorParcela") String valorParcela,
             @RequestParam("qtdeParcelas") Integer qtdeParcelas,
             @RequestParam("dataReferencia") String dataReferencia) {
-        var response = service.gerarFluxoParcelasV2(idDespesaParcelada, valorParcela, qtdeParcelas, dataReferencia, AuthUtils.getUserId());
+        var response = business.gerarFluxoParcelasV2(idDespesaParcelada, valorParcela, qtdeParcelas, dataReferencia, AuthUtils.getUserId());
         return ResponseEntity.ok(response);
     }
 }

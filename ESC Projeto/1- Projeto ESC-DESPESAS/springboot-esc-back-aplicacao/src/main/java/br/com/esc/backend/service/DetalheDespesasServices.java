@@ -680,7 +680,7 @@ public class DetalheDespesasServices {
         return despesa;
     }
 
-    private Boolean isDetalheDespesaExistente(DetalheDespesasMensaisDAO detalhe) {
+    public Boolean isDetalheDespesaExistente(DetalheDespesasMensaisDAO detalhe) {
         var filtro = DetalheDespesasMensaisDAO.builder()
                 .idDespesa(detalhe.getIdDespesa())
                 .idDetalheDespesa(detalhe.getIdDetalheDespesa())
@@ -692,7 +692,7 @@ public class DetalheDespesasServices {
         return !isNull(detalheDespesasMensais);
     }
 
-    private Boolean isDespesaExistente(DespesasMensaisDAO despesa) {
+    public Boolean isDespesaExistente(DespesasMensaisDAO despesa) {
         var despesaMensal = repository.getDespesaMensalPorFiltro(despesa.getIdDespesa(), despesa.getIdDetalheDespesa(), despesa.getIdFuncionario());
         return !isNull(despesaMensal);
     }

@@ -1,18 +1,11 @@
 package br.com.esc.backend.config;
 
-import br.com.esc.backend.repository.AplicacaoRepository;
-import br.com.esc.backend.repository.AutenticacaoRepository;
-import br.com.esc.backend.repository.BackupRepository;
-import br.com.esc.backend.service.*;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 public class AplicacaoConfiguration {
 
-    @Bean
+    /*@Bean
     @Primary
     ImportarLancamentosServices importarLancamentosServices(AplicacaoRepository repository, DetalheDespesasServices detalheDespesasServices, ConsolidacaoService consolidacaoService) {
         return new ImportarLancamentosServices(repository, detalheDespesasServices, consolidacaoService);
@@ -76,4 +69,6 @@ public class AplicacaoConfiguration {
     ConsolidacaoService consolidacaoService(AplicacaoRepository repository) {
         return new ConsolidacaoService(repository);
     }
+
+     */
 }

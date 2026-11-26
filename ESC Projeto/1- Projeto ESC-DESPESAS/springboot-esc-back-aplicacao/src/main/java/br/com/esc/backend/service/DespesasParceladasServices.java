@@ -31,31 +31,39 @@ public class DespesasParceladasServices {
     private NumberFormat formatter = new DecimalFormat("000");
 
     public DetalheDespesasParceladasResponse obterDespesaParceladaPorFiltros(Integer idDespesa, String nomeDespesaParcelada, Integer idFuncionario, Boolean isPendentes) {
-        var despesa = repository.getDespesaParcelada(idDespesa, nomeDespesaParcelada, idFuncionario);
-        var parcelas = repository.getParcelasPorFiltro(despesa.getIdDespesaParcelada(), null, null, idFuncionario, opcaoVisualizacaoParcelas(isPendentes, despesa.getIdDespesaParcelada()));
-        var idDespesaParcelada = despesa.getIdDespesaParcelada();
-        var valorDespesa = repository.getValorTotalDespesaParcelada(idDespesaParcelada, idFuncionario);
-        var qtdeParcelas = parcelas.size();
-        var nomeDespesaVinculada = (isEmpty(repository.getDespesaParceladaVinculada(idDespesaParcelada, idFuncionario))
-                ? "Despesa disponivel para importação*" :
-                DESPESA_VINCULADA_A.concat(repository.getDespesaParceladaVinculada(idDespesaParcelada, idFuncionario)));
-        var parcelaAtual = repository.getParcelaAtual(idDespesaParcelada, idFuncionario);
+        try {
+            var despesa = repository.getDespesaParcelada(idDespesa, nomeDespesaParcelada, idFuncionario);
+            var parcelas = repository.getParcelasPorFiltro(despesa.getIdDespesaParcelada(), null, null, idFuncionario, opcaoVisualizacaoParcelas(isPendentes, despesa.getIdDespesaParcelada()));
+            var idDespesaParcelada = despesa.getIdDespesaParcelada();
+            var valorDespesa = repository.getValorTotalDespesaParcelada(idDespesaParcelada, idFuncionario);
+            var qtdeParcelas = parcelas.size();
+            var nomeDespesaVinculada = (isEmpty(repository.getDespesaParceladaVinculada(idDespesaParcelada, idFuncionario))
+                    ? "Despesa disponivel para importação*" :
+                    DESPESA_VINCULADA_A.concat(repository.getDespesaParceladaVinculada(idDespesaParcelada, idFuncionario)));
+            var parcelaAtual = repository.getParcelaAtual(idDespesaParcelada, idFuncionario);
 
-        return DetalheDespesasParceladasResponse.builder()
-                .idDespesaParcelada(idDespesaParcelada)
-                .qtdeParcelas(qtdeParcelas)
-                .qtdeParcelasPagas(repository.getQuantidadeParcelasPagas(idDespesaParcelada, idFuncionario))
-                .parcelaAtual(isEmpty(parcelaAtual) ? "000/" + qtdeParcelas : parcelaAtual.concat("/") + qtdeParcelas)
-                .valorParcelaAtual(this.obterValorDespesa(idDespesaParcelada, 0, mesAnoAtual(), idFuncionario).getData())
-                .valorTotalDespesa(valorDespesa)
-                .valorTotalDespesaPaga(repository.getValorTotalDespesaParceladaPaga(idDespesaParcelada, idFuncionario))
-                .valorTotalDespesaPendente(repository.getValorTotalDespesaParceladaPendente(idDespesaParcelada, idFuncionario))
-                .isDespesaComParcelaAmortizada(repository.getValidaDespesaParceladaAmortizacao(idDespesaParcelada, idFuncionario))
-                .isDespesaComParcelaAdiantada(repository.getValidaParcelaAdiada(idDespesaParcelada, null, idFuncionario))
-                .despesaVinculada(nomeDespesaVinculada)
-                .despesas(despesa)
-                .parcelas(parcelas)
-                .build();
+            return DetalheDespesasParceladasResponse.builder()
+                    .idDespesaParcelada(idDespesaParcelada)
+                    .qtdeParcelas(qtdeParcelas)
+                    .qtdeParcelasPagas(repository.getQuantidadeParcelasPagas(idDespesaParcelada, idFuncionario))
+                    .parcelaAtual(isEmpty(parcelaAtual) ? "000/" + qtdeParcelas : parcelaAtual.concat("/") + qtdeParcelas)
+                    .valorParcelaAtual(this.obterValorDespesa(idDespesaParcelada, 0, mesAnoAtual(), idFuncionario).getData())
+                    .valorTotalDespesa(valorDespesa)
+                    .valorTotalDespesaPaga(repository.getValorTotalDespesaParceladaPaga(idDespesaParcelada, idFuncionario))
+                    .valorTotalDespesaPendente(repository.getValorTotalDespesaParceladaPendente(idDespesaParcelada, idFuncionario))
+                    .isDespesaComParcelaAmortizada(repository.getValidaDespesaParceladaAmortizacao(idDespesaParcelada, idFuncionario))
+                    .isDespesaComParcelaAdiantada(repository.getValidaParcelaAdiada(idDespesaParcelada, null, idFuncionario))
+                    .despesaVinculada(nomeDespesaVinculada)
+                    .despesas(despesa)
+                    .parcelas(parcelas)
+                    .build();
+        } catch (NullPointerException e) {
+            log.error("Despesa parcelada não encontrada para os filtros informados: {}", e.getMessage());
+            return null;
+        } catch (Exception e) {
+            log.error("Erro ao obter despesa parcelada por filtros: {}", e.getMessage());
+            throw new RuntimeException("Erro ao obter despesa parcelada por filtros: " + e.getMessage());
+        }
     }
 
     public void isDespesaParceladaExcluida(Integer idDespesa, Integer idDetalheDespesa, Integer idOrdem, Integer idFuncionario) throws Exception {
@@ -121,7 +129,7 @@ public class DespesasParceladasServices {
 
         //Valida se existe parcelas gravadas, caso sim, trata a logica como reprocessamento
         Integer iParcelasAtual = repository.getQuantidadeParcelas(idDespesaParcelada, idFuncionario);
-        if (iParcelasAtual.compareTo(0) == 1) {
+        if (iParcelasAtual.compareTo(0) > 0) {
             bNovoProcessamento = false;
             if (qtdeParcelas.compareTo(iParcelasAtual) <= 0) {
                 throw new ErroNegocioException("Não é permitido uma quantidade de parcelas inferior ou igual a " + iParcelasAtual + " Parcela(s).");

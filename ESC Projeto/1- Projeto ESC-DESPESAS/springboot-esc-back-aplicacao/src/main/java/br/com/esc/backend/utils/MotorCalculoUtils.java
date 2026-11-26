@@ -66,7 +66,8 @@ public class MotorCalculoUtils {
             return BigDecimal.ZERO;
         }
 
-        return BigDecimal.valueOf(dValor);
+        return BigDecimal.valueOf(dValor)
+                .setScale(2, RoundingMode.HALF_UP);
     }
 
     public static String convertDecimalToString(BigDecimal valor) {

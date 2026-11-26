@@ -2,6 +2,8 @@ package br.com.esc.backend.business;
 
 import br.com.esc.backend.config.RetryOnDeadlock;
 import br.com.esc.backend.domain.*;
+import br.com.esc.backend.exception.ErroNegocioException;
+import br.com.esc.backend.facade.DespesasParceladasFacade;
 import br.com.esc.backend.repository.AplicacaoRepository;
 import br.com.esc.backend.service.ConsolidacaoService;
 import br.com.esc.backend.service.DetalheDespesasServices;
@@ -12,9 +14,14 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static br.com.esc.backend.service.DetalheDespesasServices.isDetalheDespesaTipoRelatorio;
+import static br.com.esc.backend.utils.MotorCalculoUtils.convertStringToDecimal;
 import static br.com.esc.backend.utils.MotorCalculoUtils.convertToMoedaBR;
 
 @Component
@@ -26,6 +33,7 @@ public class DetalheDespesasBusiness {
     private final DetalheDespesasServices detalheDespesasServices;
     private final ConsolidacaoService consolidacaoService;
     private final ChaveKeyBusiness chaveKeyBusiness;
+    private final DespesasParceladasFacade despesasParceladasFacade;
 
     @SneakyThrows
     public DetalheDespesasMensaisDTO obterDetalheDespesaMensal(Integer idDespesa, Integer idDetalheDespesa, Integer idFuncionario, String ordem, Boolean visualizarConsolidacao) {
@@ -81,8 +89,13 @@ public class DetalheDespesasBusiness {
         for (DetalheDespesasMensaisRequest detalhe : request) {
             DetalheDespesasMensaisDAO dao = new DetalheDespesasMensaisDAO();
             BeanUtils.copyProperties(dao, detalhe);
-            detalheDespesasServices.gravarDetalheDespesasMensais(dao);
 
+            if (this.isProcessarDespesaParceladaAutomatica(detalhe)) {
+                log.info("Geracao de despesa parcelada automatica realizada com sucesso. Detalhe despesa mensal não será gravado por este fluxo.");
+                continue;
+            }
+
+            detalheDespesasServices.gravarDetalheDespesasMensais(dao);
             if (detalhe.getIdConsolidacao() > 0) {
                 for (DetalheDespesasMensaisDAO despesa : consolidacaoService.obterListDetalheDespesasConsolidadas(detalhe.getIdDespesa(), detalhe.getIdDetalheDespesa(), detalhe.getIdConsolidacao(), detalhe.getIdFuncionario())) {
                     var despesaRequest = detalheDespesasServices.parserToDetalheDespesasConsolidadas(detalhe, despesa);
@@ -218,5 +231,85 @@ public class DetalheDespesasBusiness {
     public List<PagamentoDespesasRequest> obterDetalheDespesasParaDesfazerPagamento(LancamentosMensaisDAO despesa) {
         return detalheDespesasServices.obterDetalheDespesasParaDesfazerPagamento(despesa);
     }
+
+    private boolean isProcessarDespesaParceladaAutomatica(DetalheDespesasMensaisRequest request) {
+        log.info("Validando se a despesa informada possui indicador de geração de despesa parcelada automática.");
+
+        var descricao = request.getDsDescricao();
+
+        if (descricao == null || descricao.isBlank()) {
+            log.warn("Descricao vazia ou nula, Caracteriza uma possivel linha de separacao.");
+            return false;
+        }
+
+        var mesAno = repository.getMesAnoPorID(request.getIdDespesa(), request.getIdFuncionario());
+
+        //Valida se contem divisao na descrição da despesa.
+        Pattern divisaoValor = Pattern.compile("^/(\\d+)X\\s*(.*)$");
+        Matcher divisor = divisaoValor.matcher(descricao.trim());
+
+        if (divisor.matches()) {
+            var quantidade = Integer.parseInt(divisor.group(1));
+            var titulo = divisor.group(2).trim();
+
+            if (quantidade <= 0) {
+                throw new ErroNegocioException("A quantidade de parcelas informada é inválida.");
+            }
+
+            var valorTotal = convertStringToDecimal(request.getVlTotal());
+
+            var valorParcela = valorTotal.divide(
+                    BigDecimal.valueOf(quantidade),
+                    2,
+                    RoundingMode.HALF_UP
+            );
+
+            var despesaRequest = DespesasParceladasRequest.builder()
+                    .nomeDespesaParcelada(titulo)
+                    .vigenciaInicial(mesAno)
+                    .qtdeParcelas(quantidade)
+                    .valorParcela(convertToMoedaBR(valorParcela))
+                    .detalheDespesasMensais(request)
+                    .build();
+
+            log.info("Despesas: valor total dividido em {} parcelas.", quantidade);
+            log.info("Valor de cada parcela: {}", valorParcela);
+
+            despesasParceladasFacade
+                    .processarDespesaParceladaAutomatica(despesaRequest);
+
+            return true;
+        }
+
+        // Valida se contem quantidade de parcelas na descrição da despesa.
+        Pattern quantidadeParcelas = Pattern.compile("^(\\d+)X\\s*(.*)$");
+        Matcher parcelas = quantidadeParcelas.matcher(descricao.trim());
+
+        if (parcelas.matches()) {
+            int quantidade = Integer.parseInt(parcelas.group(1));
+            String titulo = parcelas.group(2).trim();
+
+            log.info("Quantidade de parcelas: {}", quantidade);
+            log.info("Descrição sem quantidade: {}", titulo);
+
+            DespesasParceladasRequest despesaRequest =
+                    DespesasParceladasRequest.builder()
+                            .nomeDespesaParcelada(titulo)
+                            .vigenciaInicial(mesAno)
+                            .qtdeParcelas(quantidade)
+                            .valorParcela(request.getVlTotal())
+                            .detalheDespesasMensais(request)
+                            .build();
+
+            despesasParceladasFacade
+                    .processarDespesaParceladaAutomatica(despesaRequest);
+
+            return true;
+        }
+
+        log.info("Não foi localizado indicador de parcelas na descrição. Texto completo: {}", descricao);
+        return false;
+    }
+
 }
 
